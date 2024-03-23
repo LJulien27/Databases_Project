@@ -4,6 +4,10 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import './Background.css';
+import image from './images/Hotel1.jpg'; // adjust the path if necessary
+import image2 from './images/Hotel2.jpg'; // adjust the path if necessary
+import image3 from './images/Hotel3.jpg'; // adjust the path if necessary
 
 const Login = () => {
     const navigate = useNavigate();
@@ -44,91 +48,103 @@ const Login = () => {
             alert('Try again');
         }
     };
+
+    const bgStyle = {
+        backgroundImage: `url(${image})`,
+        backgroundSize: 'cover',
+        height: '100vh', // this makes the div take up the full height of the viewport
+    };
     
     return (
-        <div>
-            <h1>Welcome to (hotelSiteName)</h1>
-            <Button variant="primary" onClick={handleShowClient}>
-                Client Sign in
-            </Button>
+        <div className='bg-fade-wrapper'>
+            <div className="bg-fade" />
+            <div className="bg-fade" />
+            <div className="bg-fade" />
+                    
+            <div className="text-over-image">
+                <h1>Welcome to (hotelSiteName)</h1>
+                <Button variant="primary" onClick={handleShowClient}>
+                    Client Sign in
+                </Button>
 
-            <Modal show={showClient} onHide={handleCloseClient}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Client Sign In</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Email address</Form.Label>
-                            <Form.Control
-                                type="email"
-                                placeholder="name@example.com"
-                                autoFocus
-                                value={signin}
-                                onChange={e => setSignin(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group
-                        className="mb-3"
-                        controlId="exampleForm.ControlTextarea1"
-                        >
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={handleSignInClient}>
-                        Sign In
-                    </Button>
-                    <Button variant="primary" onClick={handleCloseClient}>
-                        Sign Up
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                <Modal show={showClient} onHide={handleCloseClient}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Client Sign In</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Email address</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    placeholder="name@example.com"
+                                    autoFocus
+                                    value={signin}
+                                    onChange={e => setSignin(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group
+                            className="mb-3"
+                            controlId="exampleForm.ControlTextarea1"
+                            >
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" onClick={handleSignInClient}>
+                            Sign In
+                        </Button>
+                        <Button variant="primary" onClick={handleCloseClient}>
+                            Sign Up
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
-            <Button variant="primary" onClick={handleShowEmployee}>
-                Employee Sign in
-            </Button>
+                <Button variant="primary" onClick={handleShowEmployee}>
+                    Employee Sign in
+                </Button>
 
-            <Modal show={showEmployee} onHide={handleCloseEmployee}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Employee Sign In</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Employee ID</Form.Label>
-                            <Form.Control
-                                type="text"
-                                autoFocus
-                                value={signin}
-                                onChange={e => setSignin(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group
-                        className="mb-3"
-                        controlId="exampleForm.ControlTextarea1"
-                        >
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={handleSignInEmployee}>
-                        Sign In
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                <Modal show={showEmployee} onHide={handleCloseEmployee}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Employee Sign In</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Employee ID</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    autoFocus
+                                    value={signin}
+                                    onChange={e => setSignin(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group
+                            className="mb-3"
+                            controlId="exampleForm.ControlTextarea1"
+                            >
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" onClick={handleSignInEmployee}>
+                            Sign In
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </div>
         </div>
 
     );
