@@ -1,4 +1,13 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import {useState, useEffect} from 'react';
+import Login from './Login';
+import Client from './Client';
+import Employee from './Employee';
+import NoPage from './Nopage';
 
 function App() {
   const [hotels, setHotels] = useState(false);
@@ -70,6 +79,15 @@ function App() {
     getHotel();
   }, []);
   return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />}/>
+        <Route path="/Client" element={<Client />}/>
+        <Route path="/Employee" element={<Employee />}/>
+        <Route path="*" element={<NoPage />}/>
+      </Routes>
+    </Router>
+    /*
     <div>
       {hotels ? hotels : 'There is no hotel data available'}
       <br />
@@ -79,6 +97,7 @@ function App() {
       <br />
       <button onClick={updateHotel}>Update hotel</button>
     </div>
+    */
   );
 }
 export default App;
