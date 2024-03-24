@@ -127,28 +127,28 @@ const getHotels = async () => {
     };
 
     //delete a client
-  const deleteClient = (id) => {
+  const deleteClient = (sin) => {
     return new Promise(function (resolve, reject) {
       pool.query(
-        "DELETE FROM clients WHERE id = $1",
+        "DELETE FROM clients WHERE sin = $1",
         [id],
         (error, results) => {
           if (error) {
             reject(error);
           }
-          resolve(`Client deleted with ID: ${id}`);
+          resolve(`Client deleted with sin: ${sin}`);
         }
       );
     });
   };
 
   //update a client record
-  const updateClient = (id, body) => {
+  const updateClient = (body) => {
     return new Promise(function (resolve, reject) {
       const { fname, lname, sin, address, r_date } = body;
       pool.query(
-        "UPDATE clients SET fname = $1, lname = $2, sin = $3, address = $4, r_date = $5 WHERE id = $6 RETURNING *",
-        [fname, lname, sin, address, r_date, id],
+        "UPDATE clients SET fname = $1, lname = $2, sin = $3, address = $4, r_date = $5 WHERE sin = $3 RETURNING *",
+        [fname, lname, sin, address, r_date],
         (error, results) => {
           if (error) {
             reject(error);
@@ -191,7 +191,7 @@ const getHotels = async () => {
       const { name, address, num_hotels } = body;
       pool.query(
         "INSERT INTO chains (name, address, num_hotels) VALUES ($1, $2, $3) RETURNING *",
-        [name, address],
+        [name, address, num_hotels],
         (error, results) => {
           if (error) {
             reject(error);
@@ -209,28 +209,28 @@ const getHotels = async () => {
   };
 
   //delete a chain
-  const deleteChain = (id) => {
+  const deleteChain = (name) => {
     return new Promise(function (resolve, reject) {
       pool.query(
-        "DELETE FROM chains WHERE id = $1",
-        [id],
+        "DELETE FROM chains WHERE name = $1",
+        [name],
         (error, results) => {
           if (error) {
             reject(error);
           }
-          resolve(`Chain deleted with ID: ${id}`);
+          resolve(`Chain deleted with name: ${name}`);
         }
       );
     });
   };
 
   //update a chain
-  const updateChain = (id, body) => {
+  const updateChain = (body) => {
     return new Promise(function (resolve, reject) {
       const { name, address, num_hotels } = body;
       pool.query(
-        "UPDATE chains SET name = $1, address = $2, num_hotels = $3 WHERE id = $4 RETURNING *",
-        [name, address, num_hotels, id],
+        "UPDATE chains SET name = $1, address = $2, num_hotels = $3 WHERE id = $1 RETURNING *",
+        [name, address, num_hotels],
         (error, results) => {
           if (error) {
             reject(error);
@@ -311,7 +311,7 @@ const getHotels = async () => {
     return new Promise(function (resolve, reject) {
       const { id, hotel_id, price, capacity, view, problems, expanding } = body;
       pool.query(
-        "UPDATE rooms SET id = $1, hotel_id = $2, price = $3, capacity = $4, view = $5, problems = $6, expanding = $7 WHERE id = $8 RETURNING *",
+        "UPDATE rooms SET id = $1, hotel_id = $2, price = $3, capacity = $4, view = $5, problems = $6, expanding = $7 WHERE id = $1 RETURNING *",
         [id, hotel_id, price, capacity, view, problems, expanding],
         (error, results) => {
           if (error) {
@@ -372,28 +372,29 @@ const getHotels = async () => {
   };
 
   //delete a reservation
-  const deleteReservation = (id) => {
+  const deleteReservation = (body) => {
     return new Promise(function (resolve, reject) {
+      const { client_sin, id_room } = body;
       pool.query(
-        "DELETE FROM reservations WHERE id = $1",
-        [id],
+        "DELETE FROM reservations WHERE client_sin = $1 AND id_room = $2",
+        [client_sin, id_room],
         (error, results) => {
           if (error) {
             reject(error);
           }
-          resolve(`Reservation deleted with ID: ${id}`);
+          resolve(`Reservation deleted with room id: ${id_room} and client sin: ${client_sin}`);
         }
       );
     });
   };
 
   //update a reservation
-  const updateReservation = (id, body) => {
+  const updateReservation = (body) => {
     return new Promise(function (resolve, reject) {
       const { client_sin, id_room, s_date, e_date } = body;
       pool.query(
-        "UPDATE reservations SET client_sin = $1, id_room = $2, s_date = $3, e_date = $4 WHERE id = $5 RETURNING *",
-        [client_sin, id_room, s_date, e_date, id],
+        "UPDATE reservations SET client_sin = $1, id_room = $2, s_date = $3, e_date = $4 WHERE client_sin = $1 AND id_room = $2 RETURNING *",
+        [client_sin, id_room, s_date, e_date],
         (error, results) => {
           if (error) {
             reject(error);
@@ -456,16 +457,16 @@ const getHotels = async () => {
 
 
   //delete an employee
-  const deleteEmployee = (id) => {
+  const deleteEmployee = (sin) => {
     return new Promise(function (resolve, reject) {
       pool.query(
-        "DELETE FROM employees WHERE id = $1",
-        [id],
+        "DELETE FROM employees WHERE sin = $1",
+        [sin],
         (error, results) => {
           if (error) {
             reject(error);
           }
-          resolve(`Employee deleted with ID: ${id}`);
+          resolve(`Employee deleted with sin: ${sin}`);
         }
       );
     });
@@ -473,12 +474,12 @@ const getHotels = async () => {
 
 
   //update an employee
-  const updateEmployee = (id, body) => {
+  const updateEmployee = (body) => {
     return new Promise(function (resolve, reject) {
       const { f_name, l_name, sin, address, role, hotel_id } = body;
       pool.query(
-        "UPDATE employees SET f_name = $1, l_name = $2, sin = $3, address = $4, role = $5, hotel_id = $6 WHERE id = $7 RETURNING *",
-        [f_name, l_name, sin, address, role, hotel_id, id],
+        "UPDATE employees SET f_name = $1, l_name = $2, sin = $3, address = $4, role = $5, hotel_id = $6 WHERE sin = $3 RETURNING *",
+        [f_name, l_name, sin, address, role, hotel_id],
         (error, results) => {
           if (error) {
             reject(error);
@@ -540,16 +541,17 @@ const getHotels = async () => {
 
 
   //delete a rental
-  const deleteRental = (id) => {
+  const deleteRental = (body) => {
     return new Promise(function (resolve, reject) {
+      const { client_sin, id_room } = body;
       pool.query(
-        "DELETE FROM rentals WHERE id = $1",
-        [id],
+        "DELETE FROM rentals WHERE client_sin = $1 AND id_room = $2",
+        [client_sin, id_room],
         (error, results) => {
           if (error) {
             reject(error);
           }
-          resolve(`Rental deleted with ID: ${id}`);
+          resolve(`Rental deleted with room ID: ${id_room} and client SIN: ${client_sin}`);
         }
       );
     });
@@ -557,12 +559,12 @@ const getHotels = async () => {
 
 
   //update a rental
-  const updateRental = (id, body) => {
+  const updateRental = (body) => {
     return new Promise(function (resolve, reject) {
       const { client_sin, id_room, s_date, e_date, } = body;
       pool.query(
-        "UPDATE rentals SET client_sin = $1, id_room = $2, s_date = $3, e_date = $4 WHERE id = $5 RETURNING *",
-        [client_sin, id_room, s_date, e_date, id],
+        "UPDATE rentals SET client_sin = $1, id_room = $2, s_date = $3, e_date = $4 WHERE client_sin = $1 AND id_room = $2 RETURNING *",
+        [client_sin, id_room, s_date, e_date],
         (error, results) => {
           if (error) {
             reject(error);
@@ -624,16 +626,16 @@ const getHotels = async () => {
 
 
   //delete a commodity
-  const deleteCommodity = (id) => {
+  const deleteCommodity = (id_room) => {
     return new Promise(function (resolve, reject) {
       pool.query(
-        "DELETE FROM commodities WHERE id = $1",
-        [id],
+        "DELETE FROM commodities WHERE id_room = $1",
+        [id_room],
         (error, results) => {
           if (error) {
             reject(error);
           }
-          resolve(`Commodity deleted with ID: ${id}`);
+          resolve(`Commodity deleted with room ID: ${id_room}`);
         }
       );
     });
@@ -641,12 +643,12 @@ const getHotels = async () => {
 
 
   //update a commodity
-  const updateCommodity = (id, body) => {
+  const updateCommodity = (body) => {
     return new Promise(function (resolve, reject) {
       const { id_room, tv, ac, fridge, laundry } = body;
       pool.query(
-        "UPDATE commodities SET id_room = $1, tv = $2, ac = $3, fridge = $4, laundry = $5 WHERE id = $6 RETURNING *",
-        [id_room, tv, ac, fridge, laundry, id],
+        "UPDATE commodities SET id_room = $1, tv = $2, ac = $3, fridge = $4, laundry = $5 WHERE id_room = $1 RETURNING *",
+        [id_room, tv, ac, fridge, laundry],
         (error, results) => {
           if (error) {
             reject(error);
@@ -707,16 +709,17 @@ const getHotels = async () => {
 
 
   //delete a phonenumber
-  const deletePhonenumber = (id) => {
+  const deletePhonenumber = (body) => {
     return new Promise(function (resolve, reject) {
+      const { chain_name, hotel_id } = body;
       pool.query(
-        "DELETE FROM phonebank WHERE id = $1",
-        [id],
+        "DELETE FROM phonebank WHERE chain_name = $1 OR hotel_id = $2",
+        [chain_name, hotel_id],
         (error, results) => {
           if (error) {
             reject(error);
           }
-          resolve(`Phonenumber deleted with ID: ${id}`);
+          resolve(`Phonenumber deleted`);
         }
       );
     });
@@ -724,12 +727,12 @@ const getHotels = async () => {
 
   
   //update a phonenumber
-  const updatePhonenumber = (id, body) => {
+  const updatePhonenumber = (body) => {
     return new Promise(function (resolve, reject) {
       const { chain_name, hotel_id, phone_number } = body;
       pool.query(
-        "UPDATE phonebank SET chain_name = $1, hotel_id = $2, phone_number = $3 WHERE id = $4 RETURNING *",
-        [chain_name, hotel_id, phone_number, id],
+        "UPDATE phonebank SET chain_name = $1, hotel_id = $2, phone_number = $3 WHERE chain_name = $1 OR hotel_id = $2 RETURNING *",
+        [chain_name, hotel_id, phone_number],
         (error, results) => {
           if (error) {
             reject(error);
@@ -789,11 +792,12 @@ const getHotels = async () => {
 
 
     //delete an email address
-  const deleteEmail = (id) => {
+  const deleteEmail = (body) => {
     return new Promise(function (resolve, reject) {
+      const { chain_name, hotel_id } = body;
       pool.query(
-        "DELETE FROM mailbank WHERE id = $1",
-        [id],
+        "DELETE FROM mailbank WHERE chain_name = $1 OR hotel_id = $2",
+        [chain_name, hotel_id],
         (error, results) => {
           if (error) {
             reject(error);
@@ -806,12 +810,12 @@ const getHotels = async () => {
 
 
   //update an email address
-  const updateEmail = (id, body) => {
+  const updateEmail = (body) => {
     return new Promise(function (resolve, reject) {
       const { chain_name, hotel_id, email } = body;
       pool.query(
-        "UPDATE mailbank SET chain_name = $1, hotel_id = $2, email = $3 WHERE id = $4 RETURNING *",
-        [chain_name, hotel_id, email, id],
+        "UPDATE mailbank SET chain_name = $1, hotel_id = $2, email = $3 WHERE chain_name = $1 OR hotel_id = $2 RETURNING *",
+        [chain_name, hotel_id, email],
         (error, results) => {
           if (error) {
             reject(error);
