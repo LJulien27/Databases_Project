@@ -5,9 +5,6 @@ import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import './Background.css';
-import image from './images/Hotel1.jpg'; // adjust the path if necessary
-import image2 from './images/Hotel2.jpg'; // adjust the path if necessary
-import image3 from './images/Hotel3.jpg'; // adjust the path if necessary
 
 const Login = () => {
     const navigate = useNavigate();
@@ -18,25 +15,43 @@ const Login = () => {
 
     const [showClient, setShowClient] = useState(false);
 
-    const handleCloseClient = () => setShowClient(false);
+    const handleCloseClient = () => {
+        setShowClient(false);
+        setErrorSigninClient("");
+        setSignin("");
+        setPassword("");
+    }
     const handleShowClient = () => setShowClient(true);
 
     const [showEmployee, setShowEmployee] = useState(false);
 
-    const handleCloseEmployee = () => setShowEmployee(false);
+    const handleCloseEmployee = () => {
+        setShowEmployee(false);
+        setErrorSigninEmployee("");
+        setSignin("");
+        setPassword("");
+    }
     const handleShowEmployee = () => setShowEmployee(true);
+
+    const [showClientSignUp, setShowClientSignUp] = useState(false);
+
+    const handleCloseClientSignUp = () => setShowClientSignUp(false);
+    const handleShowClientSignUp = () => setShowClientSignUp(true);
 
 
     const [signin, setSignin] = useState('');
     const [password, setPassword] = useState('');
+    const [errorSigninClient, setErrorSigninClient] = useState("");
+    const [errorSigninEmployee, setErrorSigninEmployee] = useState("");
 
     // Modify handleCloseClient to check login
     const handleSignInClient = () => {
         const client = clients.find(client => client.email === signin && client.password === password);
         if (client) {
             navigate('/Client');
+            setErrorSigninClient("");
         } else {
-            alert('Try again');
+            setErrorSigninClient("Wrong email or password.");
         }
     };
 
@@ -44,17 +59,12 @@ const Login = () => {
         const employee = employees.find(employee => employee.employeeID === signin && employee.password === password);
         if (employee) {
             navigate('/Employee');
+            setErrorSigninEmployee("");
         } else {
-            alert('Try again');
+            setErrorSigninEmployee("Wrong Employee ID or password");
         }
     };
 
-    const bgStyle = {
-        backgroundImage: `url(${image})`,
-        backgroundSize: 'cover',
-        height: '100vh', // this makes the div take up the full height of the viewport
-    };
-    
     return (
         <div className='bg-fade-wrapper'>
             <div className="bg-fade" />
@@ -97,14 +107,63 @@ const Login = () => {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
+                        {errorSigninClient && <p style={{ color: 'red' }}>{errorSigninClient}</p>}
                         <Button variant="primary" onClick={handleSignInClient}>
                             Sign In
                         </Button>
-                        <Button variant="primary" onClick={handleCloseClient}>
+                        <Button variant="primary" onClick={() => { handleCloseClient(); handleShowClientSignUp(); }}>
                             Sign Up
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+                <Modal show={showClientSignUp} onHide={handleCloseClientSignUp}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Client Sign Up</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Email address</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    placeholder="name@example.com"
+                                    autoFocus
+                                    value={signin}
+                                    onChange={e => setSignin(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group
+                            className="mb-3"
+                            controlId="exampleForm.ControlTextarea1"
+                            >
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group
+                            className="mb-3"
+                            controlId="exampleForm.ControlTextarea1"
+                            >
+                                <Form.Label>Confirm Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    //value={password}
+                                    //onChange={e => setPassword(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" onClick={handleCloseClientSignUp}>
+                            Sign Up
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
 
                 <Button variant="primary" onClick={handleShowEmployee}>
                     Employee Sign in
@@ -139,6 +198,7 @@ const Login = () => {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
+                        {errorSigninEmployee && <p style={{ color: 'red' }}>{errorSigninEmployee}</p>}
                         <Button variant="primary" onClick={handleSignInEmployee}>
                             Sign In
                         </Button>
@@ -146,7 +206,6 @@ const Login = () => {
                 </Modal>
             </div>
         </div>
-
     );
 };
 
