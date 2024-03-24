@@ -72,7 +72,7 @@ const Login = () => {
             <div className="bg-fade" />
                     
             <div className="text-over-image">
-                <h1>Welcome to (hotelSiteName)</h1>
+                <h1 style={{ textShadow: '2px 2px 10px rgba(0, 0, 0, 2.5)' }}>Welcome to (hotelSiteName)</h1>
                 <Button variant="primary" onClick={handleShowClient}>
                     Client Sign in
                 </Button>

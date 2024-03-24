@@ -7,7 +7,7 @@ import {useState, useEffect} from 'react';
 import Login from './Login';
 import Client from './Client';
 import Employee from './Employee';
-import NoPage from './Nopage';
+import NoPage from './NoPage';
 
 function App() {
   const [hotels, setHotels] = useState(false);
