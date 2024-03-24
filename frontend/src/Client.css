@@ -1,0 +1,9 @@
+.search-bar {
+    position: relative;
+}
+
+.top-right-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
