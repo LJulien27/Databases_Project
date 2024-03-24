@@ -13,7 +13,7 @@ function App() {
   const [hotels, setHotels] = useState(false);
 
   function getHotel() {
-    fetch('http://localhost:3001')
+    fetch('http://localhost:3001/hotels')
       .then(response => {
         return response.text();
       })
