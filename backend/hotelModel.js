@@ -70,7 +70,7 @@ const getHotels = async () => {
       const { name, address, rooms, rating } = body;
       pool.query(
         "UPDATE hotels SET name = $1, address = $2, rooms = $3, rating = $4 WHERE id = $5 RETURNING *",
-        [name, address, id],
+        [name, address, rooms, rating],
         (error, results) => {
           if (error) {
             reject(error);
@@ -107,10 +107,10 @@ const getHotels = async () => {
   //create a new client record
   const createClient = (body) => {
     return new Promise(function (resolve, reject) {
-      const { fname, lname, sin, address, r_date } = body;
+      const { f_name, l_name, sin, address, r_date, password } = body;
       pool.query(
-        "INSERT INTO clients (fname, lname, sin, address, r_date) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [fname, lname, sin, address, r_date],
+        "INSERT INTO clients (f_name, l_name, sin, address, r_date, password) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [f_name, l_name, sin, address, r_date, password],
         (error, results) => {
           if (error) {
             reject(error);
@@ -145,10 +145,10 @@ const getHotels = async () => {
   //update a client record
   const updateClient = (body) => {
     return new Promise(function (resolve, reject) {
-      const { fname, lname, sin, address, r_date } = body;
+      const { fname, lname, sin, address, r_date, password } = body;
       pool.query(
-        "UPDATE clients SET fname = $1, lname = $2, sin = $3, address = $4, r_date = $5 WHERE sin = $3 RETURNING *",
-        [fname, lname, sin, address, r_date],
+        "UPDATE clients SET fname = $1, lname = $2, sin = $3, address = $4, r_date = $5, password = $6 WHERE sin = $3 RETURNING *",
+        [fname, lname, sin, address, r_date, password],
         (error, results) => {
           if (error) {
             reject(error);

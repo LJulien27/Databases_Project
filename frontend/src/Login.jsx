@@ -3,10 +3,39 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Background.css';
 
 const Login = () => {
+
+    const [clientsSQL, setClients] = useState(false);
+    function getClients() {
+        fetch('http://localhost:3001/clients')
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            setClients(data);
+        });
+    }
+
+    function createClient(f_name, l_name, sin, address, r_date, password) {
+        fetch('http://localhost:3001/clients', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({f_name, l_name, sin, address, r_date, password}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                alert(data);
+                getClients();
+            });
+    }
+    
     const navigate = useNavigate();
 
     const clients = [{"email": "liamjulien@gmail.com", "password": "12345"}]
@@ -34,15 +63,64 @@ const Login = () => {
     const handleShowEmployee = () => setShowEmployee(true);
 
     const [showClientSignUp, setShowClientSignUp] = useState(false);
+    const [signUpError, setSignUpError] = useState(null);
 
     const handleCloseClientSignUp = () => setShowClientSignUp(false);
-    const handleShowClientSignUp = () => setShowClientSignUp(true);
+    const handleShowClientSignUp = () => {
+        setShowClientSignUp(true);
+        setF_name('');
+        setL_name('');
+        setSignUpEmail('');
+        setSignUpSIN('');
+        setSignUpPassword('');
+        setSignUpConPassword('');
+    }
+    const handleClientSignUp = () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        // Email regex
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; 
+        // Minimum eight characters, at least one letter and one number
+        const sinRegex = /^\d{9}$/; 
+        //SIN are 9 numbers
 
+        if (!emailRegex.test(signUpEmail)) {
+            setSignUpError('Invalid email address');
+            return;
+        }
+        
+        if (!sinRegex.test(signUpSIN)) {
+            setSignUpError('SIN are 9 numbers');
+            return;
+        }
+
+        if (!passwordRegex.test(signUpPassword)) {
+            setSignUpError('Password must contain 8 digits containing atleast a letter and a number');
+            return;
+        }
+        if (signUpPassword !== signUpConPassword){
+            setSignUpError('Your passwords dont match');
+            return;
+        }
+
+        createClient(signUpF_name, signUpL_name, parseInt(signUpSIN), signUpEmail, signUpDate, signUpPassword);
+        navigate('/Client');
+        setShowClientSignUp(false);
+        setSignUpError(null);
+    }
 
     const [signin, setSignin] = useState('');
     const [password, setPassword] = useState('');
     const [errorSigninClient, setErrorSigninClient] = useState("");
     const [errorSigninEmployee, setErrorSigninEmployee] = useState("");
+
+    const [signUpF_name, setF_name] = useState('');
+    const [signUpL_name, setL_name] = useState('');
+    const [signUpEmail, setSignUpEmail] = useState('');
+    const [signUpSIN, setSignUpSIN] = useState('');
+    const [signUpDate, setSignUpDate] = useState(new Date().toISOString().slice(0,10));
+    const [signUpPassword, setSignUpPassword] = useState('');
+    const [signUpConPassword, setSignUpConPassword] = useState('');
+
 
     // Modify handleCloseClient to check login
     const handleSignInClient = () => {
@@ -124,13 +202,37 @@ const Login = () => {
                     <Modal.Body>
                         <Form>
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>First name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    autoFocus
+                                    value={signUpF_name}
+                                    onChange={e => setF_name(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Last name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={signUpL_name}
+                                    onChange={e => setL_name(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                 <Form.Label>Email address</Form.Label>
                                 <Form.Control
                                     type="email"
                                     placeholder="name@example.com"
-                                    autoFocus
-                                    value={signin}
-                                    onChange={e => setSignin(e.target.value)}
+                                    value={signUpEmail}
+                                    onChange={e => setSignUpEmail(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Enter your SIN</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={signUpSIN}
+                                    onChange={e => setSignUpSIN(e.target.value)}
                                 />
                             </Form.Group>
                             <Form.Group
@@ -140,8 +242,8 @@ const Login = () => {
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control
                                     type="password"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
+                                    value={signUpPassword}
+                                    onChange={e => setSignUpPassword(e.target.value)}
                                 />
                             </Form.Group>
                             <Form.Group
@@ -151,14 +253,17 @@ const Login = () => {
                                 <Form.Label>Confirm Password</Form.Label>
                                 <Form.Control
                                     type="password"
-                                    //value={password}
-                                    //onChange={e => setPassword(e.target.value)}
+                                    value={signUpConPassword}
+                                    onChange={e => setSignUpConPassword(e.target.value)}
                                 />
                             </Form.Group>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="primary" onClick={handleCloseClientSignUp}>
+                        {signUpError && <p style={{ color: 'red' }}>{signUpError}</p>}
+                        <Button 
+                        variant="primary" 
+                        onClick={handleClientSignUp}>
                             Sign Up
                         </Button>
                     </Modal.Footer>

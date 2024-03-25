@@ -25,12 +25,14 @@ function App() {
   function createHotel() {
     let name = prompt('Enter hotel name');
     let address = prompt('Enter hotel address');
+    let rooms = prompt("Enter amount of rooms");
+    let rating = prompt('Enter the rating');
     fetch('http://localhost:3001/hotels', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({name, address}),
+      body: JSON.stringify({name, address, rooms, rating}),
     })
       .then(response => {
         return response.text();
@@ -79,6 +81,7 @@ function App() {
     getHotel();
   }, []);
   return (
+    
     <Router>
       <Routes>
         <Route path="/" element={<Login />}/>
