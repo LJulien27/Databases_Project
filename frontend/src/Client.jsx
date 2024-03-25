@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { InputGroup, FormControl, Button, Dropdown, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Client.css';
 
 const Client = () => {
     const [showModal, setShowModal] = useState(false);
+    const [checkInDate, setCheckInDate] = useState(null);
+    const [checkOutDate, setCheckOutDate] = useState(null);
 
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
@@ -56,10 +60,15 @@ const Client = () => {
                             <Dropdown.Item href="#/action-5">Room 5</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <FormControl
-                        placeholder="Check in"
-                        aria-label="Check in"
-                        aria-describedby="basic-addon1"
+                    <DatePicker
+                        selected={checkInDate}
+                        onChange={date => setCheckInDate(date)}
+                        placeholderText="Check In"
+                    />
+                    <DatePicker
+                        selected={checkOutDate}
+                        onChange={date => setCheckOutDate(date)}
+                        placeholderText="Check Out"
                     />
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">My Rentals</Dropdown.Toggle>
