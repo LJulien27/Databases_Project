@@ -28,6 +28,24 @@ const Client = () => {
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
 
+    const handleCheckInChange = (date) => {
+        // Ensure checkInDate is not after checkOutDate
+        if (checkOutDate && date >= checkOutDate) {
+            alert('Check in date must be before check out date');
+            return; // Do not update state
+        }
+        setCheckInDate(date);
+    }
+
+    const handleCheckOutChange = (date) => {
+        // Ensure checkOutDate is not before checkInDate
+        if (checkInDate && date <= checkInDate) {
+            alert('Check out date must be after check in date');
+            return; // Do not update state
+        }
+        setCheckOutDate(date);
+    }
+
     const handleRatingClick = (option) => {
         setSelectedRating(option);
     }
@@ -137,15 +155,15 @@ const Client = () => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <DatePicker
-                        selected={checkInDate}
-                        onChange={date => setCheckInDate(date)}
-                        placeholderText="Check In"
-                    />
-                    <DatePicker
-                        selected={checkOutDate}
-                        onChange={date => setCheckOutDate(date)}
-                        placeholderText="Check Out"
-                    />
+                selected={checkInDate}
+                onChange={handleCheckInChange}
+                placeholderText="Check In"
+            />
+            <DatePicker
+                selected={checkOutDate}
+                onChange={handleCheckOutChange}
+                placeholderText="Check Out"
+            />
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">{selectedCapacity}</Dropdown.Toggle>
                         <Dropdown.Menu>
@@ -221,6 +239,7 @@ const Client = () => {
                     <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
+            <h2>Room Results</h2>
         </div>
     );
 };
