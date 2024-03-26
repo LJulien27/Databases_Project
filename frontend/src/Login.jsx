@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './Background.css';
 
-const Login = () => {
+const Login = ({loggedIn, setLoggedIn}) => {
 
     const [clientsSQL, setClients] = useState(null);
     function getClients() {
@@ -115,6 +115,7 @@ const Login = () => {
 
         createClient(signUpF_name, signUpL_name, parseInt(signUpSIN), signUpEmail, signUpDate, signUpPassword);
         navigate('/Client');
+        setLoggedIn(1);
         setShowClientSignUp(false);
         setSignUpError(null);
     }
@@ -139,6 +140,7 @@ const Login = () => {
         const client = clientsSQL.find(client => client.address === signin && client.password === password);
         if (client) {
             navigate('/Client');
+            setLoggedIn(1);
             setErrorSigninClient("");
         } else {
             setErrorSigninClient("Wrong email or password.");
@@ -150,6 +152,7 @@ const Login = () => {
         const employee = employeesSQL.find(employee => employee.sin === parseInt(signin) && employee.password === password);
         if (employee) {
             navigate('/Employee');
+            setLoggedIn(2);
             setErrorSigninEmployee("");
         } else {
             setErrorSigninEmployee("Wrong Employee ID or password.");
@@ -157,9 +160,6 @@ const Login = () => {
     };
 
 
-    useEffect(() => {
-        getRooms();
-    }, []);
     return (
         <div className='bg-fade-wrapper'>
             <div className="bg-fade" />

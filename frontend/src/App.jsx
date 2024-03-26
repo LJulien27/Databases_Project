@@ -11,6 +11,7 @@ import NoPage from './NoPage';
 
 function App() {
   const [hotels, setHotels] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(0);
 
   function getHotel() {
     fetch('http://localhost:3001/hotels')
@@ -81,9 +82,9 @@ function App() {
     
     <Router>
       <Routes>
-        <Route path="/" element={<Login />}/>
-        <Route path="/Client" element={<Client />}/>
-        <Route path="/Employee" element={<Employee />}/>
+        <Route path="/" element={<Login loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}/>
+        <Route path="/Client" element={<Client loggedIn={loggedIn}/>}/>
+        <Route path="/Employee" element={<Employee loggedIn={loggedIn}/>}/>
         <Route path="*" element={<NoPage />}/>
       </Routes>
     </Router>

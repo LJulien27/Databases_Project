@@ -7,13 +7,13 @@ import './Client.css';
 
 function CustomDropdownItem({ children, onClick }) {
     return (
-      <Dropdown.Item onClick={onClick}>
-        <span>{children}</span>
-      </Dropdown.Item>
+        <Dropdown.Item onClick={onClick}>
+            <span>{children}</span>
+        </Dropdown.Item>
     );
-  }
+}
 
-const Client = () => {
+const Client = ({loggedIn}) => {
     const [showModal, setShowModal] = useState(false);
     const [checkInDate, setCheckInDate] = useState(null);
     const [checkOutDate, setCheckOutDate] = useState(null);
@@ -65,16 +65,16 @@ const Client = () => {
     const fetchRentalsFromDatabase = async () => {
         try {
           // Make an API call to fetch data from your server
-          const response = await fetch('/api/rentals'); // Replace '/api/rentals' with your actual API endpoint
-          if (!response.ok) {
-            throw new Error('Failed to fetch rentals');
-          }
-          const data = await response.json();
-          setRentals(data); // Update state with fetched data
+            const response = await fetch('/api/rentals'); // Replace '/api/rentals' with your actual API endpoint
+            if (!response.ok) {
+                throw new Error('Failed to fetch rentals');
+            }
+            const data = await response.json();
+            setRentals(data); // Update state with fetched data
         } catch (error) {
-          console.error('Error fetching rentals:', error);
+            console.error('Error fetching rentals:', error);
         }
-      };
+    };
 
     const handleSearch = () => {
         // Your search logic goes here
@@ -90,6 +90,14 @@ const Client = () => {
             setSelectedOptions([...selectedOptions, option]);
         }
     };
+
+    if (loggedIn !== 1){
+        return (
+            <div>
+                Return to login page you are not logged in as a client
+            </div>
+        )
+    }
 
     return (
         <div>
