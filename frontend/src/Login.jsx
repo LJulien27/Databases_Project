@@ -8,11 +8,11 @@ import './Background.css';
 
 const Login = () => {
 
-    const [clientsSQL, setClients] = useState(false);
+    const [clientsSQL, setClients] = useState(null);
     function getClients() {
         fetch('http://localhost:3001/clients')
         .then(response => {
-            return response.text();
+            return response.json();
         })
         .then(data => {
             setClients(data);
@@ -35,10 +35,21 @@ const Login = () => {
                 getClients();
             });
     }
+
+    const [employeesSQL, setEmployees] = useState(null);
+    function getEmployees() {
+        fetch('http://localhost:3001/employees')
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            setEmployees(data);
+        });
+    }
     
     const navigate = useNavigate();
 
-    const clients = [{"email": "liamjulien@gmail.com", "password": "12345"}]
+    const clients = [{"address": "liamjulien@gmail.com", "password": "12345"}]
     const employees = [{"employeeID": "101", "password": "abcde"}]
 
 
@@ -124,7 +135,8 @@ const Login = () => {
 
     // Modify handleCloseClient to check login
     const handleSignInClient = () => {
-        const client = clients.find(client => client.email === signin && client.password === password);
+        getClients();
+        const client = clientsSQL.find(client => client.address === signin && client.password === password);
         if (client) {
             navigate('/Client');
             setErrorSigninClient("");
@@ -134,21 +146,26 @@ const Login = () => {
     };
 
     const handleSignInEmployee = () => {
-        const employee = employees.find(employee => employee.employeeID === signin && employee.password === password);
+        getEmployees();
+        const employee = employeesSQL.find(employee => employee.sin === parseInt(signin) && employee.password === password);
         if (employee) {
             navigate('/Employee');
             setErrorSigninEmployee("");
         } else {
-            setErrorSigninEmployee("Wrong Employee ID or password");
+            setErrorSigninEmployee("Wrong Employee ID or password.");
         }
     };
 
+
+    useEffect(() => {
+        getRooms();
+    }, []);
     return (
         <div className='bg-fade-wrapper'>
             <div className="bg-fade" />
             <div className="bg-fade" />
             <div className="bg-fade" />
-                    
+
             <div className="text-over-image">
                 <h1 style={{ textShadow: '2px 2px 10px rgba(0, 0, 0, 2.5)' }}>Welcome to (hotelSiteName)</h1>
                 <Button variant="primary" onClick={handleShowClient}>
