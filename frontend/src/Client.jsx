@@ -23,10 +23,12 @@ const Client = ({loggedIn}) => {
     const [selectedRating, setSelectedRating] = useState("Rating");
     const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
     const [selectedArea, setSelectedArea] = useState("Area");
+    const [selectedCategory, setSelectedCategory] = useState("Category");
 
     const [clientsSQL, setClients] = useState([]); // State for clients
     const [chainsSQL, setChains] = useState([]); // State for chains
     const [hotelsSQL, setHotels] = useState([]); // State for chains
+    const [roomsSQL, setRooms] = useState([]); // State for chains
     
 
     // useEffect for fetching clients data when component mounts
@@ -34,6 +36,7 @@ const Client = ({loggedIn}) => {
         getClients();
         getChains();
         getHotels();
+        getRooms();
     }, []);
 
     // Functions to fetch data
@@ -71,6 +74,17 @@ const Client = ({loggedIn}) => {
             });
     }
 
+    function getRooms() {
+        fetch('http://localhost:3001/rooms')
+            .then(response => response.json())
+            .then(data => {
+                setRooms(data);
+            })
+            .catch(error => {
+                console.error('Error fetching rooms:', error);
+            });
+    }
+
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
 
@@ -104,23 +118,9 @@ const Client = ({loggedIn}) => {
         setSelectedArea(option);
     }
 
-    useEffect(() => {
-        fetchRentalsFromDatabase();
-    }, []);
-
-    const fetchRentalsFromDatabase = async () => {
-        try {
-          // Make an API call to fetch data from your server
-            const response = await fetch('/api/rentals'); // Replace '/api/rentals' with your actual API endpoint
-            if (!response.ok) {
-                throw new Error('Failed to fetch rentals');
-            }
-            const data = await response.json();
-            setRentals(data); // Update state with fetched data
-        } catch (error) {
-            console.error('Error fetching rentals:', error);
-        }
-    };
+    const handleCategoryClick = (option) => {
+        setSelectedCategory(option);
+    }
 
     const handleSearch = () => {
         // Your search logic goes here
@@ -137,13 +137,13 @@ const Client = ({loggedIn}) => {
         }
     };
 
- //   if (loggedIn !== 1){
- //       return (
- //           <div>
- //               Return to login page you are not logged in as a client
- //           </div>
- //       )
- //       }
+    if (loggedIn !== 1){
+        return (
+            <div>
+                Return to login page you are not logged in as a client
+            </div>
+            )
+        }
 
     return (
         <div>
@@ -170,8 +170,8 @@ const Client = ({loggedIn}) => {
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">Hotel</Dropdown.Toggle>
-                        <Dropdown.Menu>
-                        {hotelsSQL.map(hotel => (
+                            <Dropdown.Menu>
+                            {hotelsSQL.map(hotel => (
                                 <div key={hotel.name}>
                                     <CustomDropdownItem onClick={() => handleOptionClick(hotel.name)} isChecked={selectedOptions.includes(hotel.name)}>
                                     {hotel.name}
@@ -216,6 +216,15 @@ const Client = ({loggedIn}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
+                        <Dropdown.Toggle variant="secondary">{selectedCategory}</Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 1")} isChecked={false}>Category 1</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 2")} isChecked={false}>Category 2</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 3")} isChecked={false}>Category 3</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Any")} isChecked={false}>Any</CustomDropdownItem>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">{selectedArea}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: 200 Square Ft")} isChecked={false}>200 Square Ft</CustomDropdownItem>
@@ -239,14 +248,11 @@ const Client = ({loggedIn}) => {
                     <Button variant="primary">Search</Button>
                 </InputGroup>
             </div>
-
             <Modal show={showModal} onHide={handleCloseModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>My Account</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* Display search results here */}
-                    {/* You can render dynamic content based on search results */}
                     <Card>
                         <Card.Body>
                             {clientsSQL.map(client => (
@@ -273,6 +279,13 @@ const Client = ({loggedIn}) => {
                 </Modal.Footer>
             </Modal>
             <h2>Room Results</h2>
+            {roomsSQL.map(room => (
+            <div key={room.id}>
+                <p>
+                <strong>Room ID:</strong> {room.id}
+                </p>
+            </div>
+            ))}
         </div>
     );
 };
