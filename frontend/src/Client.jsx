@@ -25,13 +25,16 @@ const Client = ({loggedIn}) => {
     const [selectedArea, setSelectedArea] = useState("Area");
 
     const [clientsSQL, setClients] = useState([]); // State for clients
+    const [chainsSQL, setChains] = useState([]); // State for chains
+    
 
     // useEffect for fetching clients data when component mounts
     useEffect(() => {
         getClients();
+        getChains();
     }, []);
 
-    // Function to fetch clients data
+    // Functions to fetch data
     function getClients() {
         fetch('http://localhost:3001/clients')
             .then(response => response.json())
@@ -41,6 +44,17 @@ const Client = ({loggedIn}) => {
             })
             .catch(error => {
                 console.error('Error fetching clients:', error);
+            });
+    }
+
+    function getChains() {
+        fetch('http://localhost:3001/chains')
+            .then(response => response.json())
+            .then(data => {
+                setChains(data);
+            })
+            .catch(error => {
+                console.error('Error fetching chains:', error);
             });
     }
 
@@ -111,13 +125,13 @@ const Client = ({loggedIn}) => {
         }
     };
 
-    if (loggedIn !== 1){
-        return (
-            <div>
-                Return to login page you are not logged in as a client
-            </div>
-        )
-        }
+ //   if (loggedIn !== 1){
+ //       return (
+ //           <div>
+ //               Return to login page you are not logged in as a client
+ //           </div>
+ //       )
+ //       }
 
     return (
         <div>
@@ -130,21 +144,13 @@ const Client = ({loggedIn}) => {
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">Chain</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Best Western')} isChecked={selectedOptions.includes('Best Western')}>
-                                Best Western
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Hilton')} isChecked={selectedOptions.includes('Hilton')}>
-                                Hilton
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Marriott')} isChecked={selectedOptions.includes('Marriott')}>
-                                Marriott
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('IHG')} isChecked={selectedOptions.includes('IHG')}>
-                                IHG
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Wyndham')} isChecked={selectedOptions.includes('Wyndham')}>
-                                Wyndham
-                            </CustomDropdownItem>
+                        {chainsSQL.map(chain => (
+                                <div key={chain.name}>
+                                    <CustomDropdownItem onClick={() => handleOptionClick(chain.name)} isChecked={selectedOptions.includes(chain.name)}>
+                                    {chain.name}
+                                    </CustomDropdownItem>
+                                </div>
+                            ))}
                             <CustomDropdownItem onClick={() => handleOptionClick('Select all')} isChecked={selectedOptions.includes('Select all')}>
                                 Select all
                             </CustomDropdownItem>
