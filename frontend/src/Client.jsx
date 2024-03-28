@@ -26,12 +26,14 @@ const Client = ({loggedIn}) => {
 
     const [clientsSQL, setClients] = useState([]); // State for clients
     const [chainsSQL, setChains] = useState([]); // State for chains
+    const [hotelsSQL, setHotels] = useState([]); // State for chains
     
 
     // useEffect for fetching clients data when component mounts
     useEffect(() => {
         getClients();
         getChains();
+        getHotels();
     }, []);
 
     // Functions to fetch data
@@ -58,6 +60,16 @@ const Client = ({loggedIn}) => {
             });
     }
 
+    function getHotels() {
+        fetch('http://localhost:3001/hotels')
+            .then(response => response.json())
+            .then(data => {
+                setHotels(data);
+            })
+            .catch(error => {
+                console.error('Error fetching hotels:', error);
+            });
+    }
 
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
@@ -159,30 +171,13 @@ const Client = ({loggedIn}) => {
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">Hotel</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Best Western')} isChecked={selectedOptions.includes('Best Western')}>
-                                Hotel 1
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Hilton')} isChecked={selectedOptions.includes('Hilton')}>
-                                Hotel 2
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Marriott')} isChecked={selectedOptions.includes('Marriott')}>
-                                Hotel 3
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('IHG')} isChecked={selectedOptions.includes('IHG')}>
-                                Hotel 4
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Wyndham')} isChecked={selectedOptions.includes('Wyndham')}>
-                                Hotel 5
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Best Western')} isChecked={selectedOptions.includes('Best Western')}>
-                                Hotel 6
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Hilton')} isChecked={selectedOptions.includes('Hilton')}>
-                                Hotel 7
-                            </CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleOptionClick('Marriott')} isChecked={selectedOptions.includes('Marriott')}>
-                                Hotel 8
-                            </CustomDropdownItem>
+                        {hotelsSQL.map(hotel => (
+                                <div key={hotel.name}>
+                                    <CustomDropdownItem onClick={() => handleOptionClick(hotel.name)} isChecked={selectedOptions.includes(hotel.name)}>
+                                    {hotel.name}
+                                    </CustomDropdownItem>
+                                </div>
+                            ))}
                             <CustomDropdownItem onClick={() => handleOptionClick('Select all')} isChecked={selectedOptions.includes('Select all')}>
                                 Select all
                             </CustomDropdownItem>
