@@ -256,10 +256,10 @@ const Client = ({loggedIn}) => {
                                         <strong>Address:</strong> {client.address}
                                     </Card.Text>
                                     <Card.Text>
-                                        <strong>NAS:</strong> {client.nas}
+                                        <strong>NAS:</strong> {client.sin}
                                     </Card.Text>
                                     <Card.Text>
-                                        <strong>Register Date:</strong> {client.register_date}
+                                        <strong>Register Date:</strong> {client.r_date}
                                     </Card.Text>
                                 </div>
                             ))}
