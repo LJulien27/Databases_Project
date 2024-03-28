@@ -24,6 +24,26 @@ const Client = ({loggedIn}) => {
     const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
     const [selectedArea, setSelectedArea] = useState("Area");
 
+    const [clientsSQL, setClients] = useState(null); // State for clients
+
+    // useEffect for fetching clients data when component mounts
+    useEffect(() => {
+        getClients();
+    }, []);
+
+    // Function to fetch clients data
+    function getClients() {
+        fetch('http://localhost:3001/clients')
+            .then(response => response.json())
+            .then(data => {
+                // Set clients data to state
+                setClients(data);
+            })
+            .catch(error => {
+                console.error('Error fetching clients:', error);
+            });
+    }
+
 
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
@@ -76,25 +96,6 @@ const Client = ({loggedIn}) => {
         }
     };
 
-    useEffect(() => {
-        getClients();
-    }, []);
-
-    const [clientsSQL, setClients] = useState(null);
-    function getClients() {
-        handleShowModal();
-        fetch('http://localhost:3001/clients')
-        .then(response => {
-            return response.json();
-        })
-        .then(data => {
-            const firstNames = data.map(client => client.f_name);
-        // Set the first names to state
-        setClients(firstNames);
-            setClients(data);
-        });
-    }
-
     const handleSearch = () => {
         // Your search logic goes here
         // For example, you can fetch search results from an API
@@ -116,12 +117,12 @@ const Client = ({loggedIn}) => {
                 Return to login page you are not logged in as a client
             </div>
         )
-    }
+        }
 
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" onClick={getClients}>My Account</Button>
+                <Button variant="secondary" onClick={handleSearch}>My Account</Button>
             </div>
             <div className="search-bar">
                 <h1>Welcome client!</h1>
@@ -246,7 +247,7 @@ const Client = ({loggedIn}) => {
                     {/* Display search results here */}
                     {/* You can render dynamic content based on search results */}
                     <Card>
-                    <Card.Body>
+                        <Card.Body>
                             {clientsSQL.map(client => (
                                 <div key={client.id}>
                                     <Card.Text>
