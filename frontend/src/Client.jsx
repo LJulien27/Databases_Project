@@ -24,7 +24,7 @@ const Client = ({loggedIn}) => {
     const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
     const [selectedArea, setSelectedArea] = useState("Area");
 
-    const [clientsSQL, setClients] = useState(null); // State for clients
+    const [clientsSQL, setClients] = useState([]); // State for clients
 
     // useEffect for fetching clients data when component mounts
     useEffect(() => {
