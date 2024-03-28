@@ -76,6 +76,25 @@ const Client = ({loggedIn}) => {
         }
     };
 
+    useEffect(() => {
+        getClients();
+    }, []);
+
+    const [clientsSQL, setClients] = useState(null);
+    function getClients() {
+        handleShowModal();
+        fetch('http://localhost:3001/clients')
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            const firstNames = data.map(client => client.f_name);
+        // Set the first names to state
+        setClients(firstNames);
+            setClients(data);
+        });
+    }
+
     const handleSearch = () => {
         // Your search logic goes here
         // For example, you can fetch search results from an API
@@ -102,7 +121,7 @@ const Client = ({loggedIn}) => {
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" onClick={handleSearch}>My Account</Button>
+                <Button variant="secondary" onClick={getClients}>My Account</Button>
             </div>
             <div className="search-bar">
                 <h1>Welcome client!</h1>
@@ -227,19 +246,23 @@ const Client = ({loggedIn}) => {
                     {/* Display search results here */}
                     {/* You can render dynamic content based on search results */}
                     <Card>
-                        <Card.Body>
-                            <Card.Text>
-                                <strong>Name:</strong> Charles Smith
-                            </Card.Text>
-                            <Card.Text>
-                                <strong>Address:</strong> 2314 Apollo Street
-                            </Card.Text>
-                            <Card.Text>
-                                <strong>NAS:</strong> 332-555-735
-                            </Card.Text>
-                            <Card.Text>
-                                <strong>Register Date:</strong> 08/10/2021
-                            </Card.Text>
+                    <Card.Body>
+                            {clientsSQL.map(client => (
+                                <div key={client.id}>
+                                    <Card.Text>
+                                        <strong>Name:</strong> {client.f_name}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Address:</strong> {client.address}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>NAS:</strong> {client.nas}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Register Date:</strong> {client.register_date}
+                                    </Card.Text>
+                                </div>
+                            ))}
                         </Card.Body>
                     </Card>
                 </Modal.Body>
