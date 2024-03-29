@@ -15,7 +15,8 @@ function CustomDropdownItem({ children, onClick }) {
 }
 
 const Client = ({loggedIn}) => {
-    const [showModal, setShowModal] = useState(false);
+    const [showMyAccountModal, setShowMyAccountModal] = useState(false);
+    const [showChainModal, setShowChainModal] = useState(false);
     const [showRoomModal, setShowRoomModal] = useState(false);
     const [checkInDate, setCheckInDate] = useState(null);
     const [checkOutDate, setCheckOutDate] = useState(null);
@@ -131,8 +132,8 @@ const Client = ({loggedIn}) => {
             });
     }
 
-    const handleCloseModal = () => setShowModal(false);
-    const handleShowModal = () => setShowModal(true);
+    const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
+    const handleShowMyAccountModal = () => setShowMyAccountModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
     const handleShowRoomModal = () => setShowRoomModal(true);
     const handleCloseChainModal = () => setShowChainModal(false);
@@ -192,11 +193,8 @@ const Client = ({loggedIn}) => {
         setSelectedReservation(option);
     }
 
-    const handleSearch = () => {
-        // Your search logic goes here
-        // For example, you can fetch search results from an API
-        // and then open the modal to display the results
-        handleShowModal();
+    const handleMyAccountClick = () => {
+        handleShowMyAccountModal();
     };
 
     const alertFunction = () => {
@@ -222,7 +220,7 @@ const Client = ({loggedIn}) => {
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" onClick={handleSearch}>My Account</Button>
+                <Button variant="secondary" onClick={handleMyAccountClick}>My Account</Button>
                 <Button variant="secondary" onClick={toggleDarkMode}>
                     {darkMode ? 'Light Mode' : 'Dark Mode'}
                 </Button>
@@ -333,29 +331,9 @@ const Client = ({loggedIn}) => {
                     <Button variant="primary">Search</Button>
                 </InputGroup>
             </div>
-            <Modal show={showModal} onHide={handleCloseModal}>
+            <Modal show={showMyAccountModal} onHide={handleCloseMyAccountModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>My Account</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Card>
-                        <Card.Body>
-                            {clientsSQL.map(client => (
-                                <div key={client.id}>
-                                    <p>TEST</p>
-                                </div>
-                            ))}
-                        </Card.Body>
-                    </Card>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseChainModal}>Close</Button>
-                </Modal.Footer>
-            </Modal>
-
-            <Modal show={showModal} onHide={handleCloseChainModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Chain</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Card>
@@ -380,10 +358,36 @@ const Client = ({loggedIn}) => {
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+                    <Button variant="secondary" onClick={handleCloseMyAccountModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
-
+            <Modal show={showChainModal} onHide={handleCloseChainModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chain</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            {chainsSQL.map(chain => (
+                                <div key={chain.name}>
+                                    <Card.Text>
+                                        <strong>Name:</strong> {chain.name}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Address:</strong> {chain.addres}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Nomber of hotels:</strong> {chain.num_hotels}
+                                    </Card.Text>
+                                </div>
+                            ))}
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseChainModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
             <h2>Room Results</h2>
             {roomsSQL.map(room => (
                 <div key={room.id}>
