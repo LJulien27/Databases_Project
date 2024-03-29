@@ -7,3 +7,9 @@
     top: 20px;
     right: 20px;
 }
+
+.dark-mode {
+    /* Define dark mode styles here */
+    background-color: #333;
+    color: #fff;
+}

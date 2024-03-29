@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { InputGroup, Button, Dropdown, Modal, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Client.css';
+import './Background.css';
 
 function CustomDropdownItem({ children, onClick }) {
     return (
@@ -19,6 +20,7 @@ const Client = ({loggedIn}) => {
     const [checkInDate, setCheckInDate] = useState(null);
     const [checkOutDate, setCheckOutDate] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
+    const [darkMode, setDarkMode] = useState(false);
 
     {/* Dropdown variables */}
     const [selectedChain, setSelectedChain] = useState("Chain");
@@ -27,12 +29,28 @@ const Client = ({loggedIn}) => {
     const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
     const [selectedArea, setSelectedArea] = useState("Area");
     const [selectedCategory, setSelectedCategory] = useState("Category");
+    const [selectedReservation, setSelectedReservation] = useState("Reservation");
 
-    const [clientsSQL, setClients] = useState([]); // State for clients
-    const [chainsSQL, setChains] = useState([]); // State for chains
-    const [hotelsSQL, setHotels] = useState([]); // State for chains
-    const [roomsSQL, setRooms] = useState([]); // State for chains
-    const [commoditiesSQL, setCommodities] = useState([]); // State for chains
+    const [clientsSQL, setClients] = useState([]);
+    const [chainsSQL, setChains] = useState([]);
+    const [hotelsSQL, setHotels] = useState([]);
+    const [roomsSQL, setRooms] = useState([]);
+    const [commoditiesSQL, setCommodities] = useState([]);
+    const [reservationsSQL, setReservations] = useState([]);
+
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+    };
+
+    useEffect(() => {
+        const body = document.body;
+        if (darkMode) {
+            body.classList.add('dark-mode');
+        } else {
+            body.classList.remove('dark-mode');
+        }
+    }, [darkMode]);
     
 
     // useEffect for fetching clients data when component mounts
@@ -42,6 +60,7 @@ const Client = ({loggedIn}) => {
         getHotels();
         getRooms();
         getCommodities();
+        getReservations();
     }, []);
 
     // Functions to fetch data
@@ -101,14 +120,31 @@ const Client = ({loggedIn}) => {
             });
     }
 
+    function getReservations() {
+        fetch('http://localhost:3001/reservations')
+            .then(response => response.json())
+            .then(data => {
+                setReservations(data);
+            })
+            .catch(error => {
+                console.error('Error fetching reservations:', error);
+            });
+    }
+
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
     const handleShowRoomModal = () => setShowRoomModal(true);
     const handleCloseChainModal = () => setShowChainModal(false);
     const handleShowChainModal = () => setShowChainModal(true);
-    const handleReserveModal = () => setReserveModal(false);
-    
+    const handleCloseReservationModal = () => setShowReservationModal(false);
+    const handleShowReservationModal = () => setShowReservationModal(true);
+
+    const handleReserveModal = () => {
+        // create reservation to be seen by client
+        alert("Success! Your room has been reserved.");
+        handleCloseRoomModal();
+    }
 
     const handleCheckInChange = (date) => {
         // Ensure checkInDate is not after checkOutDate
@@ -152,11 +188,19 @@ const Client = ({loggedIn}) => {
         setSelectedArea(option);
     }
 
+    const handleReservationClick = (option) => {
+        setSelectedReservation(option);
+    }
+
     const handleSearch = () => {
         // Your search logic goes here
         // For example, you can fetch search results from an API
         // and then open the modal to display the results
         handleShowModal();
+    };
+
+    const alertFunction = () => {
+        alert("alert test");
     };
 
     const handleOptionClick = (option) => {
@@ -179,25 +223,36 @@ const Client = ({loggedIn}) => {
         <div>
             <div className="my-account-button">
                 <Button variant="secondary" onClick={handleSearch}>My Account</Button>
+                <Button variant="secondary" onClick={toggleDarkMode}>
+                    {darkMode ? 'Light Mode' : 'Dark Mode'}
+                </Button>
+                <Button variant="primary" disabled>
+                    Disabled button test
+                </Button>
             </div>
             <div className="search-bar">
                 <h1>Welcome client!</h1>
                 <InputGroup className="mb-3">
-                    <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedChain}</Dropdown.Toggle>
-                        <Dropdown.Menu>
+                <Dropdown as={InputGroup.Append}>
+                    <Dropdown.Toggle variant="secondary">{selectedChain}</Dropdown.Toggle>
+                    <Dropdown.Menu>
                         {chainsSQL.map(chain => (
-                                <div key={chain.name}>
-                                    <CustomDropdownItem onClick={(handleShowChainModal) => handleChainClick(chain.name)} isChecked={selectedChain.includes(chain.name)}>
+                            <div key={chain.name}>
+                                <CustomDropdownItem onClick={() => handleChainClick(chain.name)} isChecked={selectedChain.includes(chain.name)}>
                                     {chain.name}
-                                    </CustomDropdownItem>
-                                </div>
-                            ))}
-                            <CustomDropdownItem onClick={() => handleChainClick('Select all')} isChecked={selectedChain.includes('Select all')}>
-                                Select all
-                            </CustomDropdownItem>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                                </CustomDropdownItem>
+                            </div>
+                        ))}
+                        <CustomDropdownItem isChecked={selectedChain.includes('Select all')}>
+                            <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleChainClick('Select all')}>
+                                <span style={{ marginRight: '10px' }}>Select all</span>
+                                <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleHelloButtonClick() }}>
+                                    Hello
+                                </button>
+                            </div>
+                        </CustomDropdownItem>
+                    </Dropdown.Menu>
+                </Dropdown>
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">{selectedHotel}</Dropdown.Toggle>
                             <Dropdown.Menu>
@@ -266,13 +321,13 @@ const Client = ({loggedIn}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">My Rentals</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary">{selectedReservation}</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => {}} isChecked={false}>Rental 1</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {}} isChecked={false}>Rental 2</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {}} isChecked={false}>Rental 3</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {}} isChecked={false}>Rental 4</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {}} isChecked={false}>Rental 5</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 1")} isChecked={false}>Reservation 1</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 2")} isChecked={false}>Reservation 2</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 3")} isChecked={false}>Reservation 3</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 4")} isChecked={false}>Reservation 4</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 5")} isChecked={false}>Reservation 5</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
                     <Button variant="primary">Search</Button>
