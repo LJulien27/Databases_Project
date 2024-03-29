@@ -15,11 +15,14 @@ function CustomDropdownItem({ children, onClick }) {
 
 const Client = ({loggedIn}) => {
     const [showModal, setShowModal] = useState(false);
+    const [showRoomModal, setShowRoomModal] = useState(false);
     const [checkInDate, setCheckInDate] = useState(null);
     const [checkOutDate, setCheckOutDate] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
 
     {/* Dropdown variables */}
+    const [selectedChain, setSelectedChain] = useState("Chain");
+    const [selectedHotel, setSelectedHotel] = useState("Hotel");
     const [selectedRating, setSelectedRating] = useState("Rating");
     const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
     const [selectedArea, setSelectedArea] = useState("Area");
@@ -87,6 +90,9 @@ const Client = ({loggedIn}) => {
 
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
+    const handleCloseRoomModal = () => setShowRoomModal(false);
+    const handleShowRoomModal = () => setShowRoomModal(true);
+    
 
     const handleCheckInChange = (date) => {
         // Ensure checkInDate is not after checkOutDate
@@ -106,20 +112,28 @@ const Client = ({loggedIn}) => {
         setCheckOutDate(date);
     }
 
-    const handleRatingClick = (option) => {
-        setSelectedRating(option);
+    const handleChainClick = (option) => {
+        setSelectedChain("Chain: " + option);
+    }
+
+    const handleHotelClick = (option) => {
+        setSelectedHotel("Hotel: " + option);
     }
 
     const handleCapacityClick = (option) => {
         setSelectedCapacity(option);
     }
 
-    const handleAreaClick = (option) => {
-        setSelectedArea(option);
+    const handleRatingClick = (option) => {
+        setSelectedRating(option);
     }
 
     const handleCategoryClick = (option) => {
         setSelectedCategory(option);
+    }
+
+    const handleAreaClick = (option) => {
+        setSelectedArea(option);
     }
 
     const handleSearch = () => {
@@ -137,13 +151,13 @@ const Client = ({loggedIn}) => {
         }
     };
 
-    if (loggedIn !== 1){
-        return (
-            <div>
-                Return to login page you are not logged in as a client
-            </div>
-            )
-        }
+ //   if (loggedIn !== 1){
+ //       return (
+  //          <div>
+  //              Return to login page you are not logged in as a client
+   //         </div>
+   //         )
+    //    }
 
     return (
         <div>
@@ -154,31 +168,31 @@ const Client = ({loggedIn}) => {
                 <h1>Welcome client!</h1>
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Chain</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary">{selectedChain}</Dropdown.Toggle>
                         <Dropdown.Menu>
                         {chainsSQL.map(chain => (
                                 <div key={chain.name}>
-                                    <CustomDropdownItem onClick={() => handleOptionClick(chain.name)} isChecked={selectedOptions.includes(chain.name)}>
+                                    <CustomDropdownItem onClick={() => handleChainClick(chain.name)} isChecked={selectedChain.includes(chain.name)}>
                                     {chain.name}
                                     </CustomDropdownItem>
                                 </div>
                             ))}
-                            <CustomDropdownItem onClick={() => handleOptionClick('Select all')} isChecked={selectedOptions.includes('Select all')}>
+                            <CustomDropdownItem onClick={() => handleChainClick('Select all')} isChecked={selectedChain.includes('Select all')}>
                                 Select all
                             </CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Hotel</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary">{selectedHotel}</Dropdown.Toggle>
                             <Dropdown.Menu>
                             {hotelsSQL.map(hotel => (
                                 <div key={hotel.name}>
-                                    <CustomDropdownItem onClick={() => handleOptionClick(hotel.name)} isChecked={selectedOptions.includes(hotel.name)}>
+                                    <CustomDropdownItem onClick={() => handleHotelClick(hotel.name)} isChecked={selectedHotel.includes(hotel.name)}>
                                     {hotel.name}
                                     </CustomDropdownItem>
                                 </div>
                             ))}
-                            <CustomDropdownItem onClick={() => handleOptionClick('Select all')} isChecked={selectedOptions.includes('Select all')}>
+                            <CustomDropdownItem onClick={() => handleHotelClick('Select all')} isChecked={selectedHotel.includes('Select all')}>
                                 Select all
                             </CustomDropdownItem>
                         </Dropdown.Menu>
@@ -280,12 +294,35 @@ const Client = ({loggedIn}) => {
             </Modal>
             <h2>Room Results</h2>
             {roomsSQL.map(room => (
-            <div key={room.id}>
-                <p>
-                <strong>Room ID:</strong> {room.id}
-                </p>
-            </div>
+                <div key={room.id}>
+                    <p>
+                        <strong>Room ID:</strong>{' '}
+                        <Button variant="primary" onClick={handleShowRoomModal}>{room.id}</Button> {/* Button to trigger modal */}
+                    </p>
+                </div>
             ))}
+            <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Room Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                {roomsSQL.map(room => (
+                <div key={room.id}>
+                    <p>
+                        <strong>Room ID:</strong>{' '}
+                        {room.id}
+                    </p>
+                    <p>
+                        <strong>Problems:</strong>{' '}
+                        {room.problems}
+                    </p>
+                </div>
+            ))}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
