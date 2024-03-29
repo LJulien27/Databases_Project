@@ -389,14 +389,30 @@ const Client = ({loggedIn}) => {
                 </Modal.Footer>
             </Modal>
             <h2>Room Results</h2>
-            {roomsSQL.map(room => (
-                <div key={room.id}>
-                    <p>
-                        <strong>Room ID:</strong>{' '}
-                        <Button variant="primary" onClick={handleShowRoomModal}>{room.id}</Button> {/* Button to trigger modal */}
-                    </p>
-                </div>
-            ))}
+            <div className="room-grid room-grid-flex">
+                {roomsSQL.map(room => (
+                    <Card style={{ width: '12rem' }}key={room.id} onClick={handleShowRoomModal} className="room-card">
+                        <Card.Img
+                            className="room-image"
+                            variant="top"
+                            src="/src/images/hotelRoom.png"
+                            alt="Room Image"
+                        />
+                        <Card.Body>
+                            <Card.Title>{room.id}</Card.Title>
+                            <Card.Text>
+                                <strong>Price:</strong> ${room.price}/Night
+                            </Card.Text>
+                            <Card.Text>
+                                <strong>Capacity:</strong> {room.capacity} Persons
+                            </Card.Text>
+                            {/* Add more information as needed */}
+                        </Card.Body>
+                        {/* Additional buttons or actions */}
+                        {/* <Button variant="primary">View Details</Button> */}
+                    </Card>
+                ))}
+            </div>
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Room Details</Modal.Title>
