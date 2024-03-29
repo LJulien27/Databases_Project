@@ -32,6 +32,7 @@ const Client = ({loggedIn}) => {
     const [chainsSQL, setChains] = useState([]); // State for chains
     const [hotelsSQL, setHotels] = useState([]); // State for chains
     const [roomsSQL, setRooms] = useState([]); // State for chains
+    const [commoditiesSQL, setCommodities] = useState([]); // State for chains
     
 
     // useEffect for fetching clients data when component mounts
@@ -40,6 +41,7 @@ const Client = ({loggedIn}) => {
         getChains();
         getHotels();
         getRooms();
+        getCommodities();
     }, []);
 
     // Functions to fetch data
@@ -88,10 +90,24 @@ const Client = ({loggedIn}) => {
             });
     }
 
+    function getCommodities() {
+        fetch('http://localhost:3001/commodities')
+            .then(response => response.json())
+            .then(data => {
+                setCommodities(data);
+            })
+            .catch(error => {
+                console.error('Error fetching commodities:', error);
+            });
+    }
+
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
     const handleShowRoomModal = () => setShowRoomModal(true);
+    const handleCloseChainModal = () => setShowChainModal(false);
+    const handleShowChainModal = () => setShowChainModal(true);
+    const handleReserveModal = () => setReserveModal(false);
     
 
     const handleCheckInChange = (date) => {
@@ -172,7 +188,7 @@ const Client = ({loggedIn}) => {
                         <Dropdown.Menu>
                         {chainsSQL.map(chain => (
                                 <div key={chain.name}>
-                                    <CustomDropdownItem onClick={() => handleChainClick(chain.name)} isChecked={selectedChain.includes(chain.name)}>
+                                    <CustomDropdownItem onClick={(handleShowChainModal) => handleChainClick(chain.name)} isChecked={selectedChain.includes(chain.name)}>
                                     {chain.name}
                                     </CustomDropdownItem>
                                 </div>
@@ -271,6 +287,26 @@ const Client = ({loggedIn}) => {
                         <Card.Body>
                             {clientsSQL.map(client => (
                                 <div key={client.id}>
+                                    <p>TEST</p>
+                                </div>
+                            ))}
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseChainModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showModal} onHide={handleCloseChainModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chain</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            {clientsSQL.map(client => (
+                                <div key={client.id}>
                                     <Card.Text>
                                         <strong>Name:</strong> {client.f_name}
                                     </Card.Text>
@@ -292,6 +328,7 @@ const Client = ({loggedIn}) => {
                     <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
+
             <h2>Room Results</h2>
             {roomsSQL.map(room => (
                 <div key={room.id}>
@@ -313,14 +350,39 @@ const Client = ({loggedIn}) => {
                         {room.id}
                     </p>
                     <p>
+                        <strong>Price:</strong>{' '}
+                        {"$" + room.prix + "/Night"}
+                    </p>
+                    <p>
+                        <strong>Capacity:</strong>{' '}
+                        {room.capacity + " Persons"}
+                    </p>
+                    <p>
+                        <strong>View:</strong>{' '}
+                        {room.view}
+                    </p>
+                    <p>
+                        <strong>Extent:</strong>{' '}
+                        {room.expanding}
+                    </p>
+                    <p>
                         <strong>Problems:</strong>{' '}
                         {room.problems}
+                    </p>
+                </div>
+            ))}
+            {commoditiesSQL.map(commoditie => (
+                <div key={commoditie.id_room}>
+                    <p>
+                        <strong>Commodities:</strong>{' '}
+                        {commoditie.id_room}
                     </p>
                 </div>
             ))}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
+                    <Button variant="primary" onClick={handleReserveModal}>Reserve</Button>
                 </Modal.Footer>
             </Modal>
         </div>
