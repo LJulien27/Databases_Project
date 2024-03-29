@@ -22,6 +22,7 @@ const Client = ({loggedIn, signedInAcc}) => {
     const [checkOutDate, setCheckOutDate] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [darkMode, setDarkMode] = useState(false);
+    const [showRoomResults, setShowRoomResults] = useState(false);
 
     {/* Dropdown variables */}
     const [selectedChain, setSelectedChain] = useState("Chain");
@@ -131,6 +132,27 @@ const Client = ({loggedIn, signedInAcc}) => {
                 console.error('Error fetching reservations:', error);
             });
     }
+
+    const handleSearchButtonClick = () => {
+        // Check if all required criteria are selected
+        if (
+            selectedChain === "Chain" ||
+            selectedHotel === "Hotel" ||
+            !checkInDate ||
+            !checkOutDate ||
+            selectedCapacity === "Capacity" ||
+            selectedRating === "Rating" ||
+            selectedCategory === "Category" ||
+            selectedArea === "Area"
+        ) {
+            // Alert if any required criteria is not selected
+            alert("Please enter all required criteria.");
+            return;
+        }
+    
+        // Set showRoomResults to true if all criteria are selected
+        setShowRoomResults(true);
+    };
 
     const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
     const handleShowMyAccountModal = () => setShowMyAccountModal(true);
@@ -328,7 +350,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                             <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 5")} isChecked={false}>Reservation 5</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Button variant="primary">Search</Button>
+                    <Button variant="primary" onClick={() => handleSearchButtonClick(true)}>Search</Button>
                 </InputGroup>
             </div>
             <Modal show={showMyAccountModal} onHide={handleCloseMyAccountModal}>
@@ -384,8 +406,10 @@ const Client = ({loggedIn, signedInAcc}) => {
                     <Button variant="secondary" onClick={handleCloseChainModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
-            <h2>Room Results</h2>
-            <div className="room-grid room-grid-flex">
+            {showRoomResults && selectedChain !== "Chain" && selectedHotel !== "Hotel" && checkInDate && checkOutDate && selectedCapacity !== "Capacity" && selectedRating !== "Rating" && selectedCategory !== "Category" && selectedArea !== "Area" && (
+                <div>
+                    <h2>Room Results</h2>
+                    <div className="room-grid room-grid-flex">
                 {roomsSQL.map(room => (
                     <Card style={{ width: '12rem' }}key={room.id} onClick={handleShowRoomModal} className="room-card">
                         <Card.Img
@@ -397,7 +421,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             <Card.Title>{room.id}</Card.Title>
                             <Card.Text>
-                                <strong>Price:</strong> ${room.price}/Night
+                                <strong>Price:</strong> ${room.prix}/Night
                             </Card.Text>
                             <Card.Text>
                                 <strong>Capacity:</strong> {room.capacity} Persons
@@ -408,7 +432,9 @@ const Client = ({loggedIn, signedInAcc}) => {
                         {/* <Button variant="primary">View Details</Button> */}
                     </Card>
                 ))}
+                </div>
             </div>
+            )}
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Room Details</Modal.Title>
