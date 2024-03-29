@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './Background.css';
 
-const Login = ({loggedIn, setLoggedIn}) => {
+const Login = ({setLoggedIn, setAccount}) => {
 
     const [clientsSQL, setClients] = useState(null);
     function getClients() {
@@ -31,7 +31,7 @@ const Login = ({loggedIn, setLoggedIn}) => {
                 return response.text();
             })
             .then(data => {
-                alert(data);
+                //alert(data);
                 getClients();
             });
     }
@@ -112,12 +112,21 @@ const Login = ({loggedIn, setLoggedIn}) => {
             setSignUpError('Your passwords dont match');
             return;
         }
+        /*const existingClient = clientsSQL.find(client => client.sin === parseInt(signUpSIN));
+        if (existingClient) {
+            setSignUpError('A client with this SIN already exists');
+            return;
+        }*/
 
         createClient(signUpF_name, signUpL_name, parseInt(signUpSIN), signUpEmail, signUpDate, signUpPassword);
+        const client = clientsSQL.find(client => client.sin === parseInt(signUpSIN));
+        
+        setAccount(client);
         navigate('/Client');
         setLoggedIn(1);
         setShowClientSignUp(false);
         setSignUpError(null);
+        
     }
 
     const [signin, setSignin] = useState('');
@@ -133,15 +142,15 @@ const Login = ({loggedIn, setLoggedIn}) => {
     const [signUpPassword, setSignUpPassword] = useState('');
     const [signUpConPassword, setSignUpConPassword] = useState('');
 
-
     // Modify handleCloseClient to check login
     const handleSignInClient = () => {
         getClients();
         const client = clientsSQL.find(client => client.address === signin && client.password === password);
         if (client) {
-            navigate('/Client');
+            setAccount(client);
             setLoggedIn(1);
             setErrorSigninClient("");
+            navigate('/Client');
         } else {
             setErrorSigninClient("Wrong email or password.");
         }
@@ -151,9 +160,10 @@ const Login = ({loggedIn, setLoggedIn}) => {
         getEmployees();
         const employee = employeesSQL.find(employee => employee.sin === parseInt(signin) && employee.password === password);
         if (employee) {
-            navigate('/Employee');
+            setAccount(employee);
             setLoggedIn(2);
             setErrorSigninEmployee("");
+            navigate('/Employee');
         } else {
             setErrorSigninEmployee("Wrong Employee ID or password.");
         }

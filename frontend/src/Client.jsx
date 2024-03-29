@@ -14,7 +14,7 @@ function CustomDropdownItem({ children, onClick }) {
     );
 }
 
-const Client = ({loggedIn}) => {
+const Client = ({loggedIn, signedInAcc}) => {
     const [showMyAccountModal, setShowMyAccountModal] = useState(false);
     const [showChainModal, setShowChainModal] = useState(false);
     const [showRoomModal, setShowRoomModal] = useState(false);
@@ -338,22 +338,18 @@ const Client = ({loggedIn}) => {
                 <Modal.Body>
                     <Card>
                         <Card.Body>
-                            {clientsSQL.map(client => (
-                                <div key={client.id}>
-                                    <Card.Text>
-                                        <strong>Name:</strong> {client.f_name}
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Address:</strong> {client.address}
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>NAS:</strong> {client.sin}
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Register Date:</strong> {client.r_date}
-                                    </Card.Text>
-                                </div>
-                            ))}
+                            <Card.Text>
+                                <strong>Name:</strong> {signedInAcc.f_name + ' ' + signedInAcc.l_name}
+                            </Card.Text>
+                            <Card.Text>
+                                <strong>Address:</strong> {signedInAcc.address}
+                            </Card.Text>
+                            <Card.Text>
+                                <strong>NAS:</strong> {signedInAcc.sin}
+                            </Card.Text>
+                            <Card.Text>
+                                <strong>Register Date:</strong> {signedInAcc.r_date}
+                            </Card.Text>
                         </Card.Body>
                     </Card>
                 </Modal.Body>
