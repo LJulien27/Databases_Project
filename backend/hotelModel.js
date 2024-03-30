@@ -372,9 +372,10 @@ const getHotels = async () => {
   };
 
   //delete a reservation
-  const deleteReservation = (body) => {
+  //THIS IS ALSO CHANGED FROM ORIGINAL AND WORKS NOW
+  const deleteReservation = (client_sin, id_room) => {
     return new Promise(function (resolve, reject) {
-      const { client_sin, id_room } = body;
+      //const { client_sin, id_room } = body;
       pool.query(
         "DELETE FROM reservations WHERE client_sin = $1 AND id_room = $2",
         [client_sin, id_room],
@@ -382,12 +383,12 @@ const getHotels = async () => {
           if (error) {
             reject(error);
           }
-          resolve(`Reservation deleted with room id: ${id_room} and client sin: ${client_sin}`);
+          resolve(`Reservation deleted with client sin: ${client_sin} and room id: ${id_room}`);
         }
       );
     });
   };
-
+  
   //update a reservation
   const updateReservation = (body) => {
     return new Promise(function (resolve, reject) {

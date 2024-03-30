@@ -108,24 +108,33 @@ const Login = ({setLoggedIn, setAccount}) => {
             setSignUpError('Password must contain 8 digits containing atleast a letter and a number');
             return;
         }
+
         if (signUpPassword !== signUpConPassword){
             setSignUpError('Your passwords dont match');
             return;
         }
-        /*const existingClient = clientsSQL.find(client => client.sin === parseInt(signUpSIN));
-        if (existingClient) {
+
+        const existingEmail = clientsSQL.find(client => client.address === signUpEmail);
+        if (existingEmail) {
+            setSignUpError('A client with this email already exists');
+            return;
+        }
+
+        const existingSin = clientsSQL.find(client => client.sin === parseInt(signUpSIN));
+        if (existingSin) {
             setSignUpError('A client with this SIN already exists');
             return;
-        }*/
+        }
 
         createClient(signUpF_name, signUpL_name, parseInt(signUpSIN), signUpEmail, signUpDate, signUpPassword);
-        const client = clientsSQL.find(client => client.sin === parseInt(signUpSIN));
-        
-        setAccount(client);
-        navigate('/Client');
+        setAccount({"f_name": signUpF_name, "l_name": signUpL_name,
+                    "sin":parseInt(signUpSIN), "address": signUpEmail,
+                    "r_date": signUpDate, "password": signUpPassword
+                    });
         setLoggedIn(1);
         setShowClientSignUp(false);
         setSignUpError(null);
+        navigate('/Client');
         
     }
 
@@ -144,7 +153,6 @@ const Login = ({setLoggedIn, setAccount}) => {
 
     // Modify handleCloseClient to check login
     const handleSignInClient = () => {
-        getClients();
         const client = clientsSQL.find(client => client.address === signin && client.password === password);
         if (client) {
             setAccount(client);
@@ -157,7 +165,6 @@ const Login = ({setLoggedIn, setAccount}) => {
     };
 
     const handleSignInEmployee = () => {
-        getEmployees();
         const employee = employeesSQL.find(employee => employee.sin === parseInt(signin) && employee.password === password);
         if (employee) {
             setAccount(employee);
@@ -169,7 +176,10 @@ const Login = ({setLoggedIn, setAccount}) => {
         }
     };
 
-
+    useEffect(() => {
+        getClients();
+        getEmployees();
+    }, []);
     return (
         <div className='bg-fade-wrapper'>
             <div className="bg-fade" />

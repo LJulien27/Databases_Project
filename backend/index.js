@@ -198,8 +198,9 @@ app.post('/reservations', (req, res) => {
   });
 });
 
+//THIS IS FIXED FROM ORIGINAL, POTENTIALLY BASE FUTURE REQUESTS OFF THIS
 app.delete('/reservations/:id_room/:client_sin', (req, res) => {
-  hotel_model.deleteReservation(req.body)
+  hotel_model.deleteReservation(req.params.client_sin, req.params.id_room)
   .then(response => {
     res.status(200).send(response);
   })
