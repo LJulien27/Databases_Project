@@ -38,6 +38,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [roomsSQL, setRooms] = useState([]);
     const [commoditiesSQL, setCommodities] = useState([]);
     const [reservationsSQL, setReservations] = useState([]);
+    const [rentalsSQL, setRentals] = useState([]);
 
 
     const toggleDarkMode = () => {
@@ -62,6 +63,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
         getRooms();
         getCommodities();
         getReservations();
+        getRentals();
     }, []);
 
     // Functions to fetch data
@@ -132,10 +134,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
-    function deleteReservation() {
-        let sin = parseInt(prompt('Enter client sin'));
-        let id = parseInt(prompt('Enter room id'));
-        fetch(`http://localhost:3001/reservations/${id}/${sin}`, {
+    function deleteReservation(client_sin, id_room) {
+        fetch(`http://localhost:3001/reservations/${id_room}/${client_sin}`, {
             method: 'DELETE',
             //body: {sin, id},
         })
@@ -148,7 +148,42 @@ const Employee = ({loggedIn, signedInAcc}) => {
         });
     }
 
-    //const handleReserveToRental = () => 
+    function getRentals() {
+        fetch('http://localhost:3001/rentals')
+            .then(response => response.json())
+            .then(data => {
+                setRentals(data);
+            })
+            .catch(error => {
+                console.error('Error fetching rentals:', error);
+            });
+    }
+
+    function createRental(client_sin, id_room, s_date, e_date) {
+        fetch('http://localhost:3001/rentals', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({client_sin, id_room, s_date, e_date}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                //alert(data);
+                getRentals();
+            });
+    }
+
+    const handleReserveToRental = () => {
+        let client_sin = parseInt(prompt('What is the clients sin'));
+        let id_room = parseInt(prompt('What is the room id'));
+        const reservation = reservationsSQL.find(reservation => reservation.client_sin === client_sin && reservation.id_room === id_room);
+        createRental(reservation.client_sin, reservation.id_room, reservation.s_date, reservation.e_date);
+        deleteReservation(client_sin, id_room);
+
+    }
 
     const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
     const handleShowMyAccountModal = () => setShowMyAccountModal(true);
@@ -351,7 +386,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </div>
 
             {JSON.stringify(reservationsSQL)}
-            <Button variant="success" onClick={deleteReservation}>turn into rental</Button>
+            <Button variant="success" onClick={handleReserveToRental}>turn into rental</Button>
+            {JSON.stringify(rentalsSQL)}
 
             <Modal show={showMyAccountModal} onHide={handleCloseMyAccountModal}>
                 <Modal.Header closeButton>
