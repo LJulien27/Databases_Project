@@ -5,6 +5,15 @@ import { InputGroup, Button, Dropdown, Modal, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Client.css';
 import './Background.css';
+import { Typography, Rating } from '@mui/material'
+import { useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Chip from '@mui/material/Chip';
 
 function CustomDropdownItem({ children, onClick }) {
     return (
@@ -242,7 +251,7 @@ const Client = ({loggedIn, signedInAcc}) => {
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" onClick={handleMyAccountClick}>My Account</Button>
+                <Button variant="secondary" onClick={handleShowChainModal}>My Account</Button>
                 <Button variant="secondary" onClick={toggleDarkMode}>
                     {darkMode ? 'Light Mode' : 'Dark Mode'}
                 </Button>
@@ -386,6 +395,8 @@ const Client = ({loggedIn, signedInAcc}) => {
                 <Modal.Body>
                     <Card>
                         <Card.Body>
+                            <Typography component="legend">Rating</Typography>
+                                <Rating name="read-only" value={4} readOnly />
                             {chainsSQL.map(chain => (
                                 <div key={chain.name}>
                                     <Card.Text>
