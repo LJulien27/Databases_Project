@@ -41,6 +41,8 @@ const Client = ({loggedIn, signedInAcc}) => {
     const [selectedArea, setSelectedArea] = useState("Area");
     const [selectedCategory, setSelectedCategory] = useState("Category");
     const [selectedReservation, setSelectedReservation] = useState("Reservation");
+    const [selectedRoom, setSelectedRoom] = useState(null);
+    
 
     const [clientsSQL, setClients] = useState([]);
     const [chainsSQL, setChains] = useState([]);
@@ -166,7 +168,10 @@ const Client = ({loggedIn, signedInAcc}) => {
     const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
     const handleShowMyAccountModal = () => setShowMyAccountModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
-    const handleShowRoomModal = () => setShowRoomModal(true);
+    const handleShowRoomModal = (room) => {
+        setSelectedRoom(room);
+        setShowRoomModal(true);
+    }
     const handleCloseChainModal = () => setShowChainModal(false);
     const handleShowChainModal = () => setShowChainModal(true);
     const handleCloseReservationModal = () => setShowReservationModal(false);
@@ -420,9 +425,9 @@ const Client = ({loggedIn, signedInAcc}) => {
             {showRoomResults && selectedChain !== "Chain" && selectedHotel !== "Hotel" && checkInDate && checkOutDate && selectedCapacity !== "Capacity" && selectedRating !== "Rating" && selectedCategory !== "Category" && selectedArea !== "Area" && (
                 <div>
                     <h2>Room Results</h2>
-                    <div className="room-grid room-grid-flex">
+            <div className="room-grid room-grid-flex">
                 {roomsSQL.map(room => (
-                    <Card style={{ width: '12rem' }}key={room.id} onClick={handleShowRoomModal} className="room-card">
+                    <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
                         <Card.Img
                             className="room-image"
                             variant="top"
@@ -451,42 +456,42 @@ const Client = ({loggedIn, signedInAcc}) => {
                     <Modal.Title>Room Details</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                {roomsSQL.map(room => (
-                <div key={room.id}>
-                    <p>
-                        <strong>Room ID:</strong>{' '}
-                        {room.id}
-                    </p>
-                    <p>
-                        <strong>Price:</strong>{' '}
-                        {"$" + room.prix + "/Night"}
-                    </p>
-                    <p>
-                        <strong>Capacity:</strong>{' '}
-                        {room.capacity + " Persons"}
-                    </p>
-                    <p>
-                        <strong>View:</strong>{' '}
-                        {room.view}
-                    </p>
-                    <p>
-                        <strong>Extent:</strong>{' '}
-                        {room.expanding}
-                    </p>
-                    <p>
-                        <strong>Problems:</strong>{' '}
-                        {room.problems}
-                    </p>
-                </div>
-            ))}
-            {commoditiesSQL.map(commoditie => (
-                <div key={commoditie.id_room}>
-                    <p>
-                        <strong>Commodities:</strong>{' '}
-                        {commoditie.id_room}
-                    </p>
-                </div>
-            ))}
+                    {selectedRoom && (
+                        <div key={selectedRoom.id}>
+                            <p>
+                                <strong>Room ID:</strong>{' '}
+                                {selectedRoom.id}
+                            </p>
+                            <p>
+                                <strong>Price:</strong>{' '}
+                                {"$" + selectedRoom.prix + "/Night"}
+                            </p>
+                            <p>
+                                <strong>Capacity:</strong>{' '}
+                                {selectedRoom.capacity + " Persons"}
+                            </p>
+                            <p>
+                                <strong>View:</strong>{' '}
+                                {selectedRoom.view}
+                            </p>
+                            <p>
+                                <strong>Extent:</strong>{' '}
+                                {selectedRoom.expanding}
+                            </p>
+                            <p>
+                                <strong>Problems:</strong>{' '}
+                                {selectedRoom.problems}
+                            </p>
+                        </div>
+                    )}
+                     {commoditiesSQL.map(commoditie => (
+                        <div key={commoditie.id_room}>
+                            <p>
+                                <strong>Commodities:</strong>{' '}
+                                {commoditie.id_room}
+                            </p>
+                        </div>
+                    ))}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
