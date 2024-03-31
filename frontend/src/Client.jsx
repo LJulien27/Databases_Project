@@ -209,7 +209,7 @@ const Client = ({loggedIn, signedInAcc}) => {
 
     const handleReserveModal = () => {
         // Create reservation using the selected room ID and check-in/check-out dates
-        createReservation(signedInAcc.sin, selectedRoom.id, checkInDate, checkOutDate);
+        createReservation(signedInAcc.sin, selectedRoom.id, checkInDate.toLocaleDateString('en-CA'), checkOutDate.toLocaleDateString('en-CA'));
         alert("Success! Your room has been reserved.");
         handleCloseRoomModal();
     };
@@ -221,9 +221,9 @@ const Client = ({loggedIn, signedInAcc}) => {
             return; // Do not update state
         }
         // Set check-in date
-        setCheckInDate(date.toISOString().slice(0,10));
+        setCheckInDate(date);
     }
-
+    
     const handleCheckOutChange = (date) => {
         // Ensure checkOutDate is not before checkInDate
         if (checkInDate && date <= checkInDate) {
@@ -231,7 +231,7 @@ const Client = ({loggedIn, signedInAcc}) => {
             return; // Do not update state
         }
         // Set check-out date
-        setCheckOutDate(date.toISOString().slice(0,10));
+        setCheckOutDate(date);
     }
 
     const handleChainClick = (option) => {
