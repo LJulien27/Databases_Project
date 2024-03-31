@@ -296,7 +296,7 @@ const Client = ({loggedIn, signedInAcc}) => {
             <div className="search-bar">
                 <h1>Welcome client!</h1>
                 <InputGroup className="mb-3">
-                <Dropdown as={InputGroup.Append}>
+                <Dropdown as={InputGroup.Append} onToggle={getChains}>
                     <Dropdown.Toggle variant="secondary">{selectedChain}</Dropdown.Toggle>
                     <Dropdown.Menu>
                         {chainsSQL.map(chain => (
@@ -316,7 +316,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         </CustomDropdownItem>
                     </Dropdown.Menu>
                 </Dropdown>
-                    <Dropdown as={InputGroup.Append}>
+                    <Dropdown as={InputGroup.Append} onToggle={getHotels}>
                         <Dropdown.Toggle variant="secondary">{selectedHotel}</Dropdown.Toggle>
                             <Dropdown.Menu>
                             {hotelsSQL.map(hotel => (
