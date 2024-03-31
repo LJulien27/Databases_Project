@@ -205,13 +205,47 @@ const Employee = ({loggedIn, signedInAcc}) => {
         handleCloseRoomModal();
     }
 
+    //NEW RENTAL
+    const handleNewRentalModal = () => {
+        if (checkInDate === null || checkOutDate === null){
+            alert('You need to have a checkin and checkout date');
+            return;
+        }
+        // Check if the room is already booked
+        const isRoomBooked = rentalsSQL.some(rental => 
+            rental.id_room === selectedRoom.id && 
+            new Date(rental.s_date) <= checkOutDate && 
+            new Date(rental.e_date) >= checkInDate
+        ) || reservationsSQL.some(reservation => 
+            reservation.id_room === selectedRoom.id && 
+            new Date(reservation.s_date) <= checkOutDate && 
+            new Date(reservation.e_date) >= checkInDate
+        );
+
+        if (isRoomBooked) {
+            alert('This room is already booked during the selected time period.');
+            return;
+        }
+
+        let client_sin = parseInt(prompt('What is the clients sin'));
+        const doesClientExist = clientsSQL.some(client => client.sin === client_sin);
+        if (!doesClientExist) {
+            alert('This client does not exist.');
+            return;
+        }
+        
+        createRental(client_sin, selectedRoom.id, checkInDate, checkOutDate);
+        alert("You've successfully rented a room to ", client_sin);
+        handleCloseRoomModal();
+    }
+
     const handleCheckInChange = (date) => {
         // Ensure checkInDate is not after checkOutDate
         if (checkOutDate && date >= checkOutDate) {
             alert('Check in date must be before check out date');
             return; // Do not update state
         }
-        setCheckInDate(date);
+        setCheckInDate(date.toISOString().slice(0,10));
     }
 
     const handleCheckOutChange = (date) => {
@@ -220,7 +254,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             alert('Check out date must be after check in date');
             return; // Do not update state
         }
-        setCheckOutDate(date);
+        setCheckOutDate(date.toISOString().slice(0,10));
     }
 
     const handleChainClick = (option) => {
@@ -547,6 +581,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
                     <Button variant="primary" onClick={handleReserveModal}>Reserve</Button>
+                    <Button variant="primary" onClick={handleNewRentalModal}>Rent</Button>
                 </Modal.Footer>
             </Modal>
         </div>
