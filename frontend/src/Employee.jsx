@@ -188,7 +188,12 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
     const handleShowMyAccountModal = () => setShowMyAccountModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
-    const handleShowRoomModal = () => setShowRoomModal(true);
+    const [selectedRoom, setSelectedRoom] = useState(null);
+    const handleShowRoomModal = (room) => {
+        setSelectedRoom(room);
+        setShowRoomModal(true);
+    }
+    //const handleShowRoomModal = () => setShowRoomModal(true);
     const handleCloseChainModal = () => setShowChainModal(false);
     const handleShowChainModal = () => setShowChainModal(true);
     const handleCloseReservationModal = () => setShowReservationModal(false);
@@ -445,7 +450,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             <h2>Room Results</h2>
             <div className="room-grid room-grid-flex">
                 {roomsSQL.map(room => (
-                    <Card style={{ width: '12rem' }}key={room.id} onClick={handleShowRoomModal} className="room-card">
+                    <Card style={{ width: '12rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
                         <Card.Img
                             className="room-image"
                             variant="top"
@@ -467,47 +472,77 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     </Card>
                 ))}
             </div>
+
+            {/*
+            I need to edit this more, similar to what the regular show of rooms looks like but when I click it, I can turn it into a rental
+            */}
+            <h2>Reserved rooms</h2>
+            <div className="room-grid room-grid-flex">
+                {roomsSQL.filter(room => reservationsSQL.some(reservation => reservation.id_room === room.id)).map(room =>
+                    <Card style={{ width: '12rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
+                        <Card.Img
+                            className="room-image"
+                            variant="top"
+                            src="/src/images/hotelRoom.png"
+                            alt="Room Image"
+                        />
+                        <Card.Body>
+                            <Card.Title>{room.id}</Card.Title>
+                            <Card.Text>
+                                <strong>Price:</strong> ${room.price}/Night
+                            </Card.Text>
+                            <Card.Text>
+                                <strong>Capacity:</strong> {room.capacity} Persons
+                            </Card.Text>
+                            {/* Add more information as needed */}
+                        </Card.Body>
+                        {/* Additional buttons or actions */}
+                        {/* <Button variant="primary">View Details</Button> */}
+                    </Card>
+                )}
+            </div>
+
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Room Details</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                {roomsSQL.map(room => (
-                <div key={room.id}>
-                    <p>
-                        <strong>Room ID:</strong>{' '}
-                        {room.id}
-                    </p>
-                    <p>
-                        <strong>Price:</strong>{' '}
-                        {"$" + room.prix + "/Night"}
-                    </p>
-                    <p>
-                        <strong>Capacity:</strong>{' '}
-                        {room.capacity + " Persons"}
-                    </p>
-                    <p>
-                        <strong>View:</strong>{' '}
-                        {room.view}
-                    </p>
-                    <p>
-                        <strong>Extent:</strong>{' '}
-                        {room.expanding}
-                    </p>
-                    <p>
-                        <strong>Problems:</strong>{' '}
-                        {room.problems}
-                    </p>
-                </div>
-            ))}
-            {commoditiesSQL.map(commoditie => (
-                <div key={commoditie.id_room}>
-                    <p>
-                        <strong>Commodities:</strong>{' '}
-                        {commoditie.id_room}
-                    </p>
-                </div>
-            ))}
+                    {selectedRoom && (
+                        <div key={selectedRoom.id}>
+                            <p>
+                                <strong>Room ID:</strong>{' '}
+                                {selectedRoom.id}
+                            </p>
+                            <p>
+                                <strong>Price:</strong>{' '}
+                                {"$" + selectedRoom.prix + "/Night"}
+                            </p>
+                            <p>
+                                <strong>Capacity:</strong>{' '}
+                                {selectedRoom.capacity + " Persons"}
+                            </p>
+                            <p>
+                                <strong>View:</strong>{' '}
+                                {selectedRoom.view}
+                            </p>
+                            <p>
+                                <strong>Extent:</strong>{' '}
+                                {selectedRoom.expanding}
+                            </p>
+                            <p>
+                                <strong>Problems:</strong>{' '}
+                                {selectedRoom.problems}
+                            </p>
+                        </div>
+                    )}
+                    {/*commoditiesSQL.map(commoditie => (
+                        <div key={commoditie.id_room}>
+                            <p>
+                                <strong>Commodities:</strong>{' '}
+                                {commoditie.id_room}
+                            </p>
+                        </div>
+                    ))*/}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
