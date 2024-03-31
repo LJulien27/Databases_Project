@@ -52,6 +52,29 @@ const Client = ({loggedIn, signedInAcc}) => {
     const [reservationsSQL, setReservations] = useState([]);
     const [rentalsSQL, setRentals] = useState([]);
 
+    const getSelectedChainName = () => {
+        // Check if the selectedChain starts with "Chain: "
+        if (selectedChain.startsWith("Chain: ")) {
+            // If yes, return the substring after "Chain: "
+            return selectedChain.substring("Chain: ".length);
+        } else {
+            // If no prefix is found, return the selectedChain as is
+            return selectedChain;
+        }
+    };
+
+    const getFilteredHotels = () => {
+        // Get the selected chain name without the prefix
+        const selectedChainName = getSelectedChainName();
+        
+        // If no chain is selected, return all hotels
+        if (selectedChainName === "Chain") {
+            return hotelsSQL;
+        } else {
+            // Filter hotels based on the selected chain name
+            return hotelsSQL.filter(hotel => hotel.chain_name === selectedChainName);
+        }
+    };
 
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
@@ -319,7 +342,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                     <Dropdown as={InputGroup.Append} onToggle={getHotels}>
                         <Dropdown.Toggle variant="secondary">{selectedHotel}</Dropdown.Toggle>
                             <Dropdown.Menu>
-                            {hotelsSQL.map(hotel => (
+                            {getFilteredHotels().map(hotel => (
                                 <div key={hotel.name}>
                                     <CustomDropdownItem onClick={() => handleHotelClick(hotel.name)} isChecked={selectedHotel.includes(hotel.name)}>
                                     {hotel.name}
