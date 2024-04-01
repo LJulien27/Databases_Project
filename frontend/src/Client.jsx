@@ -531,7 +531,8 @@ const Client = ({loggedIn, signedInAcc}) => {
             </Modal>
             <div>
                 <h2>Room Results</h2>
-                <div className="room-grid room-grid-flex">
+                <div className="room-container">
+                    <div className="room-grid-flex">
                     {roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id)).map(room => (
                         <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
                             <Card.Img
@@ -554,6 +555,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                             {/* <Button variant="primary">View Details</Button> */}
                         </Card>
                     ))}
+                </div>
                 </div>
             </div>
             

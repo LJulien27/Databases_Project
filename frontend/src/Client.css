@@ -20,10 +20,15 @@
     object-fit: cover; /* Ensures the image covers the entire container */
 }
 
+.room-container {
+    max-height: 600px; /* Adjust the maximum height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
 .room-grid-flex {
-    display: flex;
-    flex-wrap: wrap; /* Ensure cards wrap to the next line if there's not enough space */
-    justify-content: space-between; /* Adjust spacing between cards */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust column width as needed */
+    gap: 20px; /* Adjust the gap between rooms */
 }
 
 .room-card {
@@ -33,4 +38,10 @@
 
 .room-card:hover {
     transform: scale(1.05); /* Scale up slightly on hover */
+}
+
+.room-results-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
