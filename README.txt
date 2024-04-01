@@ -13,3 +13,6 @@ To Run:
 if not working, navigate to backend and run:
 				npm i express pg
 then navigate to frontend and run the same.
+
+might need to install the following to frontend as well
+npm install @mui/material @emotion/react @emotion/styled
