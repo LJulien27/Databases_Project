@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { InputGroup, Button, Dropdown, Modal, Card } from 'react-bootstrap';
+import { InputGroup, Button, Dropdown, Modal, Card, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Client.css';
 import './Background.css';
@@ -34,8 +34,10 @@ const Client = ({loggedIn, signedInAcc}) => {
     const [showRoomResults, setShowRoomResults] = useState(false);
 
     {/* Dropdown variables */}
-    const [selectedChain, setSelectedChain] = useState("Chain");
-    const [selectedHotel, setSelectedHotel] = useState("Hotel");
+    const [selectedChains, setSelectedChains] = useState([]);
+    const [selectedHotels, setSelectedHotels] = useState([]);
+    const [selectedHotelIds, setSelectedHotelIds] = useState([]);
+
     const [selectedRating, setSelectedRating] = useState("Rating");
     const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
     const [selectedArea, setSelectedArea] = useState("Area");
@@ -119,6 +121,7 @@ const Client = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setChains(data);
+                setSelectedChains(data.map(chain => chain.name));
             })
             .catch(error => {
                 console.error('Error fetching chains:', error);
@@ -130,6 +133,8 @@ const Client = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setHotels(data);
+                setSelectedHotels(data.map(hotel => hotel.name));
+                setSelectedHotelIds(data.map(hotel => hotel.id));
             })
             .catch(error => {
                 console.error('Error fetching hotels:', error);
@@ -257,13 +262,58 @@ const Client = ({loggedIn, signedInAcc}) => {
         setCheckOutDate(date);
     }
 
-    const handleChainClick = (option) => {
-        setSelectedChain("Chain: " + option);
-    }
+    const handleChainClick = (chainName) => {
+        if (chainName === 'Select all') {
+            if (selectedChains.length === chainsSQL.length) {
+                setSelectedChains([]); // If all chains are selected, deselect all
+                setSelectedHotels([]); // Also deselect all hotels
+                setSelectedHotelIds([]); // And clear the selectedHotelIds
+            } else {
+                const chainNames = chainsSQL.map(chain => chain.name);
+                setSelectedChains(chainNames); // Select all chains
+                const hotelNames = hotelsSQL.map(hotel => hotel.name);
+                setSelectedHotels(hotelNames); // Also select all hotels
+                const hotelIds = hotelsSQL.map(hotel => hotel.id);
+                setSelectedHotelIds(hotelIds); // And set all hotel ids
+            }
+        } else {
+            if (selectedChains.includes(chainName)) {
+                setSelectedChains(selectedChains.filter(chain => chain !== chainName)); // Deselect the chain
+                // Also deselect the hotels of this chain
+                const hotelsOfThisChain = hotelsSQL.filter(hotel => hotel.chain_name === chainName);
+                setSelectedHotels(selectedHotels.filter(name => !hotelsOfThisChain.map(hotel => hotel.name).includes(name)));
+                setSelectedHotelIds(selectedHotelIds.filter(id => !hotelsOfThisChain.map(hotel => hotel.id).includes(id)));
+            } else {
+                setSelectedChains([...selectedChains, chainName]); // Select the chain
+                // Also select the hotels of this chain
+                const hotelsOfThisChain = hotelsSQL.filter(hotel => hotel.chain_name === chainName);
+                setSelectedHotels([...selectedHotels, ...hotelsOfThisChain.map(hotel => hotel.name)]);
+                setSelectedHotelIds([...selectedHotelIds, ...hotelsOfThisChain.map(hotel => hotel.id)]);
+            }
+        }
+    };
 
-    const handleHotelClick = (option) => {
-        setSelectedHotel("Hotel: " + option);
-    }
+    const handleHotelClick = (hotelName) => {
+        if (hotelName === 'Select all') {
+            if (selectedHotels.length === hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).length) {
+                setSelectedHotels([]); // If all chains are selected, deselect all
+                setSelectedHotelIds([]);
+            } else {
+                const selectedHotels = hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name));
+                setSelectedHotels(selectedHotels.map(hotel => hotel.name));
+                setSelectedHotelIds(selectedHotels.map(hotel => hotel.id));
+            }
+        } else {
+            const hotel = hotelsSQL.find(hotel => hotel.name === hotelName);
+            if (selectedHotels.includes(hotelName)) {
+                setSelectedHotels(selectedHotels.filter(name => name !== hotelName));
+                setSelectedHotelIds(selectedHotelIds.filter(id => id !== hotel.id)); // Remove the hotel's id from selectedHotelIds
+            } else {
+                setSelectedHotels([...selectedHotels, hotelName]);
+                setSelectedHotelIds([...selectedHotelIds, hotel.id]); // Add the hotel's id to selectedHotelIds
+            }
+        }
+    };
 
     const handleCapacityClick = (option) => {
         setSelectedCapacity(option);
@@ -318,52 +368,66 @@ const Client = ({loggedIn, signedInAcc}) => {
             </div>
             <div className="search-bar">
                 <h1>Welcome client!</h1>
+                {JSON.stringify(selectedChains)}
+                {JSON.stringify(selectedHotels)}
+                {JSON.stringify(selectedHotelIds)}
                 <InputGroup className="mb-3">
-                <Dropdown as={InputGroup.Append} onToggle={getChains}>
-                    <Dropdown.Toggle variant="secondary">{selectedChain}</Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        {chainsSQL.map(chain => (
-                            <div key={chain.name}>
-                                <CustomDropdownItem onClick={() => handleChainClick(chain.name)} isChecked={selectedChain.includes(chain.name)}>
-                                    {chain.name}
-                                </CustomDropdownItem>
-                            </div>
-                        ))}
-                        <CustomDropdownItem isChecked={selectedChain.includes('Select all')}>
-                            <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleChainClick('Select all')}>
-                                <span style={{ marginRight: '10px' }}>Select all</span>
-                                <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleHelloButtonClick() }}>
-                                    Hello
-                                </button>
-                            </div>
-                        </CustomDropdownItem>
-                    </Dropdown.Menu>
-                </Dropdown>
-                    <Dropdown as={InputGroup.Append} onToggle={getHotels}>
-                        <Dropdown.Toggle variant="secondary">{selectedHotel}</Dropdown.Toggle>
-                            <Dropdown.Menu>
-                            {getFilteredHotels().map(hotel => (
-                                <div key={hotel.name}>
-                                    <CustomDropdownItem onClick={() => handleHotelClick(hotel.name)} isChecked={selectedHotel.includes(hotel.name)}>
-                                    {hotel.name}
-                                    </CustomDropdownItem>
+                    <Dropdown as={InputGroup.Append}>
+                        <Dropdown.Toggle variant="secondary">Select chains</Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {chainsSQL.map(chain => (
+                                <div key={chain.name}>
+                                    <Form.Check 
+                                        type="checkbox"
+                                        id={chain.name}
+                                        label={chain.name}
+                                        checked={selectedChains.includes(chain.name)}
+                                        onChange={() => handleChainClick(chain.name)}
+                                    />
                                 </div>
                             ))}
-                            <CustomDropdownItem onClick={() => handleHotelClick('Select all')} isChecked={selectedHotel.includes('Select all')}>
-                                Select all
-                            </CustomDropdownItem>
+                            <Form.Check 
+                                type="checkbox"
+                                id="selectAll"
+                                label="Select all"
+                                checked={selectedChains.length === chainsSQL.length}
+                                onChange={() => handleChainClick('Select all')}
+                            />
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    <Dropdown as={InputGroup.Append}>
+                        <Dropdown.Toggle variant="secondary">Select hotels</Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).map(hotel => (
+                                <div key={hotel.name}>
+                                    <Form.Check 
+                                        type="checkbox"
+                                        id={hotel.name}
+                                        label={hotel.name}
+                                        checked={selectedHotels.includes(hotel.name)}
+                                        onChange={() => handleHotelClick(hotel.name)}
+                                    />
+                                </div>
+                            ))}
+                            <Form.Check 
+                                type="checkbox"
+                                id="selectAll"
+                                label="Select all"
+                                checked={selectedHotels.length === hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).length}
+                                onChange={() => handleHotelClick('Select all')}
+                            />
                         </Dropdown.Menu>
                     </Dropdown>
                     <DatePicker
-                selected={checkInDate}
-                onChange={handleCheckInChange}
-                placeholderText="Check In"
-            />
-            <DatePicker
-                selected={checkOutDate}
-                onChange={handleCheckOutChange}
-                placeholderText="Check Out"
-            />
+                        selected={checkInDate}
+                        onChange={handleCheckInChange}
+                        placeholderText="Check In"
+                    />
+                    <DatePicker
+                        selected={checkOutDate}
+                        onChange={handleCheckOutChange}
+                        placeholderText="Check Out"
+                    />
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">{selectedCapacity}</Dropdown.Toggle>
                         <Dropdown.Menu>
@@ -465,35 +529,34 @@ const Client = ({loggedIn, signedInAcc}) => {
                     <Button variant="secondary" onClick={handleCloseChainModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
-            {showRoomResults && selectedChain !== "Chain" && selectedHotel !== "Hotel" && checkInDate && checkOutDate && selectedCapacity !== "Capacity" && selectedRating !== "Rating" && selectedCategory !== "Category" && selectedArea !== "Area" && (
-                <div>
-                    <h2>Room Results</h2>
-            <div className="room-grid room-grid-flex">
-                {roomsSQL.map(room => (
-                    <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
-                        <Card.Img
-                            className="room-image"
-                            variant="top"
-                            src="/src/images/hotelRoom.png"
-                            alt="Room Image"
-                        />
-                        <Card.Body>
-                            <Card.Title>{room.id}</Card.Title>
-                            <Card.Text>
-                                <strong>Price:</strong> ${room.prix}/Night
-                            </Card.Text>
-                            <Card.Text>
-                                <strong>Capacity:</strong> {room.capacity} Persons
-                            </Card.Text>
-                            {/* Add more information as needed */}
-                        </Card.Body>
-                        {/* Additional buttons or actions */}
-                        {/* <Button variant="primary">View Details</Button> */}
-                    </Card>
-                ))}
+            <div>
+                <h2>Room Results</h2>
+                <div className="room-grid room-grid-flex">
+                    {roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id)).map(room => (
+                        <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
+                            <Card.Img
+                                className="room-image"
+                                variant="top"
+                                src="/src/images/hotelRoom.png"
+                                alt="Room Image"
+                            />
+                            <Card.Body>
+                                <Card.Title>{room.id}</Card.Title>
+                                <Card.Text>
+                                    <strong>Price:</strong> ${room.prix}/Night
+                                </Card.Text>
+                                <Card.Text>
+                                    <strong>Capacity:</strong> {room.capacity} Persons
+                                </Card.Text>
+                                {/* Add more information as needed */}
+                            </Card.Body>
+                            {/* Additional buttons or actions */}
+                            {/* <Button variant="primary">View Details</Button> */}
+                        </Card>
+                    ))}
                 </div>
             </div>
-            )}
+            
             <h2>My Rentals</h2>
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
                 <Modal.Header closeButton>
@@ -528,14 +591,14 @@ const Client = ({loggedIn, signedInAcc}) => {
                             </p>
                         </div>
                     )}
-                     {commoditiesSQL.map(commoditie => (
+                    {/*commoditiesSQL.map(commoditie => (
                         <div key={commoditie.id_room}>
                             <p>
                                 <strong>Commodities:</strong>{' '}
                                 {commoditie.id_room}
                             </p>
                         </div>
-                    ))}
+                    ))*/}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>

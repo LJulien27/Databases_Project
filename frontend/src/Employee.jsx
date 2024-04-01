@@ -87,12 +87,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setChains(data);
+                setSelectedChains(data.map(chain => chain.name));
             })
             .catch(error => {
                 console.error('Error fetching chains:', error);
             });
-            const chainNames = chainsSQL.map(chain => chain.name);
-            setSelectedChains(chainNames);
     }
 
     function getHotels() {
@@ -100,13 +99,12 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setHotels(data);
+                setSelectedHotels(data.map(hotel => hotel.name));
+                setSelectedHotelIds(data.map(hotel => hotel.id));
             })
             .catch(error => {
                 console.error('Error fetching hotels:', error);
             });
-            const selectedHotels = hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name));
-            setSelectedHotels(selectedHotels.map(hotel => hotel.name));
-            setSelectedHotelIds(selectedHotels.map(hotel => hotel.id));
 
     }
 
@@ -255,14 +253,29 @@ const Employee = ({loggedIn, signedInAcc}) => {
         if (chainName === 'Select all') {
             if (selectedChains.length === chainsSQL.length) {
                 setSelectedChains([]); // If all chains are selected, deselect all
+                setSelectedHotels([]); // Also deselect all hotels
+                setSelectedHotelIds([]); // And clear the selectedHotelIds
             } else {
-                setSelectedChains(chainsSQL.map(chain => chain.name)); // Select all chains
+                const chainNames = chainsSQL.map(chain => chain.name);
+                setSelectedChains(chainNames); // Select all chains
+                const hotelNames = hotelsSQL.map(hotel => hotel.name);
+                setSelectedHotels(hotelNames); // Also select all hotels
+                const hotelIds = hotelsSQL.map(hotel => hotel.id);
+                setSelectedHotelIds(hotelIds); // And set all hotel ids
             }
         } else {
             if (selectedChains.includes(chainName)) {
-                setSelectedChains(selectedChains.filter(chain => chain !== chainName));
+                setSelectedChains(selectedChains.filter(chain => chain !== chainName)); // Deselect the chain
+                // Also deselect the hotels of this chain
+                const hotelsOfThisChain = hotelsSQL.filter(hotel => hotel.chain_name === chainName);
+                setSelectedHotels(selectedHotels.filter(name => !hotelsOfThisChain.map(hotel => hotel.name).includes(name)));
+                setSelectedHotelIds(selectedHotelIds.filter(id => !hotelsOfThisChain.map(hotel => hotel.id).includes(id)));
             } else {
-                setSelectedChains([...selectedChains, chainName]);
+                setSelectedChains([...selectedChains, chainName]); // Select the chain
+                // Also select the hotels of this chain
+                const hotelsOfThisChain = hotelsSQL.filter(hotel => hotel.chain_name === chainName);
+                setSelectedHotels([...selectedHotels, ...hotelsOfThisChain.map(hotel => hotel.name)]);
+                setSelectedHotelIds([...selectedHotelIds, ...hotelsOfThisChain.map(hotel => hotel.id)]);
             }
         }
     };
