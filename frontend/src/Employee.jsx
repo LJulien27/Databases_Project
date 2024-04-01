@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { InputGroup, Button, Dropdown, Modal, Card } from 'react-bootstrap';
+import { InputGroup, Button, Dropdown, Modal, Card, Form} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Client.css';
 import './Background.css';
@@ -24,8 +24,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [darkMode, setDarkMode] = useState(false);
 
     {/* Dropdown variables */}
-    const [selectedChain, setSelectedChain] = useState("Chain");
-    const [selectedHotel, setSelectedHotel] = useState("Hotel");
+
+    const [selectedChains, setSelectedChains] = useState([]);
+    const [selectedHotels, setSelectedHotels] = useState([]);
+    const [selectedHotelIds, setSelectedHotelIds] = useState([]);
+
     const [selectedRating, setSelectedRating] = useState("Rating");
     const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
     const [selectedArea, setSelectedArea] = useState("Area");
@@ -88,6 +91,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .catch(error => {
                 console.error('Error fetching chains:', error);
             });
+            const chainNames = chainsSQL.map(chain => chain.name);
+            setSelectedChains(chainNames);
     }
 
     function getHotels() {
@@ -99,6 +104,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .catch(error => {
                 console.error('Error fetching hotels:', error);
             });
+            const selectedHotels = hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name));
+            setSelectedHotels(selectedHotels.map(hotel => hotel.name));
+            setSelectedHotelIds(selectedHotels.map(hotel => hotel.id));
+
     }
 
     function getRooms() {
@@ -211,21 +220,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
             alert('You need to have a checkin and checkout date');
             return;
         }
-        // Check if the room is already booked
-        const isRoomBooked = rentalsSQL.some(rental => 
-            rental.id_room === selectedRoom.id && 
-            new Date(rental.s_date) <= checkOutDate && 
-            new Date(rental.e_date) >= checkInDate
-        ) || reservationsSQL.some(reservation => 
-            reservation.id_room === selectedRoom.id && 
-            new Date(reservation.s_date) <= checkOutDate && 
-            new Date(reservation.e_date) >= checkInDate
-        );
-
-        if (isRoomBooked) {
-            alert('This room is already booked during the selected time period.');
-            return;
-        }
 
         let client_sin = parseInt(prompt('What is the clients sin'));
         const doesClientExist = clientsSQL.some(client => client.sin === client_sin);
@@ -233,8 +227,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
             alert('This client does not exist.');
             return;
         }
-        
-        createRental(client_sin, selectedRoom.id, checkInDate, checkOutDate);
+
+        createRental(client_sin, selectedRoom.id, checkInDate.toLocaleDateString('en-CA'), checkOutDate.toLocaleDateString('en-CA'));
         alert("You've successfully rented a room to ", client_sin);
         handleCloseRoomModal();
     }
@@ -245,7 +239,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             alert('Check in date must be before check out date');
             return; // Do not update state
         }
-        setCheckInDate(date.toISOString().slice(0,10));
+        setCheckInDate(date);
     }
 
     const handleCheckOutChange = (date) => {
@@ -254,16 +248,46 @@ const Employee = ({loggedIn, signedInAcc}) => {
             alert('Check out date must be after check in date');
             return; // Do not update state
         }
-        setCheckOutDate(date.toISOString().slice(0,10));
+        setCheckOutDate(date);
     }
 
-    const handleChainClick = (option) => {
-        setSelectedChain("Chain: " + option);
-    }
+    const handleChainClick = (chainName) => {
+        if (chainName === 'Select all') {
+            if (selectedChains.length === chainsSQL.length) {
+                setSelectedChains([]); // If all chains are selected, deselect all
+            } else {
+                setSelectedChains(chainsSQL.map(chain => chain.name)); // Select all chains
+            }
+        } else {
+            if (selectedChains.includes(chainName)) {
+                setSelectedChains(selectedChains.filter(chain => chain !== chainName));
+            } else {
+                setSelectedChains([...selectedChains, chainName]);
+            }
+        }
+    };
 
-    const handleHotelClick = (option) => {
-        setSelectedHotel("Hotel: " + option);
-    }
+    const handleHotelClick = (hotelName) => {
+        if (hotelName === 'Select all') {
+            if (selectedHotels.length === hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).length) {
+                setSelectedHotels([]); // If all chains are selected, deselect all
+                setSelectedHotelIds([]);
+            } else {
+                const selectedHotels = hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name));
+                setSelectedHotels(selectedHotels.map(hotel => hotel.name));
+                setSelectedHotelIds(selectedHotels.map(hotel => hotel.id));
+            }
+        } else {
+            const hotel = hotelsSQL.find(hotel => hotel.name === hotelName);
+            if (selectedHotels.includes(hotelName)) {
+                setSelectedHotels(selectedHotels.filter(name => name !== hotelName));
+                setSelectedHotelIds(selectedHotelIds.filter(id => id !== hotel.id)); // Remove the hotel's id from selectedHotelIds
+            } else {
+                setSelectedHotels([...selectedHotels, hotelName]);
+                setSelectedHotelIds([...selectedHotelIds, hotel.id]); // Add the hotel's id to selectedHotelIds
+            }
+        }
+    };
 
     const handleCapacityClick = (option) => {
         setSelectedCapacity(option);
@@ -323,39 +347,50 @@ const Employee = ({loggedIn, signedInAcc}) => {
             <div className="search-bar">
                 <h1>Welcome Employee!</h1>
                 <InputGroup className="mb-3">
-                <Dropdown as={InputGroup.Append}>
-                    <Dropdown.Toggle variant="secondary">{selectedChain}</Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        {chainsSQL.map(chain => (
-                            <div key={chain.name}>
-                                <CustomDropdownItem onClick={() => handleChainClick(chain.name)} isChecked={selectedChain.includes(chain.name)}>
-                                    {chain.name}
-                                </CustomDropdownItem>
-                            </div>
-                        ))}
-                        <CustomDropdownItem isChecked={selectedChain.includes('Select all')}>
-                            <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleChainClick('Select all')}>
-                                <span style={{ marginRight: '10px' }}>Select all</span>
-                                <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleHelloButtonClick() }}>
-                                    Hello
-                                </button>
-                            </div>
-                        </CustomDropdownItem>
-                    </Dropdown.Menu>
-                </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedHotel}</Dropdown.Toggle>
-                            <Dropdown.Menu>
-                            {hotelsSQL.map(hotel => (
-                                <div key={hotel.name}>
-                                    <CustomDropdownItem onClick={() => handleHotelClick(hotel.name)} isChecked={selectedHotel.includes(hotel.name)}>
-                                    {hotel.name}
-                                    </CustomDropdownItem>
+                        <Dropdown.Toggle variant="secondary">Select chains</Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {chainsSQL.map(chain => (
+                                <div key={chain.name}>
+                                    <Form.Check 
+                                        type="checkbox"
+                                        id={chain.name}
+                                        label={chain.name}
+                                        checked={selectedChains.includes(chain.name)}
+                                        onChange={() => handleChainClick(chain.name)}
+                                    />
                                 </div>
                             ))}
-                            <CustomDropdownItem onClick={() => handleHotelClick('Select all')} isChecked={selectedHotel.includes('Select all')}>
-                                Select all
-                            </CustomDropdownItem>
+                            <Form.Check 
+                                type="checkbox"
+                                id="selectAll"
+                                label="Select all"
+                                checked={selectedChains.length === chainsSQL.length}
+                                onChange={() => handleChainClick('Select all')}
+                            />
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    <Dropdown as={InputGroup.Append}>
+                        <Dropdown.Toggle variant="secondary">Select hotels</Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).map(hotel => (
+                                <div key={hotel.name}>
+                                    <Form.Check 
+                                        type="checkbox"
+                                        id={hotel.name}
+                                        label={hotel.name}
+                                        checked={selectedHotels.includes(hotel.name)}
+                                        onChange={() => handleHotelClick(hotel.name)}
+                                    />
+                                </div>
+                            ))}
+                            <Form.Check 
+                                type="checkbox"
+                                id="selectAll"
+                                label="Select all"
+                                checked={selectedHotels.length === hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).length}
+                                onChange={() => handleHotelClick('Select all')}
+                            />
                         </Dropdown.Menu>
                     </Dropdown>
                     <DatePicker
@@ -483,7 +518,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </Modal>
             <h2>Room Results</h2>
             <div className="room-grid room-grid-flex">
-                {roomsSQL.map(room => (
+                {roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id)).map(room => (
                     <Card style={{ width: '12rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
                         <Card.Img
                             className="room-image"
@@ -512,7 +547,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             */}
             <h2>Reserved rooms</h2>
             <div className="room-grid room-grid-flex">
-                {roomsSQL.filter(room => reservationsSQL.some(reservation => reservation.id_room === room.id)).map(room =>
+                {roomsSQL.filter(room => reservationsSQL.some(reservation => reservation.id_room === room.id)).map(room => 
                     <Card style={{ width: '12rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
                         <Card.Img
                             className="room-image"
@@ -528,6 +563,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <Card.Text>
                                 <strong>Capacity:</strong> {room.capacity} Persons
                             </Card.Text>
+
                             {/* Add more information as needed */}
                         </Card.Body>
                         {/* Additional buttons or actions */}

@@ -147,7 +147,7 @@ const Login = ({setLoggedIn, setAccount}) => {
     const [signUpL_name, setL_name] = useState('');
     const [signUpEmail, setSignUpEmail] = useState('');
     const [signUpSIN, setSignUpSIN] = useState('');
-    const [signUpDate, setSignUpDate] = useState(new Date().toISOString().slice(0,10));
+    const [signUpDate, setSignUpDate] = useState(new Date().toLocaleDateString('en-CA'));
     const [signUpPassword, setSignUpPassword] = useState('');
     const [signUpConPassword, setSignUpConPassword] = useState('');
 
