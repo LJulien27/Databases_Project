@@ -26,6 +26,7 @@ function CustomDropdownItem({ children, onClick }) {
 const Client = ({loggedIn, signedInAcc}) => {
     const [showMyAccountModal, setShowMyAccountModal] = useState(false);
     const [showChainModal, setShowChainModal] = useState(false);
+    const [showHotelModal, setShowHotelModal] = useState(false);
     const [showRoomModal, setShowRoomModal] = useState(false);
     const [checkInDate, setCheckInDate] = useState(null);
     const [checkOutDate, setCheckOutDate] = useState(null);
@@ -225,13 +226,15 @@ const Client = ({loggedIn, signedInAcc}) => {
 
     const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
     const handleShowMyAccountModal = () => setShowMyAccountModal(true);
+    const handleCloseChainModal = () => setShowChainModal(false);
+    const handleShowChainModal = () => setShowChainModal(true);
+    const handleCloseHotelModal = () => setShowHotelModal(false);
+    const handleShowHotelModal = () => setShowHotelModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
     const handleShowRoomModal = (room) => {
         setSelectedRoom(room);
         setShowRoomModal(true);
     }
-    const handleCloseChainModal = () => setShowChainModal(false);
-    const handleShowChainModal = () => setShowChainModal(true);
     const handleCloseReservationModal = () => setShowReservationModal(false);
     const handleShowReservationModal = () => setShowReservationModal(true);
 
@@ -358,14 +361,12 @@ const Client = ({loggedIn, signedInAcc}) => {
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" onClick={handleMyAccountClick}>My Account</Button>
-                <Button variant="secondary" onClick={toggleDarkMode}>
+                <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
+               {/*  <Button variant="secondary" onClick={toggleDarkMode}>
                     {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </Button>
-                <Button variant="primary" disabled>
-                    Disabled button test
-                </Button>
+                </Button>*/}
             </div>
+            
             <div className="search-bar">
                 <h1>Welcome client!</h1>
                 {JSON.stringify(selectedChains)}
@@ -373,7 +374,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                 {JSON.stringify(selectedHotelIds)}
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Select chains</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
                         <Dropdown.Menu>
                             {chainsSQL.map(chain => (
                                 <div key={chain.name}>
@@ -396,7 +397,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Select hotels</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">Select hotels</Dropdown.Toggle>
                         <Dropdown.Menu>
                             {hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).map(hotel => (
                                 <div key={hotel.name}>
@@ -419,17 +420,21 @@ const Client = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <DatePicker
+                        variant="secondary"
+                        className="dropdown-button"
                         selected={checkInDate}
                         onChange={handleCheckInChange}
                         placeholderText="Check In"
                     />
                     <DatePicker
+                        variant="secondary"
+                        className="dropdown-button"
                         selected={checkOutDate}
                         onChange={handleCheckOutChange}
                         placeholderText="Check Out"
                     />
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedCapacity}</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">{selectedCapacity}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: 1 Person")} isChecked={false}>1 Person</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: 2 Persons")} isChecked={false}>2 Persons</CustomDropdownItem>
@@ -440,7 +445,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedRating}</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">{selectedRating}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => handleRatingClick("Rating: 1 Star")} isChecked={false}>1 Star</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => handleRatingClick("Rating: 2 Stars")} isChecked={false}>2 Stars</CustomDropdownItem>
@@ -451,7 +456,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedCategory}</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">{selectedCategory}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 1")} isChecked={false}>Category 1</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 2")} isChecked={false}>Category 2</CustomDropdownItem>
@@ -460,7 +465,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedArea}</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">{selectedArea}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: 200 Square Ft")} isChecked={false}>200 Square Ft</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: 300 Square Ft")} isChecked={false}>300 Square Ft</CustomDropdownItem>
@@ -470,8 +475,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: Any")} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
-                    
-                    <Button variant="primary" onClick={() => handleSearchButtonClick(true)}>Search</Button>
+                    <Button variant="primary" className="search-button" onClick={() => handleSearchButtonClick(true)}>Search</Button>
                 </InputGroup>
             </div>
             <Modal show={showMyAccountModal} onHide={handleCloseMyAccountModal}>
@@ -497,7 +501,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseMyAccountModal}>Close</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseMyAccountModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
             <Modal show={showChainModal} onHide={handleCloseChainModal}>
@@ -526,7 +530,39 @@ const Client = ({loggedIn, signedInAcc}) => {
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseChainModal}>Close</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseChainModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showChainModal} onHide={handleCloseHotelModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Hotel</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            <Typography component="legend">Rating</Typography>
+                                <Rating name="read-only" value={4} readOnly />
+                            {hotelsSQL.map(hotel => (
+                                <div key={hotel.id}>
+                                    <Card.Text>
+                                        <strong>ID:</strong> {hotel.id}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Name:</strong> {hotel.name}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Address:</strong> {hotel.address}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Chain:</strong> {hotel.chain_name}
+                                    </Card.Text>
+                                </div>
+                            ))}
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseHotelModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
             <div>
@@ -568,6 +604,10 @@ const Client = ({loggedIn, signedInAcc}) => {
                     {selectedRoom && (
                         <div key={selectedRoom.id}>
                             <p>
+                                <strong>Hotel ID:</strong>{' '}
+                                {selectedRoom.hotel_id}
+                            </p>
+                            <p>
                                 <strong>Room ID:</strong>{' '}
                                 {selectedRoom.id}
                             </p>
@@ -591,20 +631,24 @@ const Client = ({loggedIn, signedInAcc}) => {
                                 <strong>Problems:</strong>{' '}
                                 {selectedRoom.problems}
                             </p>
+                            <p>
+                                <strong>Commodities:</strong>{' '}
+                            </p>
                         </div>
                     )}
-                    {/*commoditiesSQL.map(commoditie => (
+                    {/*{commoditiesSQL.map(commoditie => (
                         <div key={commoditie.id_room}>
                             <p>
                                 <strong>Commodities:</strong>{' '}
                                 {commoditie.id_room}
                             </p>
                         </div>
-                    ))*/}
+                    ))}*/}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
-                    <Button variant="primary" onClick={handleReserveModal}>Reserve</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseRoomModal}>Close</Button>
+                    <Button variant="primary" className="positive-modal-button" onClick={handleReserveModal}>Reserve</Button>
+                    <Button variant="secondary" className="search-button">View Hotel</Button>
                 </Modal.Footer>
             </Modal>
         </div>
