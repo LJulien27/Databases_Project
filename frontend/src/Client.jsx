@@ -50,7 +50,31 @@ const Client = ({loggedIn, signedInAcc}) => {
     const [roomsSQL, setRooms] = useState([]);
     const [commoditiesSQL, setCommodities] = useState([]);
     const [reservationsSQL, setReservations] = useState([]);
+    const [rentalsSQL, setRentals] = useState([]);
 
+    const getSelectedChainName = () => {
+        // Check if the selectedChain starts with "Chain: "
+        if (selectedChain.startsWith("Chain: ")) {
+            // If yes, return the substring after "Chain: "
+            return selectedChain.substring("Chain: ".length);
+        } else {
+            // If no prefix is found, return the selectedChain as is
+            return selectedChain;
+        }
+    };
+
+    const getFilteredHotels = () => {
+        // Get the selected chain name without the prefix
+        const selectedChainName = getSelectedChainName();
+        
+        // If no chain is selected, return all hotels
+        if (selectedChainName === "Chain") {
+            return hotelsSQL;
+        } else {
+            // Filter hotels based on the selected chain name
+            return hotelsSQL.filter(hotel => hotel.chain_name === selectedChainName);
+        }
+    };
 
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
@@ -74,6 +98,7 @@ const Client = ({loggedIn, signedInAcc}) => {
         getRooms();
         getCommodities();
         getReservations();
+        getRentals();
     }, []);
 
     // Functions to fetch data
@@ -144,6 +169,34 @@ const Client = ({loggedIn, signedInAcc}) => {
             });
     }
 
+    function createReservation(client_sin, id_room, s_date, e_date) {
+        fetch('http://localhost:3001/reservations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({client_sin: client_sin.toString(), id_room: id_room.toString(), s_date, e_date}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                //alert(data);
+                getRentals();
+            });
+    }
+
+    function getRentals() {
+        fetch('http://localhost:3001/rentals')
+            .then(response => response.json())
+            .then(data => {
+                getRentals(data);
+            })
+            .catch(error => {
+                console.error('Error fetching rentals:', error);
+            });
+    }
+
     const handleSearchButtonClick = () => {
         // Check if all required criteria are selected
         if (
@@ -178,10 +231,11 @@ const Client = ({loggedIn, signedInAcc}) => {
     const handleShowReservationModal = () => setShowReservationModal(true);
 
     const handleReserveModal = () => {
-        // create reservation to be seen by client
+        // Create reservation using the selected room ID and check-in/check-out dates
+        createReservation(signedInAcc.sin, selectedRoom.id, checkInDate.toLocaleDateString('en-CA'), checkOutDate.toLocaleDateString('en-CA'));
         alert("Success! Your room has been reserved.");
         handleCloseRoomModal();
-    }
+    };
 
     const handleCheckInChange = (date) => {
         // Ensure checkInDate is not after checkOutDate
@@ -189,15 +243,17 @@ const Client = ({loggedIn, signedInAcc}) => {
             alert('Check in date must be before check out date');
             return; // Do not update state
         }
+        // Set check-in date
         setCheckInDate(date);
     }
-
+    
     const handleCheckOutChange = (date) => {
         // Ensure checkOutDate is not before checkInDate
         if (checkInDate && date <= checkInDate) {
             alert('Check out date must be after check in date');
             return; // Do not update state
         }
+        // Set check-out date
         setCheckOutDate(date);
     }
 
@@ -233,10 +289,6 @@ const Client = ({loggedIn, signedInAcc}) => {
         handleShowMyAccountModal();
     };
 
-    const alertFunction = () => {
-        alert("alert test");
-    };
-
     const handleOptionClick = (option) => {
         if (selectedOptions.includes(option)) {
             setSelectedOptions(selectedOptions.filter((item) => item !== option));
@@ -256,7 +308,7 @@ const Client = ({loggedIn, signedInAcc}) => {
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" onClick={handleShowChainModal}>My Account</Button>
+                <Button variant="secondary" onClick={handleMyAccountClick}>My Account</Button>
                 <Button variant="secondary" onClick={toggleDarkMode}>
                     {darkMode ? 'Light Mode' : 'Dark Mode'}
                 </Button>
@@ -267,7 +319,7 @@ const Client = ({loggedIn, signedInAcc}) => {
             <div className="search-bar">
                 <h1>Welcome client!</h1>
                 <InputGroup className="mb-3">
-                <Dropdown as={InputGroup.Append}>
+                <Dropdown as={InputGroup.Append} onToggle={getChains}>
                     <Dropdown.Toggle variant="secondary">{selectedChain}</Dropdown.Toggle>
                     <Dropdown.Menu>
                         {chainsSQL.map(chain => (
@@ -287,10 +339,10 @@ const Client = ({loggedIn, signedInAcc}) => {
                         </CustomDropdownItem>
                     </Dropdown.Menu>
                 </Dropdown>
-                    <Dropdown as={InputGroup.Append}>
+                    <Dropdown as={InputGroup.Append} onToggle={getHotels}>
                         <Dropdown.Toggle variant="secondary">{selectedHotel}</Dropdown.Toggle>
                             <Dropdown.Menu>
-                            {hotelsSQL.map(hotel => (
+                            {getFilteredHotels().map(hotel => (
                                 <div key={hotel.name}>
                                     <CustomDropdownItem onClick={() => handleHotelClick(hotel.name)} isChecked={selectedHotel.includes(hotel.name)}>
                                     {hotel.name}
@@ -354,16 +406,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: Any")} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedReservation}</Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 1")} isChecked={false}>Reservation 1</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 2")} isChecked={false}>Reservation 2</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 3")} isChecked={false}>Reservation 3</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 4")} isChecked={false}>Reservation 4</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 5")} isChecked={false}>Reservation 5</CustomDropdownItem>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    
                     <Button variant="primary" onClick={() => handleSearchButtonClick(true)}>Search</Button>
                 </InputGroup>
             </div>
@@ -451,6 +494,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                 </div>
             </div>
             )}
+            <h2>My Rentals</h2>
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Room Details</Modal.Title>
