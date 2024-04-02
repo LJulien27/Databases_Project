@@ -6,9 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Client.css';
 import './Background.css';
 
-function CustomDropdownItem({ children, onClick }) {
+function CustomDropdownItem({ children, onClick, isSelected }) {
     return (
-        <Dropdown.Item onClick={onClick}>
+        <Dropdown.Item onClick={onClick} style={{ backgroundColor: isSelected ? 'lightgray' : 'white' }}>
             <span>{children}</span>
         </Dropdown.Item>
     );
@@ -18,6 +18,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [showMyAccountModal, setShowMyAccountModal] = useState(false);
     const [showChainModal, setShowChainModal] = useState(false);
     const [showRoomModal, setShowRoomModal] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [checkInDate, setCheckInDate] = useState(null);
     const [checkOutDate, setCheckOutDate] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
@@ -28,15 +29,16 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [selectedChains, setSelectedChains] = useState([]);
     const [selectedHotels, setSelectedHotels] = useState([]);
 
-    //selectedCapacity might get erased
-    const [selectedCapacity, setSelectedCapacity] = useState([]);
     const [capacitySize, setCapacitySize] = useState(0);
+    const [categoryChosen, setCategoryChosen] = useState(0);
 
     const [hotelIdsBasedOnChains, setHotelIdsBasedOnChains]  = useState([]);
     const [hotelIdsBasedOnCategory, setHotelIdsBasedOnCategory]  = useState([]);
 
     const [selectedArea, setSelectedArea] = useState("Area");
     const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
+
+    const [roomsToShow, setRoomsToShow] = useState([]);
 
     const [clientsSQL, setClients] = useState([]);
     const [chainsSQL, setChains] = useState([]);
@@ -45,6 +47,9 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [commoditiesSQL, setCommodities] = useState([]);
     const [reservationsSQL, setReservations] = useState([]);
     const [rentalsSQL, setRentals] = useState([]);
+
+    const [clientSin, setClientSin] = useState('');
+    const [selectedRoomId, setSelectedRoomId] = useState(null);
 
 
     const toggleDarkMode = () => {
@@ -117,7 +122,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setRooms(data);
-                setSelectedCapacity(data.map(room => room.id));
+                setRoomsToShow(data);
             })
             .catch(error => {
                 console.error('Error fetching rooms:', error);
@@ -211,10 +216,48 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const handleCloseReservationModal = () => setShowReservationModal(false);
     const handleShowReservationModal = () => setShowReservationModal(true);
 
-    const handleReserveModal = () => {
+
+    //Pay variables
+    const [nameOnCard, setNameOnCard] = useState('');
+    const [cardNum, setCardNum] = useState('');
+    const [cardExpiry, setCardExpiry] = useState('');
+    const [cardCCV, setCardCCV] = useState('');
+    const [errorCardDetails, setErrorCardDetails] = useState("");
+    const handlePayModal = () => {
         // create reservation to be seen by client
-        alert("Success! Your room has been reserved.");
+        if (checkInDate === null || checkOutDate === null){
+            alert('You need to have a checkin date and a checkout date to make a rental');
+            return;
+        }
         handleCloseRoomModal();
+        setShowPaymentModal(true);
+    }
+    const handleNewRental = () => {
+        if (clientsSQL.every(client => client.sin !== parseInt(clientSin))) {
+            setErrorCardDetails('This client does not exist');
+            return;
+        }
+        if (nameOnCard === ''){
+            setErrorCardDetails('You must enter a name');
+            return;
+        }
+        if (!/^\d{16}$/.test(cardNum)) {
+            setErrorCardDetails('Invalid credit card number');
+            return;
+        }
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry)) {
+            setErrorCardDetails('Invalid expiry date');
+            return;
+        }
+        if (!/^\d{3}$/.test(cardCCV)) {
+            setErrorCardDetails('Invalid credit card ccv');
+            return;
+        }
+        createRental(parseInt(clientSin), selectedRoomId, checkInDate.toLocaleDateString('en-CA'), checkOutDate.toLocaleDateString('en-CA'));
+        setErrorCardDetails('');
+        alert('Congratulations youve rented this room');
+        setShowPaymentModal(false);
+        
     }
 
     //NEW RENTAL
@@ -318,44 +361,49 @@ const Employee = ({loggedIn, signedInAcc}) => {
     }
 
     //EDIT THIS
-    const handleCapacityClick = (option) => {
+    const handleSearchClick = (capacity, s_date, e_date) => {
+
+        //First thing it does it get rooms with chosen capacity
         let selectedHotelIds = selectedHotels.map(hotel => hotel.id);
-        if (option === 0){
-            setSelectedCapacity(roomsSQL
-                .filter(room => selectedHotelIds.includes(room.hotel_id))
-                .map(room => room.id)
-                );
+        let selectedRooms = [];
+        if (capacity === 0){
+            selectedRooms = roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id)).map(room => room);
         }
-        else if (option === 1){
-            setSelectedCapacity(roomsSQL
-                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 1)
-                .map(room => room.id)
-                );
+        else if (capacity === 1){
+            selectedRooms = roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 1)
+            .map(room => room);
         }
-        else if (option === 2){
-            setSelectedCapacity(roomsSQL
-                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 2)
-                .map(room => room.id)
-                );
+        else if (capacity === 2){
+            selectedRooms = roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 2)
+            .map(room => room);
         }
-        else if (option === 3){
-            setSelectedCapacity(roomsSQL
-                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 3)
-                .map(room => room.id)
-                );
+        else if (capacity === 3){
+            selectedRooms = roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 3)
+            .map(room => room);
         }
-        else if (option === 4){
-            setSelectedCapacity(roomsSQL
-                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 4)
-                .map(room => room.id)
-                );
+        else if (capacity === 4){
+            selectedRooms = roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 4)
+            .map(room => room);
         }
-        else if (option === 5){
-            setSelectedCapacity(roomsSQL
-                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 5)
-                .map(room => room.id)
-                );
+        else if (capacity === 5){
+            selectedRooms = roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 5)
+            .map(room => room);
         }
+
+        //Now I remove rooms which dont match with the date
+        if (s_date !== null && e_date !== null){
+            let resAndRent = reservationsSQL.concat(rentalsSQL);
+            // Get the IDs of the rooms that have overlapping reservations
+            let overlappingRoomIds = resAndRent.filter(reservation =>
+                datesOverlap(s_date.toLocaleDateString('en-CA'), e_date.toLocaleDateString('en-CA'), reservation.s_date, reservation.e_date)
+            ).map(reservation => reservation.id_room);
+
+            // Get the rooms that don't have overlapping reservations
+            let availableRooms = selectedRooms.filter(room => !overlappingRoomIds.includes(room.id));
+            selectedRooms = availableRooms;
+        }
+
+        setRoomsToShow(selectedRooms);
     }
 
 
@@ -431,6 +479,12 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     }
 
+    function datesOverlap(s_date1, e_date1, s_date2, e_date2) {
+        return (s_date1 >= s_date2 && s_date1 <= e_date2) ||  // start date of first range is within second range
+               (e_date1 >= s_date2 && e_date1 <= e_date2) ||  // end date of first range is within second range
+               (s_date2 >= s_date1 && s_date2 <= e_date1) ||  // start date of second range is within first range
+               (e_date2 >= s_date1 && e_date2 <= e_date1);    // end date of second range is within first range
+    }
  //   if (loggedIn !== 2){
  //       return (
   //          <div>
@@ -453,7 +507,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
             <div className="search-bar">
                 <h1>Welcome Employee!</h1>
-
                 {JSON.stringify(hotelIdsBasedOnChains)}
                 {JSON.stringify(hotelIdsBasedOnCategory)}
                 {JSON.stringify(selectedHotels)}
@@ -508,33 +561,39 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     </Dropdown>
                     <DatePicker
                         selected={checkInDate}
-                        onChange={handleCheckInChange}
+                        onChange={(date) => {
+                            handleCheckInChange(date);
+                            handleSearchClick(capacitySize, date, checkOutDate);
+                        }}
                         placeholderText="Check In"
                     />
                     <DatePicker
                         selected={checkOutDate}
-                        onChange={handleCheckOutChange}
+                        onChange={(date) => {
+                            handleCheckOutChange(date);
+                            handleSearchClick(capacitySize, checkInDate, date);
+                        }}
                         placeholderText="Check Out"
                     />
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">Select capacity</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => {setCapacitySize(1);}} isChecked={false}>1 Person</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {setCapacitySize(2);}} isChecked={false}>2 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {setCapacitySize(3);}} isChecked={false}>3 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {setCapacitySize(4);}} isChecked={false}>4 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {setCapacitySize(5);}} isChecked={false}>5 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => {setCapacitySize(0);}} isChecked={false}>Any</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(1);}} isSelected={capacitySize === 1}>1 Person</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(2);}} isSelected={capacitySize === 2}>2 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(3);}} isSelected={capacitySize === 3}>3 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(4);}} isSelected={capacitySize === 4}>4 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(5);}} isSelected={capacitySize === 5}>5 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(0);}} isSelected={capacitySize === 0}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
 
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">Hotel category</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleCategoryClick(5)} isChecked={false}>5 star hotel</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCategoryClick(4)} isChecked={false}>4 star hotel</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCategoryClick(3)} isChecked={false}>3 star hotel</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCategoryClick(0)} isChecked={false}>Any</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {handleCategoryClick(5); setCategoryChosen(5);}} isSelected={categoryChosen === 5}>5 star hotel</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {handleCategoryClick(4); setCategoryChosen(4);}} isSelected={categoryChosen === 4}>4 star hotel</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {handleCategoryClick(3); setCategoryChosen(3);}} isSelected={categoryChosen === 3}>3 star hotel</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {handleCategoryClick(0); setCategoryChosen(0);}} isSelected={categoryChosen === 0}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
@@ -548,7 +607,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: Any")} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Button variant="primary" onClick={() => handleCapacityClick(capacitySize)} >Search</Button>
+                    <Button variant="secondary" onClick={() => {setCheckInDate(null); setCheckOutDate(null); handleSearchClick(capacitySize, null, null);}} >Reset Dates</Button>
+                    <Button variant="primary" onClick={() => {handleSearchClick(capacitySize, checkInDate, checkOutDate);}} >Search</Button>
                 </InputGroup>
             </div>
 
@@ -611,8 +671,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </Modal>
             <h2>Room Results</h2>
             <div className="room-grid room-grid-flex">
-                {roomsSQL.filter(room => selectedCapacity.includes(room.id)).map(room => (
-                    <Card style={{ width: '12rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
+                {roomsToShow.map(room => 
+                    <Card style={{ width: '12rem' }}key={room.id} onClick={() => {handleShowRoomModal(room); setSelectedRoomId(room.id);}} className="room-card">
                         <Card.Img
                             className="room-image"
                             variant="top"
@@ -632,7 +692,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         {/* Additional buttons or actions */}
                         {/* <Button variant="primary">View Details</Button> */}
                     </Card>
-                ))}
+                )}
             </div>
 
             {/*
@@ -673,6 +733,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     {selectedRoom && (
                         <div key={selectedRoom.id}>
                             <p>
+                                <strong>Hotel:</strong>{' '}
+                                {(hotelsSQL.find(hotel => hotel.id === selectedRoom.hotel_id)).name}
+                            </p>
+                            <p>
                                 <strong>Room ID:</strong>{' '}
                                 {selectedRoom.id}
                             </p>
@@ -709,8 +773,75 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
-                    <Button variant="primary" onClick={handleReserveModal}>Reserve</Button>
+                    <Button variant="primary" onClick={handlePayModal}>Make rental</Button>
                     <Button variant="primary" onClick={handleNewRentalModal}>Rent</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showPaymentModal} onHide={setShowPaymentModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Rental Payment</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Clients SIN</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={clientSin}
+                                onChange={e => setClientSin(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Name on card</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={nameOnCard}
+                                onChange={e => setNameOnCard(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group
+                        className="mb-3"
+                        controlId="exampleForm.ControlTextarea1"
+                        >
+                            <Form.Label>Card number</Form.Label>
+                            <Form.Control
+                                type="password"
+                                value={cardNum}
+                                onChange={e => setCardNum(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group
+                        className="mb-3"
+                        controlId="exampleForm.ControlTextarea1"
+                        >
+                            <Form.Label>Expiry date</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="MM/YY"
+                                value={cardExpiry}
+                                onChange={e => setCardExpiry(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group
+                        className="mb-3"
+                        controlId="exampleForm.ControlTextarea1"
+                        >
+                            <Form.Label>CCV</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={cardCCV}
+                                onChange={e => setCardCCV(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {errorCardDetails && <p style={{ color: 'red' }}>{errorCardDetails}</p>}
+                    <Button variant="primary" onClick={handleNewRental}>
+                        Pay
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </div>
