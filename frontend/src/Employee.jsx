@@ -27,13 +27,16 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     const [selectedChains, setSelectedChains] = useState([]);
     const [selectedHotels, setSelectedHotels] = useState([]);
-    const [selectedHotelIds, setSelectedHotelIds] = useState([]);
 
-    const [selectedRating, setSelectedRating] = useState("Rating");
-    const [selectedCapacity, setSelectedCapacity] = useState("Capacity");
+    //selectedCapacity might get erased
+    const [selectedCapacity, setSelectedCapacity] = useState([]);
+    const [capacitySize, setCapacitySize] = useState(0);
+
+    const [hotelIdsBasedOnChains, setHotelIdsBasedOnChains]  = useState([]);
+    const [hotelIdsBasedOnCategory, setHotelIdsBasedOnCategory]  = useState([]);
+
     const [selectedArea, setSelectedArea] = useState("Area");
-    const [selectedCategory, setSelectedCategory] = useState("Category");
-    const [selectedReservation, setSelectedReservation] = useState("Reservation");
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
 
     const [clientsSQL, setClients] = useState([]);
     const [chainsSQL, setChains] = useState([]);
@@ -99,8 +102,9 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setHotels(data);
-                setSelectedHotels(data.map(hotel => hotel.name));
-                setSelectedHotelIds(data.map(hotel => hotel.id));
+                setHotelIdsBasedOnChains(data.map(hotel => hotel.id));
+                setHotelIdsBasedOnCategory(data.map(hotel => hotel.id));
+                setSelectedHotels(data);
             })
             .catch(error => {
                 console.error('Error fetching hotels:', error);
@@ -113,6 +117,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setRooms(data);
+                setSelectedCapacity(data.map(room => room.id));
             })
             .catch(error => {
                 console.error('Error fetching rooms:', error);
@@ -253,73 +258,150 @@ const Employee = ({loggedIn, signedInAcc}) => {
         if (chainName === 'Select all') {
             if (selectedChains.length === chainsSQL.length) {
                 setSelectedChains([]); // If all chains are selected, deselect all
-                setSelectedHotels([]); // Also deselect all hotels
-                setSelectedHotelIds([]); // And clear the selectedHotelIds
+                setHotelIdsBasedOnChains([]);
+                setSelectedHotels([]);
             } else {
                 const chainNames = chainsSQL.map(chain => chain.name);
                 setSelectedChains(chainNames); // Select all chains
-                const hotelNames = hotelsSQL.map(hotel => hotel.name);
-                setSelectedHotels(hotelNames); // Also select all hotels
                 const hotelIds = hotelsSQL.map(hotel => hotel.id);
-                setSelectedHotelIds(hotelIds); // And set all hotel ids
+                setHotelIdsBasedOnChains(hotelIds);
+                //do something for setSelectedHotels
             }
         } else {
             if (selectedChains.includes(chainName)) {
                 setSelectedChains(selectedChains.filter(chain => chain !== chainName)); // Deselect the chain
                 // Also deselect the hotels of this chain
                 const hotelsOfThisChain = hotelsSQL.filter(hotel => hotel.chain_name === chainName);
-                setSelectedHotels(selectedHotels.filter(name => !hotelsOfThisChain.map(hotel => hotel.name).includes(name)));
-                setSelectedHotelIds(selectedHotelIds.filter(id => !hotelsOfThisChain.map(hotel => hotel.id).includes(id)));
+                setHotelIdsBasedOnChains(hotelIdsBasedOnChains.filter(id => !hotelsOfThisChain.map(hotel => hotel.id).includes(id)));
+                const filteredSelectedHotels = selectedHotels.filter(hotel =>
+                    !hotelsOfThisChain.map(hotel => hotel.id).includes(hotel.id)
+                    );
+                setSelectedHotels(filteredSelectedHotels);
             } else {
                 setSelectedChains([...selectedChains, chainName]); // Select the chain
                 // Also select the hotels of this chain
                 const hotelsOfThisChain = hotelsSQL.filter(hotel => hotel.chain_name === chainName);
-                setSelectedHotels([...selectedHotels, ...hotelsOfThisChain.map(hotel => hotel.name)]);
-                setSelectedHotelIds([...selectedHotelIds, ...hotelsOfThisChain.map(hotel => hotel.id)]);
+                setHotelIdsBasedOnChains([...hotelIdsBasedOnChains, ...hotelsOfThisChain.map(hotel => hotel.id)]);
+                //setSelectedHotels([...selectedHotels, ...hotelsOfThisChain]);
             }
         }
     };
 
+    //EDIT THIS
     const handleHotelClick = (hotelName) => {
         if (hotelName === 'Select all') {
-            if (selectedHotels.length === hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).length) {
+            const categoryAndChain = hotelIdsBasedOnChains.filter((element) => hotelIdsBasedOnCategory.includes(element));
+            const categoryAndChainLength = categoryAndChain.length;
+            //alert(JSON.stringify(categoryAndChain));
+            //alert(JSON.stringify(categoryAndChainLength));
+            if (selectedHotels.length === categoryAndChainLength) {
                 setSelectedHotels([]); // If all chains are selected, deselect all
-                setSelectedHotelIds([]);
             } else {
-                const selectedHotels = hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name));
-                setSelectedHotels(selectedHotels.map(hotel => hotel.name));
-                setSelectedHotelIds(selectedHotels.map(hotel => hotel.id));
+                const hotelsToSelect = hotelsSQL.filter(hotel => categoryAndChain.includes(hotel.id));
+                setSelectedHotels(hotelsToSelect);
             }
         } else {
             const hotel = hotelsSQL.find(hotel => hotel.name === hotelName);
-            if (selectedHotels.includes(hotelName)) {
-                setSelectedHotels(selectedHotels.filter(name => name !== hotelName));
-                setSelectedHotelIds(selectedHotelIds.filter(id => id !== hotel.id)); // Remove the hotel's id from selectedHotelIds
+            //alert(JSON.stringify(hotel));
+            if (selectedHotels.includes(hotel)) {
+                setSelectedHotels(selectedHotels.filter(hotel1 => hotel1.name !== hotelName));
             } else {
-                setSelectedHotels([...selectedHotels, hotelName]);
-                setSelectedHotelIds([...selectedHotelIds, hotel.id]); // Add the hotel's id to selectedHotelIds
+                setSelectedHotels([...selectedHotels, hotel]);
             }
         }
     };
 
-    const handleCapacityClick = (option) => {
-        setSelectedCapacity(option);
+    const handleRemoveHotel = () => {
+        const categoryAndChain = hotelIdsBasedOnChains.filter((element) => hotelIdsBasedOnCategory.includes(element));
+        const filteredSelectedHotels = selectedHotels.filter((hotel) => categoryAndChain.includes(hotel.id));
+        setSelectedHotels(filteredSelectedHotels);
     }
 
-    const handleRatingClick = (option) => {
-        setSelectedRating(option);
+    //EDIT THIS
+    const handleCapacityClick = (option) => {
+        let selectedHotelIds = selectedHotels.map(hotel => hotel.id);
+        if (option === 0){
+            setSelectedCapacity(roomsSQL
+                .filter(room => selectedHotelIds.includes(room.hotel_id))
+                .map(room => room.id)
+                );
+        }
+        else if (option === 1){
+            setSelectedCapacity(roomsSQL
+                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 1)
+                .map(room => room.id)
+                );
+        }
+        else if (option === 2){
+            setSelectedCapacity(roomsSQL
+                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 2)
+                .map(room => room.id)
+                );
+        }
+        else if (option === 3){
+            setSelectedCapacity(roomsSQL
+                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 3)
+                .map(room => room.id)
+                );
+        }
+        else if (option === 4){
+            setSelectedCapacity(roomsSQL
+                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 4)
+                .map(room => room.id)
+                );
+        }
+        else if (option === 5){
+            setSelectedCapacity(roomsSQL
+                .filter(room => selectedHotelIds.includes(room.hotel_id) && room.capacity === 5)
+                .map(room => room.id)
+                );
+        }
     }
+
 
     const handleCategoryClick = (option) => {
-        setSelectedCategory(option);
+        const hotelsOfThisCategory = hotelsSQL.filter(hotel => hotel.ratings === option);
+        const hotelsToSelect = hotelsSQL.filter(hotel => hotelIdsBasedOnChains.includes(hotel.id));
+        //alert(JSON.stringify(hotelsToSelect));
+        if (option === 0){
+            setHotelIdsBasedOnCategory(hotelsSQL.map(hotel => hotel.id));
+            setSelectedHotels(hotelsToSelect);
+        }
+        else if (option === 3){
+
+            setHotelIdsBasedOnCategory(hotelsSQL
+                .filter(hotel => hotel.ratings === 3)
+                .map(hotel => hotel.id)
+                );
+            const intersectionHotels = hotelsToSelect.filter(hotel =>
+                hotelsOfThisCategory.map(hotel => hotel.id).includes(hotel.id)
+                );
+            setSelectedHotels(intersectionHotels);
+        }
+        else if (option === 4){
+            setHotelIdsBasedOnCategory(hotelsSQL
+                .filter(hotel => hotel.ratings === 4)
+                .map(hotel => hotel.id)
+                );
+            const intersectionHotels = hotelsToSelect.filter(hotel =>
+                hotelsOfThisCategory.map(hotel => hotel.id).includes(hotel.id)
+                );
+            setSelectedHotels(intersectionHotels);
+        }
+        else if (option === 5){
+            setHotelIdsBasedOnCategory(hotelsSQL
+                .filter(hotel => hotel.ratings === 5)
+                .map(hotel => hotel.id)
+                );
+            const intersectionHotels = hotelsToSelect.filter(hotel =>
+                hotelsOfThisCategory.map(hotel => hotel.id).includes(hotel.id)
+                );
+            setSelectedHotels(intersectionHotels);
+        }
     }
 
     const handleAreaClick = (option) => {
         setSelectedArea(option);
-    }
-
-    const handleReservationClick = (option) => {
-        setSelectedReservation(option);
     }
 
     const handleMyAccountClick = () => {
@@ -337,6 +419,17 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setSelectedOptions([...selectedOptions, option]);
         }
     };
+
+    function getIntersectionLength(array1, array2) {
+        const intersection = array1.filter(element => array2.includes(element));
+        return intersection.length;
+    }
+
+    //SEARCH BUTTON, VERY IMPORTANT!!!!!!
+    const handleSearchRooms = () => {
+        const chainAndCategoryIds = hotelIdsBasedOnChains.filter((element) => hotelIdsBasedOnCategory.includes(element));
+
+    }
 
  //   if (loggedIn !== 2){
  //       return (
@@ -357,8 +450,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     Disabled button test
                 </Button>
             </div>
+
             <div className="search-bar">
                 <h1>Welcome Employee!</h1>
+
+                {JSON.stringify(hotelIdsBasedOnChains)}
+                {JSON.stringify(hotelIdsBasedOnCategory)}
+                {JSON.stringify(selectedHotels)}
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">Select chains</Dropdown.Toggle>
@@ -386,13 +484,15 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary">Select hotels</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            {hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).map(hotel => (
+                            {hotelsSQL.filter(hotel => 
+                                hotelIdsBasedOnChains.includes(hotel.id) && hotelIdsBasedOnCategory.includes(hotel.id))
+                                .map(hotel => (
                                 <div key={hotel.name}>
                                     <Form.Check 
                                         type="checkbox"
                                         id={hotel.name}
                                         label={hotel.name}
-                                        checked={selectedHotels.includes(hotel.name)}
+                                        checked={selectedHotels.includes(hotel)}
                                         onChange={() => handleHotelClick(hotel.name)}
                                     />
                                 </div>
@@ -401,7 +501,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                                 type="checkbox"
                                 id="selectAll"
                                 label="Select all"
-                                checked={selectedHotels.length === hotelsSQL.filter(hotel => selectedChains.includes(hotel.chain_name)).length}
+                                checked={selectedHotels.length === getIntersectionLength(hotelIdsBasedOnChains, hotelIdsBasedOnCategory)}
                                 onChange={() => handleHotelClick('Select all')}
                             />
                         </Dropdown.Menu>
@@ -417,34 +517,24 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         placeholderText="Check Out"
                     />
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedCapacity}</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary">Select capacity</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: 1 Person")} isChecked={false}>1 Person</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: 2 Persons")} isChecked={false}>2 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: 3 Persons")} isChecked={false}>3 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: 4 Persons")} isChecked={false}>4 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: 5 Persons")} isChecked={false}>5 Persons</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCapacityClick("Capacity: Any")} isChecked={false}>Any</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(1);}} isChecked={false}>1 Person</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(2);}} isChecked={false}>2 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(3);}} isChecked={false}>3 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(4);}} isChecked={false}>4 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(5);}} isChecked={false}>5 Persons</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => {setCapacitySize(0);}} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
+
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedRating}</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary">Hotel category</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleRatingClick("Rating: 1 Star")} isChecked={false}>1 Star</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleRatingClick("Rating: 2 Stars")} isChecked={false}>2 Stars</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleRatingClick("Rating: 3 Stars")} isChecked={false}>3 Stars</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleRatingClick("Rating: 4 Stars")} isChecked={false}>4 Stars</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleRatingClick("Rating: 5 Stars")} isChecked={false}>5 Stars</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleRatingClick("Rating: Any")} isChecked={false}>Any</CustomDropdownItem>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedCategory}</Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 1")} isChecked={false}>Category 1</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 2")} isChecked={false}>Category 2</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Category 3")} isChecked={false}>Category 3</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleCategoryClick("Category: Any")} isChecked={false}>Any</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleCategoryClick(5)} isChecked={false}>5 star hotel</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleCategoryClick(4)} isChecked={false}>4 star hotel</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleCategoryClick(3)} isChecked={false}>3 star hotel</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleCategoryClick(0)} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
@@ -458,17 +548,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: Any")} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedReservation}</Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 1")} isChecked={false}>Reservation 1</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 2")} isChecked={false}>Reservation 2</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 3")} isChecked={false}>Reservation 3</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 4")} isChecked={false}>Reservation 4</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleReservationClick("Reservation: Reservation 5")} isChecked={false}>Reservation 5</CustomDropdownItem>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <Button variant="primary">Search</Button>
+                    <Button variant="primary" onClick={() => handleCapacityClick(capacitySize)} >Search</Button>
                 </InputGroup>
             </div>
 
@@ -531,7 +611,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </Modal>
             <h2>Room Results</h2>
             <div className="room-grid room-grid-flex">
-                {roomsSQL.filter(room => selectedHotelIds.includes(room.hotel_id)).map(room => (
+                {roomsSQL.filter(room => selectedCapacity.includes(room.id)).map(room => (
                     <Card style={{ width: '12rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
                         <Card.Img
                             className="room-image"

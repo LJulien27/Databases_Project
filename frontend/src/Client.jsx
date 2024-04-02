@@ -605,7 +605,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         <div key={selectedRoom.id}>
                             <p>
                                 <strong>Hotel ID:</strong>{' '}
-                                {selectedRoom.hotel_id}
+                                {(hotelsSQL.find(hotel => hotel.id === selectedRoom.hotel_id)).name}
                             </p>
                             <p>
                                 <strong>Room ID:</strong>{' '}
