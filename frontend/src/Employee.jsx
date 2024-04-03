@@ -488,23 +488,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" onClick={handleMyAccountClick}>My Account</Button>
-                <Button variant="secondary" onClick={toggleDarkMode}>
-                    {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </Button>
-                <Button variant="primary" disabled>
-                    Disabled button test
-                </Button>
+                <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
             </div>
-
             <div className="search-bar">
                 <h1>Welcome Employee!</h1>
-                {JSON.stringify(hotelIdsBasedOnChains)}
-                {JSON.stringify(hotelIdsBasedOnCategory)}
-                {JSON.stringify(selectedHotels)}
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Select chains</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
                         <Dropdown.Menu>
                             {chainsSQL.map(chain => (
                                 <div key={chain.name}>
@@ -527,7 +517,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Select hotels</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">Select hotels</Dropdown.Toggle>
                         <Dropdown.Menu>
                             {hotelsSQL.filter(hotel => 
                                 hotelIdsBasedOnChains.includes(hotel.id) && hotelIdsBasedOnCategory.includes(hotel.id))
@@ -552,6 +542,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <DatePicker
+                        className="dropdown-button"
                         selected={checkInDate}
                         onChange={(date) => {
                             handleCheckInChange(date);
@@ -560,6 +551,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         placeholderText="Check In"
                     />
                     <DatePicker
+                        className="dropdown-button"
                         selected={checkOutDate}
                         onChange={(date) => {
                             handleCheckOutChange(date);
@@ -568,7 +560,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         placeholderText="Check Out"
                     />
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Select capacity</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">Select capacity</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => {setCapacitySize(1);}} isSelected={capacitySize === 1}>1 Person</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => {setCapacitySize(2);}} isSelected={capacitySize === 2}>2 Persons</CustomDropdownItem>
@@ -580,7 +572,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     </Dropdown>
 
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">Hotel category</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">Hotel category</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => {handleCategoryClick(5); setCategoryChosen(5);}} isSelected={categoryChosen === 5}>5 star hotel</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => {handleCategoryClick(4); setCategoryChosen(4);}} isSelected={categoryChosen === 4}>4 star hotel</CustomDropdownItem>
@@ -589,7 +581,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown as={InputGroup.Append}>
-                        <Dropdown.Toggle variant="secondary">{selectedArea}</Dropdown.Toggle>
+                        <Dropdown.Toggle variant="secondary" className="dropdown-button">{selectedArea}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: 200 Square Ft")} isChecked={false}>200 Square Ft</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: 300 Square Ft")} isChecked={false}>300 Square Ft</CustomDropdownItem>
@@ -599,15 +591,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: Any")} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Button variant="secondary" onClick={() => {setCheckInDate(null); setCheckOutDate(null); handleSearchClick(capacitySize, null, null);}} >Reset Dates</Button>
-                    <Button variant="primary" onClick={() => {handleSearchClick(capacitySize, checkInDate, checkOutDate);}} >Search</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={() => {setCheckInDate(null); setCheckOutDate(null); handleSearchClick(capacitySize, null, null);}} >Reset Dates</Button>
+                    <Button variant="primary" className="search-button" onClick={() => {handleSearchClick(capacitySize, checkInDate, checkOutDate);}} >Search</Button>
                 </InputGroup>
             </div>
-
-            {JSON.stringify(reservationsSQL)}
-            <Button variant="success" onClick={handleReserveToRental}>turn into rental</Button>
-            {JSON.stringify(rentalsSQL)}
-
+            <Button variant="success" className="positive-modal-button" onClick={handleReserveToRental}>Convert to rental</Button>
             <Modal show={showMyAccountModal} onHide={handleCloseMyAccountModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>My Account</Modal.Title>
@@ -631,7 +619,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseMyAccountModal}>Close</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseMyAccountModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
             <Modal show={showChainModal} onHide={handleCloseChainModal}>
@@ -658,10 +646,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseChainModal}>Close</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseChainModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
             <h2>Room Results</h2>
+            <div className="room-container">
             <div className="room-grid room-grid-flex">
                 {roomsToShow.map(room => 
                     <Card style={{ width: '12rem' }}key={room.id} onClick={() => {handleShowRoomModal(room); setSelectedRoomId(room.id);}} className="room-card">
@@ -686,14 +675,15 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     </Card>
                 )}
             </div>
-
+            </div>
             {/*
             I need to edit this more, similar to what the regular show of rooms looks like but when I click it, I can turn it into a rental
             */}
             <h2>Reserved rooms</h2>
+            <div className="room-container">
             <div className="room-grid room-grid-flex">
                 {roomsSQL.filter(room => reservationsSQL.some(reservation => reservation.id_room === room.id)).map(room => 
-                    <Card style={{ width: '12rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
+                    <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
                         <Card.Img
                             className="room-image"
                             variant="top"
@@ -703,7 +693,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             <Card.Title>{room.id}</Card.Title>
                             <Card.Text>
-                                <strong>Price:</strong> ${room.price}/Night
+                                <strong>Price:</strong> ${room.prix}/Night
                             </Card.Text>
                             <Card.Text>
                                 <strong>Capacity:</strong> {room.capacity} Persons
@@ -715,6 +705,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         {/* <Button variant="primary">View Details</Button> */}
                     </Card>
                 )}
+            </div>
             </div>
 
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
@@ -746,7 +737,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             </p>
                             <p>
                                 <strong>Extent:</strong>{' '}
-                                {selectedRoom.expanding}
+                                {selectedRoom.expanding ? 'Yes' : 'No'}
                             </p>
                             <p>
                                 <strong>Problems:</strong>{' '}
@@ -764,9 +755,9 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     ))*/}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseRoomModal}>Close</Button>
-                    <Button variant="primary" onClick={handlePayModal}>Make rental</Button>
-                    <Button variant="primary" onClick={handleNewRentalModal}>Rent</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseRoomModal}>Close</Button>
+                    <Button variant="primary" className="search-button" onClick={handlePayModal}>Make rental</Button>
+                    <Button variant="primary" className="positive-modal-button" onClick={handleNewRentalModal}>Rent</Button>
                 </Modal.Footer>
             </Modal>
 
