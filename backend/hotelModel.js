@@ -30,10 +30,10 @@ const getHotels = async () => {
   //create a new hotel record in the databsse
   const createHotel = (body) => {
     return new Promise(function (resolve, reject) {
-      const { name, address, rooms, rating } = body;
+      const { name, address, id, rooms, chain_name, ratings } = body;
       pool.query(
-        "INSERT INTO hotels (name, address, rooms, rating) VALUES ($1, $2, $3, $4) RETURNING *",
-        [name, address, rooms, rating],
+        "INSERT INTO hotels (name, address, id, rooms, chain_name, ratings) VALUES ($1, $2, $3, $4, 5$, 6$) RETURNING *",
+        [name, address, id, rooms, chain_name, ratings],
         (error, results) => {
           if (error) {
             reject(error);

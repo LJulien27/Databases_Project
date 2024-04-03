@@ -166,6 +166,23 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     }
 
+    function createHotel(name, address, id, rooms, chain_name, ratings) {
+        fetch('http://localhost:3001/hotels', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({name, address, id, rooms, chain_name, ratings}),
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            alert(data);
+            getHotels();
+        });
+    }
+
     function getRooms() {
         fetch('http://localhost:3001/rooms')
             .then(response => response.json())
@@ -653,18 +670,40 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [showDeleteHotelModal, setShowDeleteHotelModal] = useState(false);
     const [hotelName, setHotelName] = useState('');
     const [hotelAddress, setHotelAddress] = useState('');
+    const [hotelId, setHotelId] = useState('');
+    const [hotelChainName, setHotelChainName] = useState('');
+    const [hotelRating, setHotelRating] = useState(null);
     const [createHotelErrorMsg, setCreateHotelErrorMsg] = useState('');
     const handleCreateHotel = () => {
         if (hotelsSQL.some(hotel => hotel.name === hotelName)){
-            setCreateChainErrorMsg('This hotel already exists');
+            setCreateHotelErrorMsg('This hotel already exists');
+            return;
+        }
+        if (hotelsSQL.some(hotel => hotel.address === hotelAddress)){
+            setCreateHotelErrorMsg('This address already exists');
+            return;
+        }
+        if (hotelsSQL.some(hotel => hotel.id === hotelId)){
+            setCreateHotelErrorMsg('This hotelID already exists');
+            return;
+        }
+        if (!(chainsSQL.map(chain => chain.name).includes(hotelChainName))){
+            setCreateHotelErrorMsg('The chain you entered does not exist');
+            return;
+        }
+        if (!(['3','4','5'].includes(hotelRating))){
+            setCreateHotelErrorMsg('Hotel must be of a 3, 4 or 5 star rating');
             return;
         }
         //OTHER OPTIONS FOR A HOTEL
-        createHotel(chainName, chainAddress, 10);
+        createHotel(hotelName, hotelAddress, hotelId, 69, hotelChainName, parseInt(hotelRating));
         handleResetFilter();
         setShowCreateHotelModal(false);
         setHotelName('');
         setHotelAddress('');
+        setHotelId('');
+        setHotelChainName('');
+        setHotelRating('');
     }
 
     
@@ -876,7 +915,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <Card.Text>
                             <Button variant="secondary" className="search-button">Update Hotel Info</Button>
                             <Button variant="secondary" className="negative-modal-button">Delete Hotel</Button>
-                            <Button variant="secondary" className="positive-modal-button">Create New Hotel</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateHotelModal}>Create New Hotel</Button>
                             </Card.Text>
                         </Card.Body>
                     </Card>
@@ -1222,6 +1261,66 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     {updateChainInfoErrorMsg && <p style={{ color: 'red' }}>{updateChainInfoErrorMsg}</p>}
                     <Button variant="primary" onClick={handleUpdateChain}>
                         Update Chain
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showCreateHotelModal} onHide={setShowCreateHotelModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create New Hotel</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={hotelName}
+                                onChange={e => setHotelName(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={hotelId}
+                                onChange={e => setHotelId(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel address</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={hotelAddress}
+                                placeholder='123 random rd'
+                                onChange={e => setHotelAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel Chain</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={hotelChainName}
+                                placeholder='Ex: Hilton'
+                                onChange={e => setHotelChainName(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel Rating</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={hotelRating}
+                                placeholder='Ex: 5'
+                                onChange={e => setHotelRating(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {createHotelErrorMsg && <p style={{ color: 'red' }}>{createHotelErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleCreateHotel}>
+                        Hotel Chain
                     </Button>
                 </Modal.Footer>
             </Modal>
