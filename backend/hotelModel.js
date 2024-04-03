@@ -227,10 +227,10 @@ const getHotels = async () => {
   //update a chain
   const updateChain = (body) => {
     return new Promise(function (resolve, reject) {
-      const { name, address, num_hotels } = body;
+      const { oldName, name, address, num_hotels } = body;
       pool.query(
-        "UPDATE chains SET name = $1, address = $2, num_hotels = $3 WHERE id = $1 RETURNING *",
-        [name, address, num_hotels],
+        "UPDATE chains SET name = $2, address = $3, num_hotels = $4 WHERE name = $1 RETURNING *",
+        [oldName, name, address, num_hotels],
         (error, results) => {
           if (error) {
             reject(error);

@@ -105,6 +105,51 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 console.error('Error fetching chains:', error);
             });
     }
+    
+    function createChain(name, address, num_hotels) {
+        fetch('http://localhost:3001/chains', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({name, address, num_hotels}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                //alert(data);
+                getChains();
+            });
+    }
+
+    function deleteChain(name) {
+        fetch(`http://localhost:3001/chains/${name}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getChains();
+        });
+    }
+
+    function updateChain(oldName, name, address, num_hotels) {
+        fetch(`http://localhost:3001/chains/${oldName}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({oldName, name, address, num_hotels}),
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getChains();
+        });
+    }
 
     function getHotels() {
         fetch('http://localhost:3001/hotels')
@@ -489,6 +534,18 @@ const Employee = ({loggedIn, signedInAcc}) => {
         handleShowRoomSettingsModal();
     };
 
+    const handleResetFilter = () => {
+        getChains();
+        getHotels();
+        getRooms();
+        getReservations();
+        getRentals();
+        setCheckInDate(null); 
+        setCheckOutDate(null);
+        setCapacitySize(0);
+        setCategoryChosen(0);
+    }
+
     function getIntersectionLength(array1, array2) {
         const intersection = array1.filter(element => array2.includes(element));
         return intersection.length;
@@ -508,6 +565,110 @@ const Employee = ({loggedIn, signedInAcc}) => {
    //         )
     //    }
 
+    //SETTINGS MODALS AND FUNCTIONS
+    //CHAINS
+    const [showCreateChainModal, setShowCreateChainModal] = useState(false);
+    const [showUpdateChainModal, setShowUpdateChainModal] = useState(false);
+    const [showUpdateChainInfoModal, setShowUpdateChainInfoModal] = useState(false);
+    const [showDeleteChainModal, setShowDeleteChainModal] = useState(false);
+    const [chainName, setChainName] = useState('');
+    const [chainAddress, setChainAddress] = useState('');
+    const [createChainErrorMsg, setCreateChainErrorMsg] = useState('');
+    const handleCreateChain = () => {
+        if (chainsSQL.some(chain => chain.name === chainName)){
+            setCreateChainErrorMsg('This chain already exists');
+            return;
+        }
+        if (chainsSQL.some(chain => chain.address === chainAddress)){
+            setCreateChainErrorMsg('This address already exists');
+            return;
+        }
+        createChain(chainName, chainAddress, 10);
+        handleResetFilter();
+        setShowCreateChainModal(false);
+        setChainName('');
+        setChainAddress('');
+    }
+
+    const [deleteChainName, setDeleteChainName] = useState('');
+    const [deleteChainErrorMsg, setDeleteChainErrorMsg] = useState('');
+
+    const handleDeleteChain = () => {
+        if (!(chainsSQL.some(chain => chain.name === deleteChainName))){
+            setDeleteChainErrorMsg('You cannot remove a chain that doesnt exist');
+            return;
+        }
+        deleteChain(deleteChainName);
+        handleResetFilter();
+        setShowDeleteChainModal(false);
+        setDeleteChainErrorMsg('');
+        setDeleteChainName('');
+    }
+
+    const [updateChainName, setUpdateChainName] = useState('');
+    const [updateChainName2, setUpdateChainName2] = useState('');
+    const [updateChainAddress, setUpdateChainAddress] = useState('');
+    const [updateChainErrorMsg, setUpdateChainErrorMsg] = useState('');
+    const [updateChainInfoErrorMsg, setUpdateChainInfoErrorMsg] = useState('');
+
+    const handleUpdateChainModal = () => {
+        if (!(chainsSQL.some(chain => chain.name === updateChainName))){
+            setUpdateChainErrorMsg('This chain does not exist');
+            return;
+        }
+        setUpdateChainErrorMsg('');
+        const chain = chainsSQL.find(chain => chain.name === updateChainName);
+        setUpdateChainAddress(chain.address);
+        setShowUpdateChainInfoModal(true);
+        setShowUpdateChainModal(false);
+        setUpdateChainName2(updateChainName);
+    }
+    const handleUpdateChain = () => {
+        const currentChain = chainsSQL.find(chain => chain.name === updateChainName);
+        setUpdateChainName('');
+        if (!currentChain){
+            alert('This is not an existing chain');
+            return;
+        }
+        if (chainsSQL.some(chain => chain.name === updateChainName2) && !(currentChain.name === updateChainName2)){
+            setUpdateChainInfoErrorMsg('Must rename to a chain name not in list of chains');
+            return;
+        }
+        if (chainsSQL.some(chain => chain.address === updateChainAddress) && !(currentChain.address === updateChainAddress)){
+            setUpdateChainInfoErrorMsg('Must address to an address not in list of addresses');
+            return;
+        }
+        updateChain(currentChain.name, updateChainName2, updateChainAddress, 10);
+        setUpdateChainAddress('');
+        setUpdateChainName2('');
+        handleResetFilter();
+        setUpdateChainInfoErrorMsg('');
+        setShowUpdateChainInfoModal(false);
+    }
+
+    //HOTELS
+    const [showCreateHotelModal, setShowCreateHotelModal] = useState(false);
+    const [showUpdateHotelModal, setShowUpdateHotelModal] = useState(false);
+    const [showUpdateHotelInfoModal, setShowUpdateHotelInfoModal] = useState(false);
+    const [showDeleteHotelModal, setShowDeleteHotelModal] = useState(false);
+    const [hotelName, setHotelName] = useState('');
+    const [hotelAddress, setHotelAddress] = useState('');
+    const [createHotelErrorMsg, setCreateHotelErrorMsg] = useState('');
+    const handleCreateHotel = () => {
+        if (hotelsSQL.some(hotel => hotel.name === hotelName)){
+            setCreateChainErrorMsg('This hotel already exists');
+            return;
+        }
+        //OTHER OPTIONS FOR A HOTEL
+        createHotel(chainName, chainAddress, 10);
+        handleResetFilter();
+        setShowCreateHotelModal(false);
+        setHotelName('');
+        setHotelAddress('');
+    }
+
+    
+
     return (
         <div>
             <div className="my-account-button">
@@ -516,6 +677,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </div>
             <div className="search-bar">
                 <h1>Welcome Employee!</h1>
+                <Button onClick={handleResetFilter}>Reset search</Button>
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
@@ -693,9 +855,9 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Card>
                         <Card.Body>
                             <Card.Text>
-                            <Button variant="secondary" className="search-button">Update Chain Info</Button>
-                            <Button variant="secondary" className="negative-modal-button">Delete Chain</Button>
-                            <Button variant="secondary" className="positive-modal-button">Create New Chain</Button>
+                            <Button variant="secondary" className="search-button" onClick={setShowUpdateChainModal}>Update Chain Info</Button>
+                            <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteChainModal}>Delete Chain</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateChainModal}>Create New Chain</Button>
                             </Card.Text>
                         </Card.Body>
                     </Card>
@@ -944,6 +1106,122 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     {errorCardDetails && <p style={{ color: 'red' }}>{errorCardDetails}</p>}
                     <Button variant="primary" onClick={handleNewRental}>
                         Pay
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showCreateChainModal} onHide={setShowCreateChainModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create New Chain</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={chainName}
+                                onChange={e => setChainName(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain email address</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={chainAddress}
+                                placeholder='chainName@exmaple.com'
+                                onChange={e => setChainAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {createChainErrorMsg && <p style={{ color: 'red' }}>{createChainErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleCreateChain}>
+                        Create Chain
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showDeleteChainModal} onHide={setShowDeleteChainModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Chain</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={deleteChainName}
+                                onChange={e => setDeleteChainName(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {deleteChainErrorMsg && <p style={{ color: 'red' }}>{deleteChainErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleDeleteChain}>
+                        Delete Chain
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showUpdateChainModal} onHide={setShowUpdateChainModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Chain</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateChainName}
+                                onChange={e => setUpdateChainName(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateChainErrorMsg && <p style={{ color: 'red' }}>{updateChainErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleUpdateChainModal}>
+                        Update Chain
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showUpdateChainInfoModal} onHide={setShowUpdateChainInfoModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Chain</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateChainName2}
+                                onChange={e => setUpdateChainName2(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain address</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateChainAddress}
+                                onChange={e => setUpdateChainAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateChainInfoErrorMsg && <p style={{ color: 'red' }}>{updateChainInfoErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleUpdateChain}>
+                        Update Chain
                     </Button>
                 </Modal.Footer>
             </Modal>
