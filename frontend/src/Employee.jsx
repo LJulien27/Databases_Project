@@ -36,7 +36,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [hotelIdsBasedOnCategory, setHotelIdsBasedOnCategory]  = useState([]);
 
     const [selectedArea, setSelectedArea] = useState("Area");
-    const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
 
     const [roomsToShow, setRoomsToShow] = useState([]);
 
@@ -330,7 +329,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
         }
     };
 
-    //EDIT THIS
     const handleHotelClick = (hotelName) => {
         if (hotelName === 'Select all') {
             const categoryAndChain = hotelIdsBasedOnChains.filter((element) => hotelIdsBasedOnCategory.includes(element));
@@ -471,12 +469,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
     function getIntersectionLength(array1, array2) {
         const intersection = array1.filter(element => array2.includes(element));
         return intersection.length;
-    }
-
-    //SEARCH BUTTON, VERY IMPORTANT!!!!!!
-    const handleSearchRooms = () => {
-        const chainAndCategoryIds = hotelIdsBasedOnChains.filter((element) => hotelIdsBasedOnCategory.includes(element));
-
     }
 
     function datesOverlap(s_date1, e_date1, s_date2, e_date2) {
