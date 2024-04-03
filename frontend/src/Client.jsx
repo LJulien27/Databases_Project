@@ -205,8 +205,11 @@ const Client = ({loggedIn, signedInAcc}) => {
 
     const handleReserveModal = () => {
         // Create reservation using the selected room ID and check-in/check-out dates
+        if (checkInDate === null || checkOutDate === null){
+            alert('You need a checkin and checkout date to be able to reserve a room');
+            return;
+        }
         createReservation(signedInAcc.sin, selectedRoom.id, checkInDate.toLocaleDateString('en-CA'), checkOutDate.toLocaleDateString('en-CA'));
-        alert("Success! Your room has been reserved.");
         handleCloseRoomModal();
     };
 
@@ -391,6 +394,32 @@ const Client = ({loggedIn, signedInAcc}) => {
                (e_date1 >= s_date2 && e_date1 <= e_date2) ||  // end date of first range is within second range
                (s_date2 >= s_date1 && s_date2 <= e_date1) ||  // start date of second range is within first range
                (e_date2 >= s_date1 && e_date2 <= e_date1);    // end date of second range is within first range
+    }
+
+    function printCommodities(commodities, roomId){
+        const commodityNames = [];
+        // Find the commodity object with the specified room_id
+        const commodity = commodities.find(c => c.id_room === roomId);
+
+        if (commodity) {
+            // Iterate over each key in the commodity object
+            for (const key in commodity) {
+                // Skip the 'id_room' key
+                if (key !== 'id_room') {
+                    // If the value is true, add the key name to the list
+                    if (commodity[key]) {
+                        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                        commodityNames.push(capitalizedKey);
+                    }
+                }
+            }
+
+            // Join the commodity names into a comma-separated string
+            const result = commodityNames.join(', ');
+            return result;
+        } else {
+            return "This room doesn't have specific commodities.";
+        }
     }
 
  //   if (loggedIn !== 1){
@@ -667,7 +696,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                             </p>
                             <p>
                                 <strong>Extent:</strong>{' '}
-                                {selectedRoom.expanding}
+                                {selectedRoom.expanding ? 'yes' : 'no'}
                             </p>
                             <p>
                                 <strong>Problems:</strong>{' '}
@@ -675,6 +704,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                             </p>
                             <p>
                                 <strong>Commodities:</strong>{' '}
+                                {printCommodities(commoditiesSQL, selectedRoom.id)}
                             </p>
                         </div>
                     )}
