@@ -653,7 +653,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             <div className="room-container">
             <div className="room-grid room-grid-flex">
                 {roomsToShow.map(room => 
-                    <Card style={{ width: '12rem' }}key={room.id} onClick={() => {handleShowRoomModal(room); setSelectedRoomId(room.id);}} className="room-card">
+                    <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => {handleShowRoomModal(room); setSelectedRoomId(room.id);}} className="room-card">
                         <Card.Img
                             className="room-image"
                             variant="top"
@@ -663,7 +663,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             <Card.Title>{room.id}</Card.Title>
                             <Card.Text>
-                                <strong>Price:</strong> ${room.price}/Night
+                                <strong>Price:</strong> ${room.prix}/Night
                             </Card.Text>
                             <Card.Text>
                                 <strong>Capacity:</strong> {room.capacity} Persons
