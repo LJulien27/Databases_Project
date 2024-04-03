@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './Background.css';
+import './Client.css'
 
 const Login = ({setLoggedIn, setAccount}) => {
 
@@ -187,8 +188,8 @@ const Login = ({setLoggedIn, setAccount}) => {
             <div className="bg-fade" />
 
             <div className="text-over-image">
-                <h1 style={{ textShadow: '2px 2px 10px rgba(0, 0, 0, 2.5)' }}>Welcome to (hotelSiteName)</h1>
-                <Button variant="primary" onClick={handleShowClient}>
+                <h1 style={{ textShadow: '2px 2px 10px rgba(0, 0, 0, 2.5)' }}>Welcome to Hotel Guy</h1>
+                <Button variant="primary" className="dropdown-button" onClick={handleShowClient}>
                     Client Sign in
                 </Button>
 
@@ -223,10 +224,10 @@ const Login = ({setLoggedIn, setAccount}) => {
                     </Modal.Body>
                     <Modal.Footer>
                         {errorSigninClient && <p style={{ color: 'red' }}>{errorSigninClient}</p>}
-                        <Button variant="primary" onClick={handleSignInClient}>
+                        <Button variant="primary" className="search-button" onClick={handleSignInClient}>
                             Sign In
                         </Button>
-                        <Button variant="primary" onClick={() => { handleCloseClient(); handleShowClientSignUp(); }}>
+                        <Button variant="primary" className="positive-modal-button" onClick={() => { handleCloseClient(); handleShowClientSignUp(); }}>
                             Sign Up
                         </Button>
                     </Modal.Footer>
@@ -307,7 +308,7 @@ const Login = ({setLoggedIn, setAccount}) => {
                 </Modal>
 
 
-                <Button variant="primary" onClick={handleShowEmployee}>
+                <Button variant="primary" className="dropdown-button" onClick={handleShowEmployee}>
                     Employee Sign in
                 </Button>
 
@@ -341,7 +342,7 @@ const Login = ({setLoggedIn, setAccount}) => {
                     </Modal.Body>
                     <Modal.Footer>
                         {errorSigninEmployee && <p style={{ color: 'red' }}>{errorSigninEmployee}</p>}
-                        <Button variant="primary" onClick={handleSignInEmployee}>
+                        <Button variant="primary" className="search-button" onClick={handleSignInEmployee}>
                             Sign In
                         </Button>
                     </Modal.Footer>
