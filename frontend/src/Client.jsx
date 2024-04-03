@@ -445,6 +445,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                 {JSON.stringify(selectedHotels)}
                 {JSON.stringify(selectedHotelIds)}
                 <InputGroup className="mb-3">
+                    <Button onClick={handleShowChainModal}>Show chains</Button>
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
                         <Dropdown.Menu>
@@ -604,7 +605,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseChainModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
-            <Modal show={showChainModal} onHide={handleCloseHotelModal}>
+            <Modal show={showHotelModal} onHide={handleCloseHotelModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Hotel</Modal.Title>
                 </Modal.Header>

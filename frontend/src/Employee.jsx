@@ -16,6 +16,11 @@ function CustomDropdownItem({ children, onClick, isSelected }) {
 
 const Employee = ({loggedIn, signedInAcc}) => {
     const [showMyAccountModal, setShowMyAccountModal] = useState(false);
+    const [showClientSettingsModal, setShowClientSettingsModal] = useState(false);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [showChainSettingsModal, setShowChainSettingsModal] = useState(false);
+    const [showHotelSettingsModal, setShowHotelSettingsModal] = useState(false);
+    const [showRoomSettingsModal, setShowRoomSettingsModal] = useState(false);
     const [showChainModal, setShowChainModal] = useState(false);
     const [showRoomModal, setShowRoomModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -203,6 +208,16 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
     const handleShowMyAccountModal = () => setShowMyAccountModal(true);
+    const handleCloseClientSettingsModal = () => setShowClientSettingsModal(false);
+    const handleShowClientSettingsModal = () => setShowClientSettingsModal(true);
+    const handleCloseSettingsModal = () => setShowSettingsModal(false);
+    const handleShowSettingsModal = () => setShowSettingsModal(true);
+    const handleCloseChainSettingsModal = () => setShowChainSettingsModal(false);
+    const handleShowChainSettingsModal = () => setShowChainSettingsModal(true);
+    const handleCloseHotelSettingsModal = () => setShowHotelSettingsModal(false);
+    const handleShowHotelSettingsModal = () => setShowHotelSettingsModal(true);
+    const handleCloseRoomSettingsModal = () => setShowRoomSettingsModal(false);
+    const handleShowRoomSettingsModal = () => setShowRoomSettingsModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
     const handleShowRoomModal = (room) => {
@@ -454,16 +469,24 @@ const Employee = ({loggedIn, signedInAcc}) => {
         handleShowMyAccountModal();
     };
 
-    const alertFunction = () => {
-        alert("alert test");
+    const handleClientSettingsClick = () => {
+        handleShowClientSettingsModal();
     };
 
-    const handleOptionClick = (option) => {
-        if (selectedOptions.includes(option)) {
-            setSelectedOptions(selectedOptions.filter((item) => item !== option));
-        } else {
-            setSelectedOptions([...selectedOptions, option]);
-        }
+    const handleSettingsClick = () => {
+        handleShowSettingsModal();
+    };
+
+    const handleChainSettingsClick = () => {
+        handleShowChainSettingsModal();
+    };
+
+    const handleHotelSettingsClick = () => {
+        handleShowHotelSettingsModal();
+    };
+
+    const handleRoomSettingsClick = () => {
+        handleShowRoomSettingsModal();
     };
 
     function getIntersectionLength(array1, array2) {
@@ -489,6 +512,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
         <div>
             <div className="my-account-button">
                 <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
+                <Button variant="secondary" className="search-button" onClick={handleSettingsClick}>Settings</Button>
             </div>
             <div className="search-bar">
                 <h1>Welcome Employee!</h1>
@@ -620,6 +644,102 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseMyAccountModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showClientSettingsModal} onHide={handleCloseClientSettingsModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Clients Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            <Card.Text>
+                            <Button variant="secondary" className="search-button">Update Client Info</Button>
+                            <Button variant="secondary" className="negative-modal-button">Delete Client</Button>
+                            <Button variant="secondary" className="positive-modal-button">Create New Client</Button>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseClientSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showSettingsModal} onHide={handleCloseSettingsModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            <Card.Text>
+                            <Button variant="secondary" className="search-button" onClick={handleChainSettingsClick}>Chain Settings</Button>
+                            <Button variant="secondary" className="negative-modal-button" onClick={handleHotelSettingsClick}>Hotel Settings</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={handleChainSettingsClick}>Room Settings</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={handleClientSettingsClick}>Client Settings</Button>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showChainSettingsModal} onHide={handleCloseChainSettingsModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chain Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            <Card.Text>
+                            <Button variant="secondary" className="search-button">Update Chain Info</Button>
+                            <Button variant="secondary" className="negative-modal-button">Delete Chain</Button>
+                            <Button variant="secondary" className="positive-modal-button">Create New Chain</Button>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseChainSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showHotelSettingsModal} onHide={handleCloseHotelSettingsModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chain Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            <Card.Text>
+                            <Button variant="secondary" className="search-button">Update Hotel Info</Button>
+                            <Button variant="secondary" className="negative-modal-button">Delete Hotel</Button>
+                            <Button variant="secondary" className="positive-modal-button">Create New Hotel</Button>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseHotelSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showRoomSettingsModal} onHide={handleCloseRoomSettingsModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chain Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            <Card.Text>
+                            <Button variant="secondary" className="search-button">Update Room Info</Button>
+                            <Button variant="secondary" className="negative-modal-button">Delete Room</Button>
+                            <Button variant="secondary" className="positive-modal-button">Create New Room</Button>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseRoomSettingsModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
             <Modal show={showChainModal} onHide={handleCloseChainModal}>
