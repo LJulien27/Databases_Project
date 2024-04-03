@@ -46,7 +46,7 @@ app.put("/hotels/:id", (req, res) => {
   const id = req.params.id;
   const body = req.body;
   hotel_model
-    .updateHotel(id, body)
+    .updateHotel(body)
     .then((response) => {
       res.status(200).send(response);
     })

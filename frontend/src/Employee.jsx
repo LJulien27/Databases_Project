@@ -118,7 +118,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 return response.text();
             })
             .then(data => {
-                //alert(data);
                 getChains();
             });
     }
@@ -178,7 +177,34 @@ const Employee = ({loggedIn, signedInAcc}) => {
             return response.text();
         })
         .then(data => {
-            alert(data);
+            getHotels();
+        });
+    }
+
+    function deleteHotel(id) {
+        fetch(`http://localhost:3001/hotels/${id}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getHotels();
+        });
+    }
+
+    function updateHotel(name, address, rooms, chain_name, ratings, id) {
+        fetch(`http://localhost:3001/hotels/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, address, rooms, chain_name, ratings, id }),
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
             getHotels();
         });
     }
@@ -706,6 +732,96 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setHotelRating('');
     }
 
+    const [deleteHotelId, setDeleteHotelId] = useState('');
+    const [deleteHotelErrorMsg, setDeleteHotelErrorMsg] = useState('');
+
+    const handleDeleteHotel = () => {
+        if (!(hotelsSQL.some(hotel => hotel.id === parseInt(deleteHotelId)))){
+            setDeleteHotelErrorMsg('You cannot remove a hotel that doesnt exist');
+            return;
+        }
+        deleteHotel(deleteHotelId);
+        handleResetFilter();
+        setShowDeleteHotelModal(false);
+        setDeleteHotelErrorMsg('');
+        setDeleteHotelId('');
+    }
+
+    const [updateHotelName, setUpdateHotelName] = useState('');
+    const [updateHotelId, setUpdateHotelId] = useState('');
+    const [updateHotelAddress, setUpdateHotelAddress] = useState('');
+    const [updateHotelChainName, setUpdateHotelChainName] = useState('');
+    const [updateHotelRating, setUpdateHotelRating] = useState('');
+    const [updateHotelErrorMsg, setUpdateHotelErrorMsg] = useState('');
+    const [updateHotelInfoErrorMsg, setUpdateHotelInfoErrorMsg] = useState('');
+
+    const handleUpdateHotelModal = () => {
+        if (!(hotelsSQL.some(hotel => hotel.id === parseInt(updateHotelId)))){
+            setUpdateHotelErrorMsg('This hotel does not exist');
+            return;
+        }
+        setUpdateHotelErrorMsg('');
+        const currentHotel = hotelsSQL.find(hotel => hotel.id === parseInt(updateHotelId));
+        setUpdateHotelName(currentHotel.name);
+        setUpdateHotelAddress(currentHotel.address);
+        setUpdateHotelChainName(currentHotel.chain_name);
+        setUpdateHotelRating(currentHotel.ratings);
+        setShowUpdateHotelInfoModal(true);
+        setShowUpdateHotelModal(false);
+    }
+    const handleUpdateHotel = () => {
+        const currentHotel = hotelsSQL.find(hotel => hotel.id === parseInt(updateHotelId));
+        if (!currentHotel){
+            alert('This is not an existing hotel');
+            return;
+        }
+        if (hotelsSQL.some(hotel => hotel.name === updateHotelName) && !(currentHotel.name === updateHotelName)){
+            setUpdateHotelInfoErrorMsg('Must rename to a hotel name not in list of hotels');
+            return;
+        }
+        if (hotelsSQL.some(hotel => hotel.address === updateHotelAddress) && !(currentHotel.address === updateHotelAddress)){
+            setUpdateHotelInfoErrorMsg('Must address to an address not in list of addresses');
+            return;
+        }
+        if (!(chainsSQL.some(chain => chain.name === updateHotelChainName))){
+            setUpdateHotelInfoErrorMsg('The hotels new chain must be an existing chain in the database');
+            return;
+        }
+        if (!([3,4,5].includes(parseInt(updateHotelRating)))){
+            setUpdateHotelInfoErrorMsg('Hotel must be of a 3, 4 or 5 star rating');
+            return;
+        }
+        updateHotel(updateHotelName, updateHotelAddress, currentHotel.rooms, updateHotelChainName, parseInt(updateHotelRating), parseInt(updateHotelId));
+        setUpdateHotelAddress('');
+        setUpdateHotelName('');
+        setUpdateHotelId('');
+        setUpdateHotelChainName('');
+        handleResetFilter();
+        setUpdateHotelInfoErrorMsg('');
+        setShowUpdateHotelInfoModal(false);
+    }
+
+    //ROOMS
+    const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
+    const [showUpdateRoomModal, setShowUpdateRoomModal] = useState(false);
+    const [showUpdateRoomInfoModal, setShowUpdateRoomInfoModal] = useState(false);
+    const [showDeleteRoomModal, setShowDeleteRoomModal] = useState(false);
+
+    const [deleteRoomId, setDeleteRoomId] = useState('');
+    const [deleteRoomErrorMsg, setDeleteRoomErrorMsg] = useState('');
+
+    const handleDeleteRoom = () => {
+        if (!(roomsSQL.some(room => room.id === parseInt(deleteRoomId)))){
+            setDeleteHotelErrorMsg('You cannot remove a room that doesnt exist');
+            return;
+        }
+        deleteRoom(deleteRoomId);
+        handleResetFilter();
+        setShowDeleteRoomModal(false);
+        setDeleteRoomErrorMsg('');
+        setDeleteRoomId('');
+    }
+
     
 
     return (
@@ -876,7 +992,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <Card.Text>
                             <Button variant="secondary" className="search-button" onClick={handleChainSettingsClick}>Chain Settings</Button>
                             <Button variant="secondary" className="negative-modal-button" onClick={handleHotelSettingsClick}>Hotel Settings</Button>
-                            <Button variant="secondary" className="positive-modal-button" onClick={handleChainSettingsClick}>Room Settings</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={handleRoomSettingsClick}>Room Settings</Button>
                             <Button variant="secondary" className="positive-modal-button" onClick={handleClientSettingsClick}>Client Settings</Button>
                             </Card.Text>
                         </Card.Body>
@@ -913,8 +1029,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Card>
                         <Card.Body>
                             <Card.Text>
-                            <Button variant="secondary" className="search-button">Update Hotel Info</Button>
-                            <Button variant="secondary" className="negative-modal-button">Delete Hotel</Button>
+                            <Button variant="secondary" className="search-button" onClick={setShowUpdateHotelModal}>Update Hotel Info</Button>
+                            <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteHotelModal}>Delete Hotel</Button>
                             <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateHotelModal}>Create New Hotel</Button>
                             </Card.Text>
                         </Card.Body>
@@ -1320,7 +1436,106 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 <Modal.Footer>
                     {createHotelErrorMsg && <p style={{ color: 'red' }}>{createHotelErrorMsg}</p>}
                     <Button variant="primary" onClick={handleCreateHotel}>
-                        Hotel Chain
+                        Create Hotel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showDeleteHotelModal} onHide={setShowDeleteHotelModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Hotel</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={deleteHotelId}
+                                onChange={e => setDeleteHotelId(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {deleteHotelErrorMsg && <p style={{ color: 'red' }}>{deleteHotelErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleDeleteHotel}>
+                        Delete Hotel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showUpdateHotelModal} onHide={setShowUpdateHotelModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Hotel</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateHotelId}
+                                onChange={e => setUpdateHotelId(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateHotelErrorMsg && <p style={{ color: 'red' }}>{updateHotelErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleUpdateHotelModal}>
+                        Update Hotel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showUpdateHotelInfoModal} onHide={setShowUpdateHotelInfoModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Hotel</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateHotelName}
+                                onChange={e => setUpdateHotelName(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel address</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateHotelAddress}
+                                onChange={e => setUpdateHotelAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel Chain</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateHotelChainName}
+                                onChange={e => setUpdateHotelChainName(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel Rating</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateHotelRating}
+                                placeholder='Ex: 5'
+                                onChange={e => setUpdateHotelRating(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateHotelInfoErrorMsg && <p style={{ color: 'red' }}>{updateHotelInfoErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleUpdateHotel}>
+                        Update Hotel
                     </Button>
                 </Modal.Footer>
             </Modal>

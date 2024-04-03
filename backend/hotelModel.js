@@ -32,7 +32,7 @@ const getHotels = async () => {
     return new Promise(function (resolve, reject) {
       const { name, address, id, rooms, chain_name, ratings } = body;
       pool.query(
-        "INSERT INTO hotels (name, address, id, rooms, chain_name, ratings) VALUES ($1, $2, $3, $4, 5$, 6$) RETURNING *",
+        "INSERT INTO hotels (name, address, id, rooms, chain_name, ratings) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
         [name, address, id, rooms, chain_name, ratings],
         (error, results) => {
           if (error) {
@@ -65,12 +65,12 @@ const getHotels = async () => {
     });
   };
   //update a hotel record
-  const updateHotel = (id, body) => {
+  const updateHotel = (body) => {
     return new Promise(function (resolve, reject) {
-      const { name, address, rooms, rating } = body;
+      const { name, address, rooms, chain_name, ratings, id } = body;
       pool.query(
-        "UPDATE hotels SET name = $1, address = $2, rooms = $3, rating = $4 WHERE id = $5 RETURNING *",
-        [name, address, rooms, rating],
+        "UPDATE hotels SET name = $1, address = $2, rooms = $3, chain_name = $4, ratings = $5 WHERE id = $6 RETURNING *",
+        [name, address, rooms, chain_name, ratings, id],
         (error, results) => {
           if (error) {
             reject(error);
