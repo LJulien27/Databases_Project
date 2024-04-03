@@ -221,6 +221,18 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
+    function deleteRoom(id) {
+        fetch(`http://localhost:3001/rooms/${id}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getRooms();
+        });
+    }
+
     function getCommodities() {
         fetch('http://localhost:3001/commodities')
             .then(response => response.json())
@@ -812,7 +824,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     const handleDeleteRoom = () => {
         if (!(roomsSQL.some(room => room.id === parseInt(deleteRoomId)))){
-            setDeleteHotelErrorMsg('You cannot remove a room that doesnt exist');
+            setDeleteRoomErrorMsg('You cannot remove a room that doesnt exist');
             return;
         }
         deleteRoom(deleteRoomId);
@@ -1049,7 +1061,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             <Card.Text>
                             <Button variant="secondary" className="search-button">Update Room Info</Button>
-                            <Button variant="secondary" className="negative-modal-button">Delete Room</Button>
+                            <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteRoomModal}>Delete Room</Button>
                             <Button variant="secondary" className="positive-modal-button">Create New Room</Button>
                             </Card.Text>
                         </Card.Body>
@@ -1536,6 +1548,31 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     {updateHotelInfoErrorMsg && <p style={{ color: 'red' }}>{updateHotelInfoErrorMsg}</p>}
                     <Button variant="primary" onClick={handleUpdateHotel}>
                         Update Hotel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showDeleteRoomModal} onHide={setShowDeleteRoomModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Room</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={deleteRoomId}
+                                onChange={e => setDeleteRoomId(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {deleteRoomErrorMsg && <p style={{ color: 'red' }}>{deleteRoomErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleDeleteRoom}>
+                        Delete Room
                     </Button>
                 </Modal.Footer>
             </Modal>
