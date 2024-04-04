@@ -139,6 +139,19 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
+    function deleteClient(sin) {
+        
+        fetch(`http://localhost:3001/clients/${sin}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getClients();
+        });
+    }
+
     function getChains() {
         fetch('http://localhost:3001/chains')
             .then(response => response.json())
@@ -703,6 +716,27 @@ const Employee = ({loggedIn, signedInAcc}) => {
    //         )
     //    }
 
+
+    //CLIENTS
+    const [showDeleteClientModal, setShowDeleteClientModal] = useState(false);
+    const [deleteClientSin, setDeleteClientSin] = useState('');
+    const [deleteClientErrorMsg, setDeleteClientErrorMsg] = useState('');
+
+    const handleDeleteClient = () => {
+        if (!(clientsSQL.some(client => client.sin === parseInt(deleteClientSin)))){
+            setDeleteClientErrorMsg('You cannot remove a client that does not exist');
+            return;
+        }
+        deleteClient(parseInt(deleteClientSin));
+        handleResetFilter();
+        setShowDeleteClientModal(false);
+        setDeleteClientErrorMsg('');
+        setDeleteClientSin('');
+    }
+
+
+
+    //EMPLOYEES
     const [showDeleteEmployeeModal, setShowDeleteEmployeeModal] = useState(false);
     const [deleteEmployeeSin, setDeleteEmployeeSin] = useState('');
     const [deleteEmployeeErrorMsg, setDeleteEmployeeErrorMsg] = useState('');
@@ -1266,7 +1300,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             <Card.Text>
                             <Button variant="secondary" className="search-button">Update Client Info</Button>
-                            <Button variant="secondary" className="negative-modal-button">Delete Client</Button>
+                            <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteClientModal}>Delete Client</Button>
                             <Button variant="secondary" className="positive-modal-button">Create New Client</Button>
                             </Card.Text>
                         </Card.Body>
@@ -1274,6 +1308,30 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseClientSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showDeleteClientModal} onHide={setShowDeleteClientModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Client</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client SIN</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={deleteClientSin}
+                                onChange={e => setDeleteClientSin(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {deleteClientErrorMsg && <p style={{ color: 'red' }}>{deleteClientErrorMsg}</p>}
+                    <Button variant="primary" className="negative-modal-button" onClick={handleDeleteClient}>
+                        Confirm
+                    </Button>
                 </Modal.Footer>
             </Modal>
             <Modal show={showEmployeeSettingsModal} onHide={handleCloseEmployeeSettingsModal}>
