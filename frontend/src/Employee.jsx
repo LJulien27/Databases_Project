@@ -55,7 +55,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [rentalsSQL, setRentals] = useState([]);
 
     const [clientSin, setClientSin] = useState('');
-    const [EmployeeSin, setEmployeeSin] = useState('');
+    //const [EmployeeSin, setEmployeeSin] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState(null);
 
 
@@ -111,20 +111,20 @@ const Employee = ({loggedIn, signedInAcc}) => {
         });
     }
 
-    function updateEmployee(oldSin, sin, f_name, l_name, address, role, password) {
-        fetch(`http://localhost:3001/employees/${oldSin}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({oldSin, sin, f_name, l_name, address, role, password}),
+    function createEmployee(f_name, l_name, sin, address, role, hotel_id, password) {
+        fetch('http://localhost:3001/clients', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({f_name, l_name, sin, address, role, hotel_id, password}),
         })
-        .then(response => {
-            return response.text();
-        })
-        .then(data => {
-            getEmployees();
-        });
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getEmployees();
+            });
     }
 
     function getClients() {
@@ -737,6 +737,78 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
 
     //EMPLOYEES
+    // CREATE
+    const [showCreateEmployeeModal, setShowCreateEmployeeModal] = useState(false);
+    const [employeeF_name, setEmployeeF_name] = useState('');
+    const [employeeL_name, setEmployeeL_name] = useState('');
+    const [employeeSin, setEmployeeSin] = useState('');
+    const [employeeAddress, setEmployeeAddress] = useState('');
+    const [employeeRole, setEmployeeRole] = useState('');
+    const [employeeHotel_id, setEmployeeHotel_id] = useState('');
+    const [employeePassword, setEmployeePassword] = useState('');
+    const [employeeConPassword, setEmployeeConPassword] = useState('');
+    const [createEmployeeErrorMsg, setCreateEmployeeErrorMsg] = useState('');
+    
+    const handleCreateEmployee = () => {
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        // Email regex
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; 
+        // Minimum eight characters, at least one letter and one number
+        const sinRegex = /^\d{9}$/; 
+        //SIN are 9 numbers
+
+        if (!emailRegex.test(employeeAddress)) {
+            setCreateEmployeeErrorMsg('Invalid email address');
+            return;
+        }
+        
+        if (!sinRegex.test(employeeSin)) {
+            setCreateEmployeeErrorMsg('SIN are 9 numbers');
+            return;
+        }
+
+        if (!passwordRegex.test(employeePassword)) {
+            setCreateEmployeeErrorMsg('Password must contain 8 digits containing atleast a letter and a number');
+            return;
+        }
+
+        if (employeePassword !== employeeConPassword){
+            setCreateEmployeeErrorMsg('Your passwords dont match');
+            return;
+        }
+
+        const existingEmail = employeesSQL.find(employee => employee.address === employeeAddress);
+        if (existingEmail) {
+            setCreateEmployeeErrorMsg('An employee with this email already exists');
+            return;
+        }
+
+        const existingSin = employeesSQL.find(employee => employee.sin === parseInt(employeeSin));
+        if (existingSin) {
+            setCreateEmployeeErrorMsg('An employee with this SIN already exists');
+            return;
+        }
+
+        if (employeesSQL.some(employee => employee.sin === parseInt(employeeSin))){
+            setCreateEmployeeErrorMsg('This employee already exists');
+            return;
+        }
+
+        createEmployee(employeeF_name, employeeL_name, parseInt(employeeSin), employeeAddress, employeeRole, parseInt(employeeHotel_id), employeePassword);
+        handleResetFilter();
+        setShowCreateEmployeeModal(false);
+        setEmployeeF_name('');
+        setEmployeeL_name('');
+        setEmployeeSin('');
+        setEmployeeAddress('');
+        setEmployeeRole('');
+        setEmployeeHotel_id('');
+        setEmployeePassword('');
+        setEmployeeConPassword('');
+    }
+
+
     const [showDeleteEmployeeModal, setShowDeleteEmployeeModal] = useState(false);
     const [deleteEmployeeSin, setDeleteEmployeeSin] = useState('');
     const [deleteEmployeeErrorMsg, setDeleteEmployeeErrorMsg] = useState('');
@@ -1344,13 +1416,99 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <Card.Text>
                             <Button variant="secondary" className="search-button">Update Employee Info</Button>
                             <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteEmployeeModal}>Delete Employee</Button>
-                            <Button variant="secondary" className="positive-modal-button">Create New Employee</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateEmployeeModal}>Create New Employee</Button>
                             </Card.Text>
                         </Card.Body>
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseEmployeeSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showCreateEmployeeModal} onHide={setShowCreateEmployeeModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create New Employee</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee First Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={employeeF_name}
+                                onChange={e => setEmployeeF_name(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Last Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={employeeL_name}
+                                onChange={e => setEmployeeL_name(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee SIN</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={employeeSin}
+                                onChange={e => setEmployeeSin(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Email Address</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={employeeAddress}
+                                placeholder='email@exmaple.com'
+                                onChange={e => setEmployeeAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Role</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={employeeRole}
+                                onChange={e => setEmployeeRole(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Associated Hotel ID</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={employeeHotel_id}
+                                onChange={e => setEmployeeHotel_id(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Password</Form.Label>
+                            <Form.Control
+                                type="password"
+                                value={employeePassword}
+                                onChange={e => setEmployeePassword(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group
+                            className="mb-3"
+                            controlId="exampleForm.ControlTextarea1"
+                            >
+                                <Form.Label>Confirm Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={employeeConPassword}
+                                    onChange={e => setEmployeeConPassword(e.target.value)}
+                                />
+                            </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {createEmployeeErrorMsg && <p style={{ color: 'red' }}>{createEmployeeErrorMsg}</p>}
+                    <Button variant="primary" className="positive-modal-button" onClick={handleCreateEmployee}>
+                        Create Employee
+                    </Button>
                 </Modal.Footer>
             </Modal>
             <Modal show={showDeleteEmployeeModal} onHide={setShowDeleteEmployeeModal}>
