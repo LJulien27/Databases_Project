@@ -131,7 +131,7 @@ const getHotels = async () => {
     return new Promise(function (resolve, reject) {
       pool.query(
         "DELETE FROM clients WHERE sin = $1",
-        [id],
+        [sin],
         (error, results) => {
           if (error) {
             reject(error);

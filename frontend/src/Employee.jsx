@@ -816,6 +816,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const handleDeleteEmployee = () => {
         if (!(employeesSQL.some(employee => employee.sin === parseInt(deleteEmployeeSin)))){
             setDeleteEmployeeErrorMsg('You cannot remove a employee that does not exist');
+            //alert(deleteEmployeeSin);
             return;
         }
         deleteEmployee(parseInt(deleteEmployeeSin));

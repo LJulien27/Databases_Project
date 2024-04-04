@@ -76,7 +76,7 @@ app.post('/clients', (req, res) => {
 })
 
 app.delete('/clients/:sin', (req, res) => {
-  hotel_model.deleteHotel(req.params.sin)
+  hotel_model.deleteClient(req.params.sin)
   .then(response => {
     res.status(200).send(response);
   })
