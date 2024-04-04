@@ -17,6 +17,7 @@ function CustomDropdownItem({ children, onClick, isSelected }) {
 const Employee = ({loggedIn, signedInAcc}) => {
     const [showMyAccountModal, setShowMyAccountModal] = useState(false);
     const [showClientSettingsModal, setShowClientSettingsModal] = useState(false);
+    const [showEmployeeSettingsModal, setShowEmployeeSettingsModal] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [showChainSettingsModal, setShowChainSettingsModal] = useState(false);
     const [showHotelSettingsModal, setShowHotelSettingsModal] = useState(false);
@@ -45,6 +46,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [roomsToShow, setRoomsToShow] = useState([]);
 
     const [clientsSQL, setClients] = useState([]);
+    const [employeesSQL, setEmployees] = useState([]);
     const [chainsSQL, setChains] = useState([]);
     const [hotelsSQL, setHotels] = useState([]);
     const [roomsSQL, setRooms] = useState([]);
@@ -53,6 +55,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [rentalsSQL, setRentals] = useState([]);
 
     const [clientSin, setClientSin] = useState('');
+    const [EmployeeSin, setEmployeeSin] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState(null);
 
 
@@ -73,6 +76,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     // useEffect for fetching clients data when component mounts
     useEffect(() => {
         getClients();
+        getEmployees();
         getChains();
         getHotels();
         getRooms();
@@ -82,6 +86,31 @@ const Employee = ({loggedIn, signedInAcc}) => {
     }, []);
 
     // Functions to fetch data
+    function getEmployees() {
+        fetch('http://localhost:3001/employees')
+            .then(response => response.json())
+            .then(data => {
+                // Set clients data to state
+                setEmployees(data);
+            })
+            .catch(error => {
+                console.error('Error fetching employees:', error);
+            });
+    }
+
+    function deleteEmployee(sin) {
+        
+        fetch(`http://localhost:3001/employees/${sin}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getEmployees();
+        });
+    }
+
     function getClients() {
         fetch('http://localhost:3001/clients')
             .then(response => response.json())
@@ -342,6 +371,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const handleShowMyAccountModal = () => setShowMyAccountModal(true);
     const handleCloseClientSettingsModal = () => setShowClientSettingsModal(false);
     const handleShowClientSettingsModal = () => setShowClientSettingsModal(true);
+    const handleCloseEmployeeSettingsModal = () => setShowEmployeeSettingsModal(false);
+    const handleShowEmployeeSettingsModal = () => setShowEmployeeSettingsModal(true);
     const handleCloseSettingsModal = () => setShowSettingsModal(false);
     const handleShowSettingsModal = () => setShowSettingsModal(true);
     const handleCloseChainSettingsModal = () => setShowChainSettingsModal(false);
@@ -605,6 +636,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
         handleShowClientSettingsModal();
     };
 
+    const handleEmployeeSettingsClick = () => {
+        handleShowEmployeeSettingsModal();
+    };
+
     const handleSettingsClick = () => {
         handleShowSettingsModal();
     };
@@ -651,6 +686,22 @@ const Employee = ({loggedIn, signedInAcc}) => {
    //         </div>
    //         )
     //    }
+
+    const [showDeleteEmployeeModal, setShowDeleteEmployeeModal] = useState(false);
+    const [deleteEmployeeSin, setDeleteEmployeeSin] = useState('');
+    const [deleteEmployeeErrorMsg, setDeleteEmployeeErrorMsg] = useState('');
+
+    const handleDeleteEmployee = () => {
+        if (!(employeesSQL.some(employee => employee.sin === deleteEmployeeSin))){
+            setDeleteEmployeeErrorMsg('You cannot remove a employee that does not exist');
+            return;
+        }
+        deleteEmployee(deleteEmployeeSin);
+        handleResetFilter();
+        setShowDeleteEmployeeModal(false);
+        setDeleteEmployeeErrorMsg('');
+        setDeleteEmployeeSin('');
+    }
 
     //SETTINGS MODALS AND FUNCTIONS
     //CHAINS
@@ -1128,6 +1179,49 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseClientSettingsModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={showEmployeeSettingsModal} onHide={handleCloseEmployeeSettingsModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Employee Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Card>
+                        <Card.Body>
+                            <Card.Text>
+                            <Button variant="secondary" className="search-button">Update Employee Info</Button>
+                            <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteEmployeeModal}>Delete Employee</Button>
+                            <Button variant="secondary" className="positive-modal-button">Create New Employee</Button>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseEmployeeSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showDeleteEmployeeModal} onHide={setShowDeleteEmployeeModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Employee</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee SIN</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={deleteEmployeeSin}
+                                onChange={e => setDeleteEmployeeSin(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {deleteEmployeeErrorMsg && <p style={{ color: 'red' }}>{deleteEmployeeErrorMsg}</p>}
+                    <Button variant="primary" className="negative-modal-button" onClick={handleDeleteEmployee}>
+                        Confirm
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <Modal show={showSettingsModal} onHide={handleCloseSettingsModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Settings</Modal.Title>
@@ -1140,6 +1234,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <Button variant="secondary" className="negative-modal-button" onClick={handleHotelSettingsClick}>Hotel Settings</Button>
                             <Button variant="secondary" className="positive-modal-button" onClick={handleRoomSettingsClick}>Room Settings</Button>
                             <Button variant="secondary" className="positive-modal-button" onClick={handleClientSettingsClick}>Client Settings</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={handleEmployeeSettingsClick}>Employee Settings</Button>
                             </Card.Text>
                         </Card.Body>
                     </Card>
