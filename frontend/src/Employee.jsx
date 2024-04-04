@@ -221,9 +221,41 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
+    function createRoom(id, hotel_id, price, capacity, view, problems, expanding) {
+        fetch('http://localhost:3001/rooms', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({id, hotel_id, price, capacity, view, problems, expanding}),
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getRooms();
+        });
+    }
+
     function deleteRoom(id) {
         fetch(`http://localhost:3001/rooms/${id}`, {
             method: 'DELETE',
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getRooms();
+        });
+    }
+
+    function updateRoom(id, hotel_id, price, capacity, view, problems, expanding) {
+        fetch(`http://localhost:3001/rooms/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, hotel_id, price, capacity, view, problems, expanding }),
         })
         .then(response => {
             return response.text();
@@ -742,6 +774,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setHotelId('');
         setHotelChainName('');
         setHotelRating('');
+        setCreateHotelErrorMsg('');
     }
 
     const [deleteHotelId, setDeleteHotelId] = useState('');
@@ -819,6 +852,46 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [showUpdateRoomInfoModal, setShowUpdateRoomInfoModal] = useState(false);
     const [showDeleteRoomModal, setShowDeleteRoomModal] = useState(false);
 
+    const [roomId, setRoomId] = useState('');
+    const [roomHotelId, setRoomHotelId] = useState('');
+    const [roomPrice, setRoomPrice] = useState('');
+    const [roomCapacity, setRoomCapacity] = useState('');
+    const [roomView, setRoomView] = useState('');
+    const [roomProblems, setRoomProblems] = useState('');
+    const [roomExpanding, setRoomExpanding] = useState(false);
+    const [createRoomErrorMsg, setCreateRoomErrorMsg] = useState('');
+    const handleCreateRoom = () => {
+        //createRoom(50,3,69,4,'nice','rats',false);
+        const intTest = /^\d+$/;
+        if (roomsSQL.some(room => room.id === parseInt(roomId))){
+            setCreateRoomErrorMsg('This room id already exists');
+            return;
+        }
+        if (!(hotelsSQL.some(hotel => hotel.id === parseInt(roomHotelId)))){
+            setCreateRoomErrorMsg('The hotel id youve entered isnt in our database');
+            return;
+        }
+        if (!(intTest.test(roomPrice))){
+            setCreateRoomErrorMsg('Price needs to be a valid number (positive integer)');
+            return;
+        }
+        if (!(['1','2','3','4','5'].includes(roomCapacity))){
+            setCreateRoomErrorMsg('Rooms can only have 1-5 people');
+            return;
+        }
+        //OTHER OPTIONS FOR A HOTEL
+        createRoom(parseInt(roomId), parseInt(roomHotelId), parseInt(roomPrice), parseInt(roomCapacity), roomView, roomProblems, roomExpanding);
+        handleResetFilter();
+        setShowCreateRoomModal(false);
+        setRoomId('');
+        setRoomHotelId('');
+        setRoomPrice('');
+        setRoomCapacity('');
+        setRoomView('');
+        setRoomProblems(false);
+        setCreateRoomErrorMsg('');
+    }
+
     const [deleteRoomId, setDeleteRoomId] = useState('');
     const [deleteRoomErrorMsg, setDeleteRoomErrorMsg] = useState('');
 
@@ -832,6 +905,67 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setShowDeleteRoomModal(false);
         setDeleteRoomErrorMsg('');
         setDeleteRoomId('');
+
+    }
+
+    const [updateRoomId, setUpdateRoomId] = useState('');
+    const [updateRoomHotelId, setUpdateRoomHotelId] = useState('');
+    const [updateRoomPrice, setUpdateRoomPrice] = useState('');
+    const [updateRoomCapacity, setUpdateRoomCapacity] = useState('');
+    const [updateRoomView, setUpdateRoomView] = useState('');
+    const [updateRoomProblems, setUpdateRoomProblems] = useState('');
+    const [updateRoomExpanding, setUpdateRoomExpanding] = useState(false);
+    const [updateRoomErrorMsg, setUpdateRoomErrorMsg] = useState('');
+    const [updateRoomInfoErrorMsg, setUpdateRoomInfoErrorMsg] = useState('');
+
+    const handleUpdateRoomModal = () => {
+        if (!(roomsSQL.some(room => room.id === parseInt(updateRoomId)))){
+            setUpdateRoomErrorMsg('This room does not exist');
+            return;
+        }
+        setUpdateRoomErrorMsg('');
+        const currentRoom = roomsSQL.find(room => room.id === parseInt(updateRoomId));
+        setUpdateRoomHotelId(currentRoom.hotel_id);
+        setUpdateRoomPrice(currentRoom.price);
+        setUpdateRoomCapacity(currentRoom.capacity);
+        setUpdateRoomView(currentRoom.view);
+        setUpdateRoomProblems(currentRoom.problems);
+        setUpdateRoomExpanding(currentRoom.expanding);
+        setUpdateRoomErrorMsg('');
+        setShowUpdateRoomInfoModal(true);
+        setShowUpdateRoomModal(false);
+    }
+    const handleUpdateRoom = () => {
+        const currentRoom = roomsSQL.find(room => room.id === parseInt(updateRoomId));
+        const intTest = /^\d+$/;
+        if (!currentRoom){
+            alert('This is not an existing room');
+            return;
+        }
+        if (!(hotelsSQL.some(hotel => hotel.id === parseInt(updateRoomHotelId)))){
+            setUpdateRoomInfoErrorMsg('The hotel id youve entered isnt in our database');
+            return;
+        }
+        if (!(intTest.test(updateRoomPrice))){
+            setUpdateRoomInfoErrorMsg('Price needs to be a valid number (positive integer)');
+            return;
+        }
+        if (!([1,2,3,4,5].includes(parseInt(updateRoomCapacity)))){
+            setUpdateRoomInfoErrorMsg('Rooms can only have 1-5 people');
+            return;
+        }
+        updateRoom(parseInt(updateRoomId), parseInt(updateRoomHotelId), parseInt(updateRoomPrice),
+                    parseInt(updateRoomCapacity), updateRoomView, updateRoomProblems, updateRoomExpanding);
+        setUpdateRoomId('');
+        setUpdateRoomHotelId('');
+        setUpdateRoomPrice('');
+        setUpdateRoomCapacity('');
+        setUpdateRoomView('');
+        setUpdateRoomProblems('');
+        setUpdateRoomExpanding(false);
+        handleResetFilter();
+        setUpdateRoomInfoErrorMsg('');
+        setShowUpdateRoomInfoModal(false);
     }
 
     
@@ -1060,9 +1194,9 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Card>
                         <Card.Body>
                             <Card.Text>
-                            <Button variant="secondary" className="search-button">Update Room Info</Button>
+                            <Button variant="secondary" className="search-button" onClick={setShowUpdateRoomModal}>Update Room Info</Button>
                             <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteRoomModal}>Delete Room</Button>
-                            <Button variant="secondary" className="positive-modal-button">Create New Room</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateRoomModal}>Create New Room</Button>
                             </Card.Text>
                         </Card.Body>
                     </Card>
@@ -1112,7 +1246,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             <Card.Title>{room.id}</Card.Title>
                             <Card.Text>
-                                <strong>Price:</strong> ${room.prix}/Night
+                                <strong>Price:</strong> ${room.price}/Night
                             </Card.Text>
                             <Card.Text>
                                 <strong>Capacity:</strong> {room.capacity} Persons
@@ -1142,7 +1276,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             <Card.Title>{room.id}</Card.Title>
                             <Card.Text>
-                                <strong>Price:</strong> ${room.prix}/Night
+                                <strong>Price:</strong> ${room.price}/Night
                             </Card.Text>
                             <Card.Text>
                                 <strong>Capacity:</strong> {room.capacity} Persons
@@ -1174,7 +1308,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             </p>
                             <p>
                                 <strong>Price:</strong>{' '}
-                                {"$" + selectedRoom.prix + "/Night"}
+                                {"$" + selectedRoom.price + "/Night"}
                             </p>
                             <p>
                                 <strong>Capacity:</strong>{' '}
@@ -1552,6 +1686,82 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 </Modal.Footer>
             </Modal>
 
+            <Modal show={showCreateRoomModal} onHide={setShowCreateRoomModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create New Room</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={roomId}
+                                onChange={e => setRoomId(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Rooms Hotel Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={roomHotelId}
+                                onChange={e => setRoomHotelId(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Price</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={roomPrice}
+                                placeholder='75'
+                                onChange={e => setRoomPrice(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Capacity</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={roomCapacity}
+                                onChange={e => setRoomCapacity(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room View</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={roomView}
+                                placeholder='Ex: Ottawa Canal'
+                                onChange={e => setRoomView(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Problems</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={roomProblems}
+                                onChange={e => setRoomProblems(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Expands</Form.Label>
+                            <Form.Check // prettier-ignore
+                                type="switch"
+                                id="custom-switch"
+                                label={roomExpanding ? "Yes" : "No"}
+                                onChange={() => setRoomExpanding(prevState => !prevState)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {createRoomErrorMsg && <p style={{ color: 'red' }}>{createRoomErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleCreateRoom}>
+                        Create Room
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             <Modal show={showDeleteRoomModal} onHide={setShowDeleteRoomModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Delete Room</Modal.Title>
@@ -1573,6 +1783,97 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     {deleteRoomErrorMsg && <p style={{ color: 'red' }}>{deleteRoomErrorMsg}</p>}
                     <Button variant="primary" onClick={handleDeleteRoom}>
                         Delete Room
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showUpdateRoomModal} onHide={setShowUpdateRoomModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Room</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateRoomId}
+                                onChange={e => setUpdateRoomId(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateRoomErrorMsg && <p style={{ color: 'red' }}>{updateRoomErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleUpdateRoomModal}>
+                        Update Room
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showUpdateRoomInfoModal} onHide={setShowUpdateRoomInfoModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Room</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Rooms Hotel Id</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateRoomHotelId}
+                                onChange={e => setUpdateRoomHotelId(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Price</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateRoomPrice}
+                                placeholder='75'
+                                onChange={e => setUpdateRoomPrice(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Capacity</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateRoomCapacity}
+                                onChange={e => setUpdateRoomCapacity(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room View</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateRoomView}
+                                placeholder='Ex: Ottawa Canal'
+                                onChange={e => setUpdateRoomView(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Problems</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={updateRoomProblems}
+                                onChange={e => setUpdateRoomProblems(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Room Expands</Form.Label>
+                            <Form.Check // prettier-ignore
+                                type="switch"
+                                id="custom-switch"
+                                label={updateRoomExpanding ? "Yes" : "No"}
+                                onChange={() => setUpdateRoomExpanding(prevState => !prevState)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateRoomInfoErrorMsg && <p style={{ color: 'red' }}>{updateRoomInfoErrorMsg}</p>}
+                    <Button variant="primary" onClick={handleUpdateRoom}>
+                        Update Room
                     </Button>
                 </Modal.Footer>
             </Modal>
