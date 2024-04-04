@@ -112,7 +112,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     }
 
     function createEmployee(f_name, l_name, sin, address, role, hotel_id, password) {
-        fetch('http://localhost:3001/clients', {
+        fetch('http://localhost:3001/employees', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -136,6 +136,22 @@ const Employee = ({loggedIn, signedInAcc}) => {
             })
             .catch(error => {
                 console.error('Error fetching clients:', error);
+            });
+    }
+
+    function createClient(f_name, l_name, sin, address, r_date, password) {
+        fetch('http://localhost:3001/clients', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({f_name, l_name, sin, address, r_date, password}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getClients();
             });
     }
 
@@ -718,6 +734,68 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
 
     //CLIENTS
+    const [showCreateClientModal, setShowCreateClientModal] = useState(false);
+    const [clientF_name, setClientF_name] = useState('');
+    const [clientL_name, setClientL_name] = useState('');
+    const [createClientSin, setCreateClientSin] = useState('');
+    const [clientAddress, setClientAddress] = useState('');
+    const [clientRegisterDate, setClientRegisterDate] = useState(new Date().toLocaleDateString('en-CA'));
+    const [clientPassword, setClientPassword] = useState('');
+    const [clientConPassword, setClientConPassword] = useState('');
+    const [createClientErrorMsg, setCreateClientErrorMsg] = useState('');
+    
+    const handleCreateClient = () => {
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        // Email regex
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; 
+        // Minimum eight characters, at least one letter and one number
+        const sinRegex = /^\d{9}$/; 
+        //SIN are 9 numbers
+
+        if (!emailRegex.test(clientAddress)) {
+            setCreateClientErrorMsg('Invalid email address');
+            return;
+        }
+        
+        if (!sinRegex.test(createClientSin)) {
+            setCreateClientErrorMsg('SIN are 9 numbers');
+            return;
+        }
+
+        if (!passwordRegex.test(clientPassword)) {
+            setCreateClientErrorMsg('Password must contain 8 digits containing atleast a letter and a number');
+            return;
+        }
+
+        if (clientPassword !== clientConPassword){
+            setCreateClientErrorMsg('Your passwords dont match');
+            return;
+        }
+
+        const existingEmail = clientsSQL.find(client => client.address === clientAddress);
+        if (existingEmail) {
+            setCreateClientErrorMsg('An client with this email already exists');
+            return;
+        }
+
+        const existingSin = clientsSQL.find(client => client.sin === parseInt(createClientSin));
+        if (existingSin) {
+            setCreateClientErrorMsg('An client with this SIN already exists');
+            return;
+        }
+
+        createClient(clientF_name, clientL_name, parseInt(createClientSin), clientAddress, clientRegisterDate, clientPassword);
+        handleResetFilter();
+        setShowCreateClientModal(false);
+        setClientF_name('');
+        setClientL_name('');
+        setCreateClientSin('');
+        setClientAddress('');
+        setClientPassword('');
+        setClientConPassword('');
+    }
+
     const [showDeleteClientModal, setShowDeleteClientModal] = useState(false);
     const [deleteClientSin, setDeleteClientSin] = useState('');
     const [deleteClientErrorMsg, setDeleteClientErrorMsg] = useState('');
@@ -839,7 +917,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [updateEmployeeErrorMsg, setUpdateEmployeeErrorMsg] = useState('');
     const [updateEmployeeInfoErrorMsg, setUpdateEmployeeInfoErrorMsg] = useState('');
 
-    const handleUpdateEmployeeModal = () => {
+    const handleUpdateClientModal = () => {
         if (!(employeesSQL.some(employee => employee.sin === parseInt(updateEmployeeSin)))){
             setUpdateClientErrorMsg('This client does not exist');
             return;
@@ -1374,13 +1452,81 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             <Card.Text>
                             <Button variant="secondary" className="search-button">Update Client Info</Button>
                             <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteClientModal}>Delete Client</Button>
-                            <Button variant="secondary" className="positive-modal-button">Create New Client</Button>
+                            <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateClientModal}>Create New Client</Button>
                             </Card.Text>
                         </Card.Body>
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseClientSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showCreateClientModal} onHide={setShowCreateClientModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create New Client</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client First Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={clientF_name}
+                                onChange={e => setClientF_name(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client Last Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={clientL_name}
+                                onChange={e => setClientL_name(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client SIN</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={createClientSin}
+                                onChange={e => setCreateClientSin(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client Email Address</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={clientAddress}
+                                placeholder='email@exmaple.com'
+                                onChange={e => setClientAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client Password</Form.Label>
+                            <Form.Control
+                                type="password"
+                                value={clientPassword}
+                                onChange={e => setClientPassword(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group
+                            className="mb-3"
+                            controlId="exampleForm.ControlTextarea1"
+                            >
+                                <Form.Label>Confirm Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={clientConPassword}
+                                    onChange={e => setClientConPassword(e.target.value)}
+                                />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {createClientErrorMsg && <p style={{ color: 'red' }}>{createClientErrorMsg}</p>}
+                    <Button variant="primary" className="positive-modal-button" onClick={handleCreateClient}>
+                        Create Client
+                    </Button>
                 </Modal.Footer>
             </Modal>
             <Modal show={showDeleteClientModal} onHide={setShowDeleteClientModal}>
