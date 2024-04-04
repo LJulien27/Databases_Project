@@ -111,6 +111,22 @@ const Employee = ({loggedIn, signedInAcc}) => {
         });
     }
 
+    function updateEmployee(oldSin, sin, f_name, l_name, address, role, password) {
+        fetch(`http://localhost:3001/employees/${oldSin}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({oldSin, sin, f_name, l_name, address, role, password}),
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getEmployees();
+        });
+    }
+
     function getClients() {
         fetch('http://localhost:3001/clients')
             .then(response => response.json())
@@ -692,15 +708,96 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [deleteEmployeeErrorMsg, setDeleteEmployeeErrorMsg] = useState('');
 
     const handleDeleteEmployee = () => {
-        if (!(employeesSQL.some(employee => employee.sin === deleteEmployeeSin))){
+        if (!(employeesSQL.some(employee => employee.sin === parseInt(deleteEmployeeSin)))){
             setDeleteEmployeeErrorMsg('You cannot remove a employee that does not exist');
             return;
         }
-        deleteEmployee(deleteEmployeeSin);
+        deleteEmployee(parseInt(deleteEmployeeSin));
         handleResetFilter();
         setShowDeleteEmployeeModal(false);
         setDeleteEmployeeErrorMsg('');
         setDeleteEmployeeSin('');
+    }
+
+    const [updateEmployeeSin, setUpdateEmployeeSin] = useState('');
+    const [showUpdateEmployeeModal, setShowUpdateEmployeeModal] = useState(false);
+    const [showUpdateEmployeeInfoModal, setShowUpdateEmployeeInfoModal] = useState(false);
+
+    const [updateEmployeeSin2, setUpdateEmployeeSin2] = useState('');
+    const [updateEmployeeF_name, setUpdateEmployeeF_name] = useState('');
+    const [updateEmployeeL_name, setUpdateEmployeeL_name] = useState('');
+    const [updateEmployeeAddress, setUpdateEmployeeAddress] = useState('');
+    const [updateEmployeeR_date, setUpdateEmployeeR_date] = useState('');
+    const [updateEmployeePassword, setUpdateEmployeePassword] = useState('');
+    const [updateEmployeeErrorMsg, setUpdateEmployeeErrorMsg] = useState('');
+    const [updateEmployeeInfoErrorMsg, setUpdateEmployeeInfoErrorMsg] = useState('');
+
+    const handleUpdateEmployeeModal = () => {
+        if (!(employeesSQL.some(employee => employee.sin === parseInt(updateEmployeeSin)))){
+            setUpdateClientErrorMsg('This client does not exist');
+            return;
+        }
+        setUpdateClientErrorMsg('');
+        const client = clientsSQL.find(client => client.sin === parseInt(updateClientSin));
+        setUpdateClientF_name(client.f_name);
+        setUpdateClientL_name(client.l_name);
+        setUpdateClientAddress(client.address);
+        setUpdateClientR_date(client.r_date);
+        setUpdateClientPassword(client.password);
+        setShowUpdateClientInfoModal(true);
+        setShowUpdateClientModal(false);
+        setUpdateClientSin2(updateClientSin);
+    }
+    const handleUpdateClient = () => {
+        const currentClient = clientsSQL.find(client => client.sin === updateClientSin);
+        setUpdateClientSin('');  
+       /* const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        // Email regex
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; 
+        // Minimum eight characters, at least one letter and one number
+        const sinRegex = /^\d{9}$/; 
+        //SIN are 9 numbers
+
+        const currentClient = clientsSQL.find(client => client.sin === updateClientSin);
+        setUpdateClientSin('');
+
+        if (!emailRegex.test(clientAddres)) {
+            alert('Invalid email address');
+            return;
+        }
+        
+        if (!sinRegex.test(clientSin)) {
+            alert('SIN are 9 numbers');
+            return;
+        }
+
+        if (!passwordRegex.test(clientPassword)) {
+            alert('Password must contain 8 digits containing atleast a letter and a number');
+            return;
+        }
+
+        const existingEmail = clientsSQL.find(client => client.address === clientAddres);
+        if (existingEmail) {
+            alert('A client with this email already exists');
+            return;
+        }
+
+        const existingSin = clientsSQL.find(client => client.sin === parseInt(clientSin));
+        if (existingSin) {
+            alert('A client with this SIN already exists');
+            return;
+        } */
+        
+        updateClient(currentClient.sin, updateClientSin2, updateClientF_name, updateClientL_name, updateClientAddres, updateClientR_date, updateClientPassword);
+        setUpdateClientSin2('');
+        setUpdateClientF_name('');
+        setUpdateClientL_name('');
+        setUpdateClientAddress('');
+        setUpdateClientR_date('');
+        setUpdateClientPassword('');
+        handleResetFilter();
+        setUpdateClientInfoErrorMsg('');
+        setShowUpdateClientInfoModal(false);
     }
 
     //SETTINGS MODALS AND FUNCTIONS
