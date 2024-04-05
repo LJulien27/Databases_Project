@@ -127,13 +127,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
-    function updateEmployee(sin, fname, lname, address, role, hotel_id, password) {
+    function updateEmployee(f_name, l_name, sin, address, role, hotel_id, password) {
         fetch(`http://localhost:3001/employees/${sin}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({sin, fname, lname, address, role, hotel_id, password}),
+            body: JSON.stringify({f_name, l_name, sin, address, role, hotel_id, password}),
         })
             .then(response => {
                 return response.text();
@@ -1012,29 +1012,32 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setUpdateEmployeeAddress(employee.address);
         setUpdateEmployeePassword(employee.password);
         setUpdateEmployeeRole(employee.role);
-        setUpdateEmployeeRole(employee.hotel_id);
+        setUpdateEmployeeHotel_id(employee.hotel_id);
         setShowUpdateEmployeeInfoModal(true);
         setShowUpdateEmployeeModal(false);
     }
+
     const handleUpdateEmployee = () => {
-    const currentEmployee = employeesSQL.find(employee => employee.sin === parseInt(updateEmployeeSin));
-    if (employeesSQL.some(employee => employee.address === updateEmployeeAddress) && !(currentEmployee.address === updateEmployeeAddress)){
-        setUpdateEmployeeInfoErrorMsg('New address must not be an existing address');
-        return;
-    }
-    
-    // Call to updateEmployee function
-    updateEmployee(parseInt(updateEmployeeSin), updateEmployeeF_name, updateEmployeeL_name, updateEmployeeAddress, updateEmployeeRole, updateEmployeeHotel_id, updateEmployeePassword)
-        .then(response => {
-            // Handle successful response
-            alert(response); // You can handle the response as needed
-            // Reset state variables and perform other necessary actions
-        })
-        .catch(error => {
-            // Handle error
-            alert(error); // Display the error message
-        });
-};
+        const currentEmployee = employeesSQL.find(employee => employee.sin === parseInt(updateEmployeeSin));
+        if (employeesSQL.some(employee => employee.address === updateEmployeeAddress) && !(currentEmployee.address === updateEmployeeAddress)){
+            setUpdateEmployeeInfoErrorMsg('New address must not be an existing address');
+            return;
+        }
+        
+        // Call to updateEmployee function
+        updateEmployee(updateEmployeeF_name, updateEmployeeL_name, parseInt(updateEmployeeSin), updateEmployeeAddress, updateEmployeeRole, updateEmployeeHotel_id, updateEmployeePassword);
+        setUpdateEmployeeSin('');
+        setUpdateEmployeeF_name('');
+        setUpdateEmployeeL_name('');
+        setUpdateEmployeeAddress('');
+        setUpdateEmployeeRole('');
+        setUpdateEmployeeHotel_id('');
+        setUpdateEmployeePassword('');
+        handleResetFilter();
+        setUpdateEmployeeInfoErrorMsg('');
+        setShowUpdateEmployeeInfoModal(false);
+
+    };
 
     //SETTINGS MODALS AND FUNCTIONS
     //CHAINS
