@@ -127,6 +127,22 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
+    function updateEmployee(sin, fname, lname, address, role, hotel_id, password) {
+        fetch(`http://localhost:3001/employees/${sin}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({sin, fname, lname, address, role, hotel_id, password}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getEmployees();
+            });
+    }
+
     function getClients() {
         fetch('http://localhost:3001/clients')
             .then(response => response.json())
@@ -166,6 +182,22 @@ const Employee = ({loggedIn, signedInAcc}) => {
         .then(data => {
             getClients();
         });
+    }
+
+    function updateClient(sin, fname, lname, address, r_date, password) {
+        fetch(`http://localhost:3001/clients/${sin}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({fname, lname, sin, address, r_date, password}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getClients();
+            });
     }
 
     function getChains() {
@@ -812,6 +844,57 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setDeleteClientSin('');
     }
 
+    //UPDATE
+    const [showUpdateClientModal, setShowUpdateClientModal] = useState(false);
+    const [showUpdateClientInfoModal, setShowUpdateClientInfoModal] = useState(false);
+    const [updateClientSin, setUpdateClientSin] = useState('');
+    const [updateClientF_name, setUpdateClientF_name] = useState('');
+    const [updateClientL_name, setUpdateClientL_name] = useState('');
+    const [updateClientAddress, setUpdateClientAddress] = useState('');
+    const [updateClientR_date, setUpdateClientR_date] = useState('');
+    const [updateClientPassword, setUpdateClientPassword] = useState('');
+    const [updateClientErrorMsg, setUpdateClientErrorMsg] = useState('');
+    const [updateClientInfoErrorMsg, setUpdateClientInfoErrorMsg] = useState('');
+
+    const handleUpdateClientModal = () => {
+        if (!(clientsSQL.some(client => client.sin === parseInt(updateClientSin)))){
+            setUpdateClientErrorMsg('This client does not exist');
+            return;
+        }
+        setUpdateClientErrorMsg('');
+        const client = clientsSQL.find(client => client.sin === parseInt(updateClientSin));
+        setUpdateClientF_name(client.f_name);
+        setUpdateClientL_name(client.l_name);
+        setUpdateClientAddress(client.address);
+        setUpdateClientPassword(client.password);
+        setUpdateClientR_date(client.r_date);
+        setShowUpdateClientInfoModal(true);
+        setShowUpdateClientModal(false);
+    }
+    const handleUpdateClient = () => {
+    const currentClient = clientsSQL.find(client => client.sin === parseInt(updateClientSin));
+    if (!currentClient){
+        alert('This is not an existing client');
+        return;
+    }
+    if (clientsSQL.some(client => client.address === updateClientAddress) && !(currentClient.address === updateClientAddress)){
+        setUpdateClientInfoErrorMsg('New address must not be an existing address');
+        return;
+    }
+    
+    // Call to updateClient function
+    updateClient(parseInt(updateClientSin), updateClientF_name, updateClientL_name, updateClientAddress, updateClientR_date, updateClientPassword)
+        .then(response => {
+            // Handle successful response
+            alert(response); // You can handle the response as needed
+            // Reset state variables and perform other necessary actions
+        })
+        .catch(error => {
+            // Handle error
+            alert(error); // Display the error message
+        });
+};
+
 
 
     //EMPLOYEES
@@ -887,6 +970,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     }
 
 
+    //DELETE
     const [showDeleteEmployeeModal, setShowDeleteEmployeeModal] = useState(false);
     const [deleteEmployeeSin, setDeleteEmployeeSin] = useState('');
     const [deleteEmployeeErrorMsg, setDeleteEmployeeErrorMsg] = useState('');
@@ -904,86 +988,54 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setDeleteEmployeeSin('');
     }
 
-    const [updateEmployeeSin, setUpdateEmployeeSin] = useState('');
+    //UPDATE
     const [showUpdateEmployeeModal, setShowUpdateEmployeeModal] = useState(false);
     const [showUpdateEmployeeInfoModal, setShowUpdateEmployeeInfoModal] = useState(false);
-
-    const [updateEmployeeSin2, setUpdateEmployeeSin2] = useState('');
+    const [updateEmployeeSin, setUpdateEmployeeSin] = useState('');
     const [updateEmployeeF_name, setUpdateEmployeeF_name] = useState('');
     const [updateEmployeeL_name, setUpdateEmployeeL_name] = useState('');
     const [updateEmployeeAddress, setUpdateEmployeeAddress] = useState('');
-    const [updateEmployeeR_date, setUpdateEmployeeR_date] = useState('');
+    const [updateEmployeeRole, setUpdateEmployeeRole] = useState('');
+    const [updateEmployeeHotel_id, setUpdateEmployeeHotel_id] = useState('');
     const [updateEmployeePassword, setUpdateEmployeePassword] = useState('');
     const [updateEmployeeErrorMsg, setUpdateEmployeeErrorMsg] = useState('');
     const [updateEmployeeInfoErrorMsg, setUpdateEmployeeInfoErrorMsg] = useState('');
 
-    const handleUpdateClientModal = () => {
+    const handleUpdateEmployeeModal = () => {
         if (!(employeesSQL.some(employee => employee.sin === parseInt(updateEmployeeSin)))){
-            setUpdateClientErrorMsg('This client does not exist');
+            setUpdateEmployeeErrorMsg('This Employee does not exist');
             return;
         }
-        setUpdateClientErrorMsg('');
-        const client = clientsSQL.find(client => client.sin === parseInt(updateClientSin));
-        setUpdateClientF_name(client.f_name);
-        setUpdateClientL_name(client.l_name);
-        setUpdateClientAddress(client.address);
-        setUpdateClientR_date(client.r_date);
-        setUpdateClientPassword(client.password);
-        setShowUpdateClientInfoModal(true);
-        setShowUpdateClientModal(false);
-        setUpdateClientSin2(updateClientSin);
+        setUpdateEmployeeErrorMsg('');
+        const employee = employeesSQL.find(employee => employee.sin === parseInt(updateEmployeeSin));
+        setUpdateEmployeeF_name(employee.f_name);
+        setUpdateEmployeeL_name(employee.l_name);
+        setUpdateEmployeeAddress(employee.address);
+        setUpdateEmployeePassword(employee.password);
+        setUpdateEmployeeRole(employee.role);
+        setUpdateEmployeeRole(employee.hotel_id);
+        setShowUpdateEmployeeInfoModal(true);
+        setShowUpdateEmployeeModal(false);
     }
-    const handleUpdateClient = () => {
-        const currentClient = clientsSQL.find(client => client.sin === updateClientSin);
-        setUpdateClientSin('');  
-       /* const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
-        // Email regex
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; 
-        // Minimum eight characters, at least one letter and one number
-        const sinRegex = /^\d{9}$/; 
-        //SIN are 9 numbers
-
-        const currentClient = clientsSQL.find(client => client.sin === updateClientSin);
-        setUpdateClientSin('');
-
-        if (!emailRegex.test(clientAddres)) {
-            alert('Invalid email address');
-            return;
-        }
-        
-        if (!sinRegex.test(clientSin)) {
-            alert('SIN are 9 numbers');
-            return;
-        }
-
-        if (!passwordRegex.test(clientPassword)) {
-            alert('Password must contain 8 digits containing atleast a letter and a number');
-            return;
-        }
-
-        const existingEmail = clientsSQL.find(client => client.address === clientAddres);
-        if (existingEmail) {
-            alert('A client with this email already exists');
-            return;
-        }
-
-        const existingSin = clientsSQL.find(client => client.sin === parseInt(clientSin));
-        if (existingSin) {
-            alert('A client with this SIN already exists');
-            return;
-        } */
-        
-        updateClient(currentClient.sin, updateClientSin2, updateClientF_name, updateClientL_name, updateClientAddres, updateClientR_date, updateClientPassword);
-        setUpdateClientSin2('');
-        setUpdateClientF_name('');
-        setUpdateClientL_name('');
-        setUpdateClientAddress('');
-        setUpdateClientR_date('');
-        setUpdateClientPassword('');
-        handleResetFilter();
-        setUpdateClientInfoErrorMsg('');
-        setShowUpdateClientInfoModal(false);
+    const handleUpdateEmployee = () => {
+    const currentEmployee = employeesSQL.find(employee => employee.sin === parseInt(updateEmployeeSin));
+    if (employeesSQL.some(employee => employee.address === updateEmployeeAddress) && !(currentEmployee.address === updateEmployeeAddress)){
+        setUpdateEmployeeInfoErrorMsg('New address must not be an existing address');
+        return;
     }
+    
+    // Call to updateEmployee function
+    updateEmployee(parseInt(updateEmployeeSin), updateEmployeeF_name, updateEmployeeL_name, updateEmployeeAddress, updateEmployeeRole, updateEmployeeHotel_id, updateEmployeePassword)
+        .then(response => {
+            // Handle successful response
+            alert(response); // You can handle the response as needed
+            // Reset state variables and perform other necessary actions
+        })
+        .catch(error => {
+            // Handle error
+            alert(error); // Display the error message
+        });
+};
 
     //SETTINGS MODALS AND FUNCTIONS
     //CHAINS
@@ -1450,7 +1502,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Card>
                         <Card.Body>
                             <Card.Text>
-                            <Button variant="secondary" className="search-button">Update Client Info</Button>
+                            <Button variant="secondary" className="search-button" onClick={setShowUpdateClientModal}>Update Client Info</Button>
                             <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteClientModal}>Delete Client</Button>
                             <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateClientModal}>Create New Client</Button>
                             </Card.Text>
@@ -1553,6 +1605,87 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={showUpdateClientModal} onHide={setShowUpdateClientModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Client</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client SIN</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateClientSin}
+                                onChange={e => setUpdateClientSin(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateClientErrorMsg && <p style={{ color: 'red' }}>{updateClientErrorMsg}</p>}
+                    <Button variant="primary" className="search-button" onClick={handleUpdateClientModal}>
+                        Select Client
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showUpdateClientInfoModal} onHide={setShowUpdateClientInfoModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Client</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client First Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateClientF_name}
+                                onChange={e => setUpdateClientF_name(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client Last Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateClientL_name}
+                                onChange={e => setUpdateClientL_name(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client Address</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateClientAddress}
+                                onChange={e => setUpdateClientAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Client Password</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateClientPassword}
+                                onChange={e => setUpdateClientPassword(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateClientInfoErrorMsg && <p style={{ color: 'red' }}>{updateClientInfoErrorMsg}</p>}
+                    <Button variant="primary" className="positive-modal-button" onClick={handleUpdateClient}>
+                        Confirm Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <Modal show={showEmployeeSettingsModal} onHide={handleCloseEmployeeSettingsModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Employee Settings</Modal.Title>
@@ -1561,7 +1694,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Card>
                         <Card.Body>
                             <Card.Text>
-                            <Button variant="secondary" className="search-button">Update Employee Info</Button>
+                            <Button variant="secondary" className="search-button" onClick={setShowUpdateEmployeeModal}>Update Employee Info</Button>
                             <Button variant="secondary" className="negative-modal-button" onClick={setShowDeleteEmployeeModal}>Delete Employee</Button>
                             <Button variant="secondary" className="positive-modal-button" onClick={setShowCreateEmployeeModal}>Create New Employee</Button>
                             </Card.Text>
@@ -1679,6 +1812,109 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     {deleteEmployeeErrorMsg && <p style={{ color: 'red' }}>{deleteEmployeeErrorMsg}</p>}
                     <Button variant="primary" className="negative-modal-button" onClick={handleDeleteEmployee}>
                         Confirm
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showUpdateEmployeeModal} onHide={setShowUpdateEmployeeModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Employee</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee SIN</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateEmployeeSin}
+                                onChange={e => setUpdateEmployeeSin(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateEmployeeErrorMsg && <p style={{ color: 'red' }}>{updateEmployeeErrorMsg}</p>}
+                    <Button variant="primary" className="search-button" onClick={handleUpdateEmployeeModal}>
+                        Select Employee
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showUpdateEmployeeInfoModal} onHide={setShowUpdateEmployeeInfoModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Employee</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee First Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateEmployeeF_name}
+                                onChange={e => setUpdateEmployeeF_name(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Last Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateEmployeeL_name}
+                                onChange={e => setUpdateEmployeeL_name(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Address</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateEmployeeAddress}
+                                onChange={e => setUpdateEmployeeAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Role</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateEmployeeRole}
+                                onChange={e => setUpdateEmployeeRole(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Associated Hotel ID</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateEmployeeHotel_id}
+                                onChange={e => setUpdateEmployeeHotel_id(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Employee Password</Form.Label>
+                            <Form.Control
+                                type="text"
+                                autoFocus
+                                value={updateEmployeePassword}
+                                onChange={e => setUpdateEmployeePassword(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    {updateEmployeeInfoErrorMsg && <p style={{ color: 'red' }}>{updateEmployeeInfoErrorMsg}</p>}
+                    <Button variant="primary" className="positive-modal-button" onClick={handleUpdateEmployee}>
+                        Confirm Changes
                     </Button>
                 </Modal.Footer>
             </Modal>
