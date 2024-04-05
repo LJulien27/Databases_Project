@@ -184,13 +184,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
         });
     }
 
-    function updateClient(sin, fname, lname, address, r_date, password) {
+    function updateClient(f_name, l_name, sin, address, r_date, password) {
         fetch(`http://localhost:3001/clients/${sin}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({fname, lname, sin, address, r_date, password}),
+            body: JSON.stringify({f_name, l_name, sin, address, r_date, password}),
         })
             .then(response => {
                 return response.text();
@@ -851,7 +851,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [updateClientF_name, setUpdateClientF_name] = useState('');
     const [updateClientL_name, setUpdateClientL_name] = useState('');
     const [updateClientAddress, setUpdateClientAddress] = useState('');
-    const [updateClientR_date, setUpdateClientR_date] = useState('');
     const [updateClientPassword, setUpdateClientPassword] = useState('');
     const [updateClientErrorMsg, setUpdateClientErrorMsg] = useState('');
     const [updateClientInfoErrorMsg, setUpdateClientInfoErrorMsg] = useState('');
@@ -867,33 +866,33 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setUpdateClientL_name(client.l_name);
         setUpdateClientAddress(client.address);
         setUpdateClientPassword(client.password);
-        setUpdateClientR_date(client.r_date);
         setShowUpdateClientInfoModal(true);
         setShowUpdateClientModal(false);
     }
+
     const handleUpdateClient = () => {
-    const currentClient = clientsSQL.find(client => client.sin === parseInt(updateClientSin));
-    if (!currentClient){
-        alert('This is not an existing client');
-        return;
-    }
-    if (clientsSQL.some(client => client.address === updateClientAddress) && !(currentClient.address === updateClientAddress)){
-        setUpdateClientInfoErrorMsg('New address must not be an existing address');
-        return;
-    }
-    
-    // Call to updateClient function
-    updateClient(parseInt(updateClientSin), updateClientF_name, updateClientL_name, updateClientAddress, updateClientR_date, updateClientPassword)
-        .then(response => {
-            // Handle successful response
-            alert(response); // You can handle the response as needed
-            // Reset state variables and perform other necessary actions
-        })
-        .catch(error => {
-            // Handle error
-            alert(error); // Display the error message
-        });
-};
+        const currentClient = clientsSQL.find(client => client.sin === parseInt(updateClientSin));
+        if (!currentClient){
+            alert('This is not an existing client');
+            return;
+        }
+        if (clientsSQL.some(client => client.address === updateClientAddress) && !(currentClient.address === updateClientAddress)){
+            setUpdateClientInfoErrorMsg('New address must not be an existing address');
+            return;
+        }
+        
+        // Call to updateClient function
+        updateClient(updateClientF_name, updateClientL_name, parseInt(updateClientSin), updateClientAddress, currentClient.r_date.slice(0,10), updateClientPassword);
+        setUpdateClientSin('');
+        setUpdateClientF_name('');
+        setUpdateClientL_name('');
+        setUpdateClientAddress('');
+        setUpdateClientPassword('');
+        handleResetFilter();
+        setUpdateClientInfoErrorMsg('');
+        setShowUpdateClientInfoModal(false);
+        
+    };
 
 
 

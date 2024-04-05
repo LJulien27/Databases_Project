@@ -145,10 +145,10 @@ const getHotels = async () => {
   //update a client record
   const updateClient = (body) => {
     return new Promise(function (resolve, reject) {
-      const { fname, lname, sin, address, r_date, password } = body;
+      const { f_name, l_name, sin, address, r_date, password } = body;
       pool.query(
-        "UPDATE clients SET fname = $1, lname = $2, sin = $3, address = $4, r_date = $5, password = $6 WHERE sin = $3 RETURNING *",
-        [fname, lname, sin, address, r_date, password],
+        "UPDATE clients SET f_name = $1, l_name = $2, address = $4, r_date = $5, password = $6 WHERE sin = $3 RETURNING *",
+        [f_name, l_name, sin, address, r_date, password],
         (error, results) => {
           if (error) {
             reject(error);
