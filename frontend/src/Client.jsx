@@ -192,6 +192,7 @@ const Client = ({loggedIn, signedInAcc}) => {
     const handleCloseChainModal = () => setShowChainModal(false);
     const handleShowChainModal = () => setShowChainModal(true);
     const handleCloseHotelModal = () => setShowHotelModal(false);
+    const handleShowHotelModal = () => setShowHotelModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
     const handleShowRoomModal = (room) => {
         setSelectedRoom(room);
@@ -422,30 +423,27 @@ const Client = ({loggedIn, signedInAcc}) => {
         }
     }
 
- //   if (loggedIn !== 1){
- //       return (
-  //          <div>
-  //              Return to login page you are not logged in as a client
-   //         </div>
-   //         )
-    //    }
+    if (loggedIn !== 1){
+        return (
+            <div>
+                Return to login page you are not logged in as a client
+            </div>
+            )
+        }
 
     return (
         <div>
             <div className="my-account-button">
-                <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
+            <Button variant="secondary" className="search-button" onClick={handleShowChainModal}>View Chains</Button>
+            <Button variant="secondary" className="positive-modal-button" onClick={handleShowHotelModal}>View Hotels</Button>
+                <Button variant="secondary" className="dropdown-button" onClick={handleMyAccountClick}>My Account</Button>
                 {/*  <Button variant="secondary" onClick={toggleDarkMode}>
                     {darkMode ? 'Light Mode' : 'Dark Mode'}
                 </Button>*/}
             </div>
-            
             <div className="search-bar">
                 <h1>Welcome client!</h1>
-                {JSON.stringify(selectedChains)}
-                {JSON.stringify(selectedHotels)}
-                {JSON.stringify(selectedHotelIds)}
                 <InputGroup className="mb-3">
-                    <Button onClick={handleShowChainModal}>Show chains</Button>
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
                         <Dropdown.Menu>
@@ -546,8 +544,8 @@ const Client = ({loggedIn, signedInAcc}) => {
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: Any")} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Button variant="secondary" onClick={() => {setCheckInDate(null); setCheckOutDate(null); handleSearchClick(capacitySize, null, null);}} >Reset Dates</Button>
-                    <Button variant="primary" onClick={() => {handleSearchClick(capacitySize, checkInDate, checkOutDate);}} >Search</Button>
+                    <Button variant="secondary" className="negative-modal-button" onClick={() => {setCheckInDate(null); setCheckOutDate(null); handleSearchClick(capacitySize, null, null);}} >Reset Dates</Button>
+                    <Button variant="primary" className="search-button" onClick={() => {handleSearchClick(capacitySize, checkInDate, checkOutDate);}} >Search</Button>
                 </InputGroup>
             </div>
             <Modal show={showMyAccountModal} onHide={handleCloseMyAccountModal}>
@@ -578,13 +576,11 @@ const Client = ({loggedIn, signedInAcc}) => {
             </Modal>
             <Modal show={showChainModal} onHide={handleCloseChainModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Chain</Modal.Title>
+                    <Modal.Title>View Chains</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Card>
                         <Card.Body>
-                            <Typography component="legend">Rating</Typography>
-                                <Rating name="read-only" value={4} readOnly />
                             {chainsSQL.map(chain => (
                                 <div key={chain.name}>
                                     <Card.Text>
@@ -607,26 +603,29 @@ const Client = ({loggedIn, signedInAcc}) => {
             </Modal>
             <Modal show={showHotelModal} onHide={handleCloseHotelModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Hotel</Modal.Title>
+                    <Modal.Title>View Hotels</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Card>
                         <Card.Body>
-                            <Typography component="legend">Rating</Typography>
-                                <Rating name="read-only" value={4} readOnly />
                             {hotelsSQL.map(hotel => (
                                 <div key={hotel.id}>
                                     <Card.Text>
-                                        <strong>ID:</strong> {hotel.id}
+                                        <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                            <strong>{hotel.name}</strong>
+                                            <span style={{ marginLeft: 'auto', marginTop: '3px' }}>
+                                                <Rating name="read-only" value={hotel.ratings} readOnly />
+                                            </span>
+                                        </h4>
                                     </Card.Text>
                                     <Card.Text>
-                                        <strong>Name:</strong> {hotel.name}
+                                        <strong>Hotel ID:</strong> {hotel.id}
                                     </Card.Text>
                                     <Card.Text>
                                         <strong>Address:</strong> {hotel.address}
                                     </Card.Text>
-                                    <Card.Text>
-                                        <strong>Chain:</strong> {hotel.chain_name}
+                                    <Card.Text style={{ marginBottom: '30px' }}>
+                                        <strong>Associated Chain:</strong> {hotel.chain_name}
                                     </Card.Text>
                                 </div>
                             ))}
@@ -642,7 +641,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                 <div className="room-container">
                     <div className="room-grid room-grid-flex">
                         {roomsToShow.map(room => 
-                            <Card style={{ width: '12rem' }}key={room.id} onClick={() => {handleShowRoomModal(room); setSelectedRoomId(room.id);}} className="room-card">
+                            <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => {handleShowRoomModal(room); setSelectedRoomId(room.id);}} className="room-card">
                                 <Card.Img
                                     className="room-image"
                                     variant="top"
