@@ -423,6 +423,17 @@ app.put("/emails/:id", (req, res) => {
     });
   });
 
+app.get("/history/:currentdate", (req, res) => {
+    hotel_model.getHistory(req.params.currentdate)
+      .then((response) => {
+        res.status(200).send(response);
+      })
+      .catch((error) => {
+        res.status(500).send(error);
+      });
+    }); 
+  
+
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)
 })
