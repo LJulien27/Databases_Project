@@ -1023,6 +1023,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setUpdateEmployeeInfoErrorMsg('New address must not be an existing address');
             return;
         }
+        if (!(employeesSQL.find(employee => employee.hotel_id === parseInt(updateEmployeeHotel_id)))){
+            setUpdateEmployeeInfoErrorMsg('Employees new hotel Id must be an existing hotel');
+            return;
+        }
         
         // Call to updateEmployee function
         updateEmployee(updateEmployeeF_name, updateEmployeeL_name, parseInt(updateEmployeeSin), updateEmployeeAddress, updateEmployeeRole, updateEmployeeHotel_id, updateEmployeePassword);
