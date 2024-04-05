@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { InputGroup, Button, Dropdown, Modal, Card, Form } from 'react-bootstrap';
+import { InputGroup, Button, Dropdown, Modal, Card, Form, CardBody } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Client.css';
 import './Background.css';
@@ -584,13 +584,21 @@ const Client = ({loggedIn, signedInAcc}) => {
                             {chainsSQL.map(chain => (
                                 <div key={chain.name}>
                                     <Card.Text>
-                                        <strong>Name:</strong> {chain.name}
+                                        <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                            <strong>{chain.name}</strong>
+                                        </h4>
                                     </Card.Text>
                                     <Card.Text>
-                                        <strong>Address:</strong> {chain.addres}
+                                        <strong>Central Office Address:</strong> {chain.addres}
                                     </Card.Text>
                                     <Card.Text>
-                                        <strong>Nomber of hotels:</strong> {chain.num_hotels}
+                                        <strong>Nomber of Hotels:</strong> {chain.num_hotels}    
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Contact E-mail:</strong> email@example.com
+                                    </Card.Text>
+                                    <Card.Text style={{ marginBottom: '30px' }}>
+                                        <strong>Phone Number:</strong> (613)-123-3123
                                     </Card.Text>
                                 </div>
                             ))}
@@ -622,10 +630,19 @@ const Client = ({loggedIn, signedInAcc}) => {
                                         <strong>Hotel ID:</strong> {hotel.id}
                                     </Card.Text>
                                     <Card.Text>
+                                    <strong>Associated Chain:</strong> {hotel.chain_name}
+                                    </Card.Text>
+                                    <Card.Text>
                                         <strong>Address:</strong> {hotel.address}
                                     </Card.Text>
+                                    <Card.Text>
+                                        <strong>Number of Rooms:</strong> 300
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Contact E-mail:</strong> email@example.com
+                                    </Card.Text>
                                     <Card.Text style={{ marginBottom: '30px' }}>
-                                        <strong>Associated Chain:</strong> {hotel.chain_name}
+                                        <strong>Phone Number:</strong> (613)-432-5436
                                     </Card.Text>
                                 </div>
                             ))}
@@ -665,26 +682,31 @@ const Client = ({loggedIn, signedInAcc}) => {
                     </div>
                 </div>
             </div>
-            
             <h2>My Rentals</h2>
+            <div className="room-container">
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Room Details</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {selectedRoom && (
+                    <Card>
+                        <CardBody>
+                        {selectedRoom && (
                         <div key={selectedRoom.id}>
+                            <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                <strong>Room {selectedRoom.id}</strong>
+                            </h4>
                             <p>
-                                <strong>Hotel ID:</strong>{' '}
+                                <strong>Associated Hotel:</strong>{' '}
                                 {(hotelsSQL.find(hotel => hotel.id === selectedRoom.hotel_id)).name}
                             </p>
                             <p>
-                                <strong>Room ID:</strong>{' '}
-                                {selectedRoom.id}
+                                <strong>Price:</strong>{' '}
+                                {"$" + selectedRoom.price + "/Night"}
                             </p>
                             <p>
-                                <strong>Price:</strong>{' '}
-                                {"$" + selectedRoom.prix + "/Night"}
+                                <strong>Commodities:</strong>{' '}
+                                {printCommodities(commoditiesSQL, selectedRoom.id)}
                             </p>
                             <p>
                                 <strong>Capacity:</strong>{' '}
@@ -696,33 +718,23 @@ const Client = ({loggedIn, signedInAcc}) => {
                             </p>
                             <p>
                                 <strong>Extent:</strong>{' '}
-                                {selectedRoom.expanding ? 'yes' : 'no'}
+                                {selectedRoom.expanding ? 'Yes' : 'No'}
                             </p>
                             <p>
                                 <strong>Problems:</strong>{' '}
                                 {selectedRoom.problems}
                             </p>
-                            <p>
-                                <strong>Commodities:</strong>{' '}
-                                {printCommodities(commoditiesSQL, selectedRoom.id)}
-                            </p>
                         </div>
                     )}
-                    {/*{commoditiesSQL.map(commoditie => (
-                        <div key={commoditie.id_room}>
-                            <p>
-                                <strong>Commodities:</strong>{' '}
-                                {commoditie.id_room}
-                            </p>
-                        </div>
-                    ))}*/}
+                        </CardBody>
+                    </Card>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseRoomModal}>Close</Button>
                     <Button variant="primary" className="positive-modal-button" onClick={handleReserveModal}>Reserve</Button>
-                    <Button variant="secondary" className="search-button">View Hotel</Button>
                 </Modal.Footer>
             </Modal>
+            </div>
         </div>
     );
 };
