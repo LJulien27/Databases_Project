@@ -53,6 +53,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [commoditiesSQL, setCommodities] = useState([]);
     const [reservationsSQL, setReservations] = useState([]);
     const [rentalsSQL, setRentals] = useState([]);
+    const [emailsSQL, setEmails] = useState([]);
+    const [phonenumbersSQL, setPhonenumbers] = useState([]);
+
+    
 
     const [clientSin, setClientSin] = useState('');
     //const [EmployeeSin, setEmployeeSin] = useState('');
@@ -83,6 +87,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
         getCommodities();
         getReservations();
         getRentals();
+        getEmails();
+        getPhonenumbers();
     }, []);
 
     // Functions to fetch data
@@ -271,13 +277,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     }
 
-    function createHotel(name, address, id, rooms, chain_name, ratings) {
+    function createHotel(name, address, id, chain_name, ratings) {
         fetch('http://localhost:3001/hotels', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({name, address, id, rooms, chain_name, ratings}),
+            body: JSON.stringify({name, address, id, chain_name, ratings}),
         })
         .then(response => {
             return response.text();
@@ -299,13 +305,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
         });
     }
 
-    function updateHotel(name, address, rooms, chain_name, ratings, id) {
+    function updateHotel(name, address, chain_name, ratings, id) {
         fetch(`http://localhost:3001/hotels/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, address, rooms, chain_name, ratings, id }),
+        body: JSON.stringify({ name, address, chain_name, ratings, id }),
         })
         .then(response => {
             return response.text();
@@ -431,6 +437,92 @@ const Employee = ({loggedIn, signedInAcc}) => {
             .then(data => {
                 //alert(data);
                 getRentals();
+            });
+    }
+
+    function getEmails() {
+        fetch('http://localhost:3001/emails')
+            .then(response => response.json())
+            .then(data => {
+                setEmails(data);
+            })
+            .catch(error => {
+                console.error('Error fetching emails:', error);
+            });
+    }
+
+    function createEmail(chain_name, hotel_id, email) {
+        fetch('http://localhost:3001/emails', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({chain_name, hotel_id, email}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getEmails();
+            });
+    }
+
+    function deleteEmail(chain_name, hotel_id) {
+        fetch('http://localhost:3001/emails', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({chain_name, hotel_id}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getEmails();
+            });
+    }
+
+    function getPhonenumbers() {
+        fetch('http://localhost:3001/phonenumbers')
+            .then(response => response.json())
+            .then(data => {
+                setPhonenumbers(data);
+            })
+            .catch(error => {
+                console.error('Error fetching phonenumbers:', error);
+            });
+    }
+
+    function createPhonenumber(chain_name, hotel_id, phone_number) {
+        fetch('http://localhost:3001/phonenumbers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({chain_name, hotel_id, phone_number}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getPhonenumbers();
+            });
+    }
+
+    function deletePhonenumber(chain_name, hotel_id) {
+        fetch('http://localhost:3001/phonenumbers', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({chain_name, hotel_id}),
+        })
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                getPhonenumbers();
             });
     }
 
@@ -1053,21 +1145,55 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [showDeleteChainModal, setShowDeleteChainModal] = useState(false);
     const [chainName, setChainName] = useState('');
     const [chainAddress, setChainAddress] = useState('');
+    const [chainEmail, setChainEmail] = useState('');
+    const [chainPhone, setChainPhone] = useState('');
     const [createChainErrorMsg, setCreateChainErrorMsg] = useState('');
     const handleCreateChain = () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        const phoneRegex = /^\d{10}$/; 
         if (chainsSQL.some(chain => chain.name === chainName)){
             setCreateChainErrorMsg('This chain already exists');
+            return;
+        }
+        if (chainName === ''){
+            setCreateChainErrorMsg('You must enter a chain name');
             return;
         }
         if (chainsSQL.some(chain => chain.address === chainAddress)){
             setCreateChainErrorMsg('This address already exists');
             return;
         }
+        if (chainAddress === ''){
+            setCreateChainErrorMsg('You must enter an address');
+            return;
+        }
+        if (emailsSQL.some(email => email.email === chainEmail)){
+            setCreateChainErrorMsg('This email already exists');
+            return;
+        }
+        if (phonenumbersSQL.some(phone => phone.phone_number === chainPhone)){
+            setCreateChainErrorMsg('This phone number already exists');
+            return;
+        }
+        if (!emailRegex.test(chainEmail)){
+            setCreateChainErrorMsg('You have not entered a valid email address');
+            return;
+        }
+        if (!phoneRegex.test(chainPhone)){
+            setCreateChainErrorMsg('phone numbers are made of 10 digits');
+            return;
+        }
         createChain(chainName, chainAddress);
+        setTimeout(() => {
+            createEmail(chainName, null, chainEmail);
+            createPhonenumber(chainName, null, chainPhone);
+        }, 500);
         handleResetFilter();
         setShowCreateChainModal(false);
         setChainName('');
         setChainAddress('');
+        setChainEmail('');
+        setChainPhone('');
     }
 
     const [deleteChainName, setDeleteChainName] = useState('');
@@ -1078,7 +1204,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setDeleteChainErrorMsg('You cannot remove a chain that doesnt exist');
             return;
         }
-        deleteChain(deleteChainName);
+        deleteEmail(deleteChainName, null);
+        deletePhonenumber(deleteChainName, null);
+        setTimeout(() => {
+            deleteChain(deleteChainName);
+        }, 1000);
         handleResetFilter();
         setShowDeleteChainModal(false);
         setDeleteChainErrorMsg('');
@@ -1135,9 +1265,25 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [hotelAddress, setHotelAddress] = useState('');
     const [hotelId, setHotelId] = useState('');
     const [hotelChainName, setHotelChainName] = useState('');
+    const [hotelEmail, setHotelEmail] = useState('');
+    const [hotelPhone, setHotelPhone] = useState('');
     const [hotelRating, setHotelRating] = useState(null);
     const [createHotelErrorMsg, setCreateHotelErrorMsg] = useState('');
     const handleCreateHotel = () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        const phoneRegex = /^\d{10}$/;
+        if (hotelName === ''){
+            setCreateChainErrorMsg('You must enter a hotel name');
+            return;
+        }
+        if (hotelsSQL.some(hotel => hotel.address === hotelAddress)){
+            setCreateChainErrorMsg('This address already exists');
+            return;
+        }
+        if (hotelAddress === ''){
+            setCreateChainErrorMsg('You must enter an address');
+            return;
+        }
         if (hotelsSQL.some(hotel => hotel.name === hotelName)){
             setCreateHotelErrorMsg('This hotel already exists');
             return;
@@ -1158,8 +1304,28 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setCreateHotelErrorMsg('Hotel must be of a 3, 4 or 5 star rating');
             return;
         }
+        if (emailsSQL.some(email => email.email === hotelEmail)){
+            setCreateChainErrorMsg('This email already exists');
+            return;
+        }
+        if (phonenumbersSQL.some(phone => phone.phone_number === hotelPhone)){
+            setCreateChainErrorMsg('This phone number already exists');
+            return;
+        }
+        if (!emailRegex.test(hotelEmail)){
+            setCreateChainErrorMsg('You have not entered a valid email address');
+            return;
+        }
+        if (!phoneRegex.test(hotelPhone)){
+            setCreateChainErrorMsg('phone numbers are made of 10 digits');
+            return;
+        }
         //OTHER OPTIONS FOR A HOTEL
-        createHotel(hotelName, hotelAddress, hotelId, 69, hotelChainName, parseInt(hotelRating));
+        createHotel(hotelName, hotelAddress, hotelId, hotelChainName, parseInt(hotelRating));
+        setTimeout(() => {
+            createEmail(null, hotelId, hotelEmail);
+            createPhonenumber(null, hotelId, hotelPhone);
+        }, 500);
         handleResetFilter();
         setShowCreateHotelModal(false);
         setHotelName('');
@@ -1167,6 +1333,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setHotelId('');
         setHotelChainName('');
         setHotelRating('');
+        setHotelEmail('');
+        setHotelPhone('');
         setCreateHotelErrorMsg('');
     }
 
@@ -1178,7 +1346,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setDeleteHotelErrorMsg('You cannot remove a hotel that doesnt exist');
             return;
         }
-        deleteHotel(deleteHotelId);
+        deleteEmail(null, deleteHotelId);
+        deletePhonenumber(null, deleteHotelId);
+        setTimeout(() => {
+            deleteHotel(deleteHotelId);
+        }, 1000);
         handleResetFilter();
         setShowDeleteHotelModal(false);
         setDeleteHotelErrorMsg('');
@@ -1229,7 +1401,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setUpdateHotelInfoErrorMsg('Hotel must be of a 3, 4 or 5 star rating');
             return;
         }
-        updateHotel(updateHotelName, updateHotelAddress, currentHotel.rooms, updateHotelChainName, parseInt(updateHotelRating), parseInt(updateHotelId));
+        updateHotel(updateHotelName, updateHotelAddress, updateHotelChainName, parseInt(updateHotelRating), parseInt(updateHotelId));
         setUpdateHotelAddress('');
         setUpdateHotelName('');
         setUpdateHotelId('');
@@ -1365,11 +1537,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     return (
         <div>
-            <div className="my-account-button">
-                <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
-                <Button variant="secondary" className="search-button" onClick={handleSettingsClick}>Settings</Button>
-            </div>
             <div className="search-bar">
+                <div className="my-account-button">
+                    <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
+                    <Button variant="secondary" className="search-button" onClick={handleSettingsClick}>Settings</Button>
+                </div>
                 <h1>Welcome Employee!</h1>
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
@@ -1966,7 +2138,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </Modal>
             <Modal show={showHotelSettingsModal} onHide={handleCloseHotelSettingsModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Chain Settings</Modal.Title>
+                    <Modal.Title>Hotel Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Card>
@@ -1985,7 +2157,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </Modal>
             <Modal show={showRoomSettingsModal} onHide={handleCloseRoomSettingsModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Chain Settings</Modal.Title>
+                    <Modal.Title>Room Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Card>
@@ -2293,12 +2465,30 @@ const Employee = ({loggedIn, signedInAcc}) => {
                             />
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain address</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={chainAddress}
+                                placeholder='123 random blvd'
+                                onChange={e => setChainAddress(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                             <Form.Label>Chain email address</Form.Label>
                             <Form.Control
                                 type="email"
-                                value={chainAddress}
-                                placeholder='chainName@exmaple.com'
-                                onChange={e => setChainAddress(e.target.value)}
+                                value={chainEmail}
+                                placeholder='hotel@gmail.com'
+                                onChange={e => setChainEmail(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Chain phone number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={chainPhone}
+                                placeholder='6135005000'
+                                onChange={e => setChainPhone(e.target.value)}
                             />
                         </Form.Group>
                     </Form>
@@ -2441,6 +2631,24 @@ const Employee = ({loggedIn, signedInAcc}) => {
                                 value={hotelRating}
                                 placeholder='Ex: 5'
                                 onChange={e => setHotelRating(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel email address</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={hotelEmail}
+                                placeholder='hotel@gmail.com'
+                                onChange={e => setHotelEmail(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Hotel phone number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={hotelPhone}
+                                placeholder='6135005000'
+                                onChange={e => setHotelPhone(e.target.value)}
                             />
                         </Form.Group>
                     </Form>

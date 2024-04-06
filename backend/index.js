@@ -363,7 +363,7 @@ app.post('/phonenumbers', (req, res) => {
   });
 });
 
-app.delete('/phonenumbers/:id', (req, res) => {
+app.delete('/phonenumbers', (req, res) => {
   hotel_model.deletePhonenumber(req.body)
   .then(response => {
     res.status(200).send(response);
@@ -403,7 +403,7 @@ app.post('/emails', (req, res) => {
   });
 });
 
-app.delete('/emails/:id', (req, res) => {
+app.delete('/emails', (req, res) => {
   hotel_model.deleteEmail(req.body)
   .then(response => {
     res.status(200).send(response);

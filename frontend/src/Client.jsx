@@ -192,7 +192,7 @@ const Client = ({loggedIn, signedInAcc}) => {
     }
 
     function getEmails() {
-        fetch('http://localhost3001/emails')
+        fetch('http://localhost:3001/emails')
             .then(response => response.json())
             .then(data => {
                 setEmails(data);
@@ -201,9 +201,10 @@ const Client = ({loggedIn, signedInAcc}) => {
                 console.error('Error fetching emails:', error);
             });
     }
+    
 
     function getPhonenumbers() {
-        fetch('http://localhost3001/phonenumbers')
+        fetch('http://localhost:3001/phonenumbers')
             .then(response => response.json())
             .then(data => {
                 setPhonenumbers(data);
@@ -471,8 +472,6 @@ const Client = ({loggedIn, signedInAcc}) => {
                     </Button>*/}
                 </div>
                 <h1>Welcome client!</h1>
-                <Button onClick={getEmails}>get emails</Button>
-                {JSON.stringify(emailsSQL)}
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
@@ -611,27 +610,32 @@ const Client = ({loggedIn, signedInAcc}) => {
                 <Modal.Body>
                     <Card>
                         <Card.Body>
-                            {chainsSQL.map(chain => (
-                                <div key={chain.name}>
-                                    <Card.Text>
-                                        <h4 style={{ display: 'flex', alignItems: 'center' }}>
-                                            <strong>{chain.name}</strong>
-                                        </h4>
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Central Office Address:</strong> {chain.address}
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Nomber of Hotels:</strong> {chain.num_hotels}    
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Contact E-mail:</strong> email@example.com
-                                    </Card.Text>
-                                    <Card.Text style={{ marginBottom: '30px' }}>
-                                        <strong>Phone Number:</strong> (613)-123-3123
-                                    </Card.Text>
-                                </div>
-                            ))}
+                            {chainsSQL.map(chain => {
+                                const matchingEmail = emailsSQL.find(email => email.chain_name === chain.name);
+                                const matchingPhone = phonenumbersSQL.find(phone => phone.chain_name === chain.name);
+                                return (
+                                    <div key={chain.name}>
+                                        <Card.Text>
+                                            <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                                <strong>{chain.name}</strong>
+                                            </h4>
+                                        </Card.Text>
+                                        <Card.Text>
+                                            <strong>Central Office Address:</strong> {chain.address}
+                                        </Card.Text>
+                                        <Card.Text>
+                                            <strong>Number of Hotels:</strong> {hotelsSQL.filter(hotel =>
+                                                                                hotel.chain_name === chain.name).length}    
+                                        </Card.Text>
+                                        <Card.Text>
+                                            <strong>Contact E-mail:</strong> {matchingEmail ? matchingEmail.email : null}
+                                        </Card.Text>
+                                        <Card.Text style={{ marginBottom: '30px' }}>
+                                            <strong>Phone Number:</strong> {matchingPhone ? matchingPhone.phone_number : null}
+                                        </Card.Text>
+                                    </div>
+                                );
+                            })}
                         </Card.Body>
                     </Card>
                 </Modal.Body>
@@ -648,6 +652,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                         <Card.Body>
                             {hotelsSQL.map(hotel => {
                                 const matchingEmail = emailsSQL.find(email => email.hotel_id === hotel.id);
+                                const matchingPhone = phonenumbersSQL.find(phone => phone.hotel_id === hotel.id);
                                 return (
                                     <div key={hotel.id}>
                                         <Card.Text>
@@ -668,13 +673,14 @@ const Client = ({loggedIn, signedInAcc}) => {
                                             <strong>Address:</strong> {hotel.address}
                                         </Card.Text>
                                         <Card.Text>
-                                            <strong>Number of Rooms:</strong> 300
+                                            <strong>Number of Rooms:</strong> {roomsSQL.filter(room =>
+                                                                                room.hotel_id === hotel.id).length}
                                         </Card.Text>
                                         <Card.Text>
-                                            <strong>Contact E-mail:</strong> {matchingEmail ? matchingEmail : null}
+                                            <strong>Contact E-mail:</strong> {matchingEmail ? matchingEmail.email : null}
                                         </Card.Text>
                                         <Card.Text style={{ marginBottom: '30px' }}>
-                                            <strong>Phone Number:</strong> (613)-432-5436
+                                            <strong>Phone Number:</strong> {matchingPhone ? matchingPhone.phone_number : null}
                                         </Card.Text>
                                     </div>
                                 );
