@@ -34,7 +34,7 @@ CREATE TABLE hotels (
 
     address VARCHAR(255), 
 
-    chain_name VARCHAR(255) REFERENCES chains(name), 
+    chain_name VARCHAR(255) REFERENCES chains(name) ON DELETE SET NULL, 
 
     ratings int 
 
@@ -92,7 +92,7 @@ CREATE TABLE rooms (
 
     expanding bool, 
 
-    FOREIGN KEY (hotel_id) REFERENCES hotels(id) 
+    FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE 
 
 ); 
 
@@ -234,7 +234,7 @@ CREATE TABLE employees (
 
     hotel_id int, 
 
-    FOREIGN KEY (hotel_id) REFERENCES hotels(id) 
+    FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE 
 
 ); 
 
@@ -436,7 +436,7 @@ CREATE TABLE rentals (
 
     e_date DATE, 
 
-    PRIMARY KEY (client_sin, id_room), 
+    id SERIAL PRIMARY KEY, 
 
     FOREIGN KEY (client_sin) REFERENCES clients(sin) ON DELETE SET NULL, 
 
