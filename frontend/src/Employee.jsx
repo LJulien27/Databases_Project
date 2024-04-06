@@ -402,7 +402,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
             return response.text();
         })
         .then(data => {
-            alert(data);
             getReservations();
         });
     }
@@ -435,13 +434,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
-    const handleReserveToRental = () => {
-        let client_sin = parseInt(prompt('What is the clients sin'));
-        let id_room = parseInt(prompt('What is the room id'));
+    const handleReserveToRental = (client_sin, id_room) => {
         const reservation = reservationsSQL.find(reservation => reservation.client_sin === client_sin && reservation.id_room === id_room);
         createRental(reservation.client_sin, reservation.id_room, reservation.s_date, reservation.e_date);
         deleteReservation(client_sin, id_room);
-
     }
 
     const handleCloseMyAccountModal = () => setShowMyAccountModal(false);
@@ -459,12 +455,18 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const handleCloseRoomSettingsModal = () => setShowRoomSettingsModal(false);
     const handleShowRoomSettingsModal = () => setShowRoomSettingsModal(true);
     const handleCloseRoomModal = () => setShowRoomModal(false);
+    const [showReserveModal, setShowReserveModal] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
+    const [selectedReservation, setSelectedReservation] = useState(null);
     const handleShowRoomModal = (room) => {
         setSelectedRoom(room);
         setShowRoomModal(true);
     }
-    //const handleShowRoomModal = () => setShowRoomModal(true);
+    const handleShowReserveModal = (room, reserve) => {
+        setSelectedRoom(room);
+        setSelectedReservation(reserve);
+        setShowReserveModal(true);
+    }
     const handleCloseChainModal = () => setShowChainModal(false);
     const handleShowChainModal = () => setShowChainModal(true);
     const handleCloseReservationModal = () => setShowReservationModal(false);
@@ -1369,7 +1371,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
             </div>
             <div className="search-bar">
                 <h1>Welcome Employee!</h1>
-                <Button onClick={handleResetFilter}>Reset search</Button>
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
@@ -1473,7 +1474,6 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Button variant="primary" className="search-button" onClick={() => {handleSearchClick(capacitySize, checkInDate, checkOutDate);}} >Search</Button>
                 </InputGroup>
             </div>
-            <Button variant="success" className="positive-modal-button" onClick={handleReserveToRental}>Convert to rental</Button>
             <Modal show={showMyAccountModal} onHide={handleCloseMyAccountModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>My Account</Modal.Title>
@@ -2061,31 +2061,37 @@ const Employee = ({loggedIn, signedInAcc}) => {
             */}
             <h2>Reserved rooms</h2>
             <div className="room-container">
-            <div className="room-grid room-grid-flex">
-                {roomsSQL.filter(room => reservationsSQL.some(reservation => reservation.id_room === room.id)).map(room => 
-                    <Card style={{ width: '12.65rem' }}key={room.id} onClick={() => handleShowRoomModal(room)} className="room-card">
-                        <Card.Img
-                            className="room-image"
-                            variant="top"
-                            src="/src/images/hotelRoom.png"
-                            alt="Room Image"
-                        />
-                        <Card.Body>
-                            <Card.Title>{room.id}</Card.Title>
-                            <Card.Text>
-                                <strong>Price:</strong> ${room.price}/Night
-                            </Card.Text>
-                            <Card.Text>
-                                <strong>Capacity:</strong> {room.capacity} Persons
-                            </Card.Text>
+                <div className="room-grid room-grid-flex">
+                    {reservationsSQL.map((reservation) => {
+                        const resRoom = roomsSQL.find(room => room.id === reservation.id_room);
+                        return (
+                            <Card style={{ width: '12.65rem' }}key={resRoom.id} onClick={() => handleShowReserveModal(resRoom, reservation)} className="room-card">
+                                <Card.Img
+                                    className="room-image"
+                                    variant="top"
+                                    src="/src/images/hotelRoom.png"
+                                    alt="Room Image"
+                                />
+                                <Card.Body>
+                                    <Card.Title>{resRoom.id}</Card.Title>
+                                    <Card.Text>
+                                        <strong>Price:</strong> ${resRoom.price}/Night
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Capacity:</strong> {resRoom.capacity} Persons
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Client SIN:</strong> {reservation.client_sin}
+                                    </Card.Text>
 
-                            {/* Add more information as needed */}
-                        </Card.Body>
-                        {/* Additional buttons or actions */}
-                        {/* <Button variant="primary">View Details</Button> */}
-                    </Card>
-                )}
-            </div>
+                                    {/* Add more information as needed */}
+                                </Card.Body>
+                                {/* Additional buttons or actions */}
+                                {/* <Button variant="primary">View Details</Button> */}
+                            </Card>
+                        );
+                    })}
+                </div>
             </div>
 
             <Modal show={showRoomModal} onHide={handleCloseRoomModal}>
@@ -2137,7 +2143,70 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 <Modal.Footer>
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseRoomModal}>Close</Button>
                     <Button variant="primary" className="search-button" onClick={handlePayModal}>Make rental</Button>
-                    <Button variant="primary" className="positive-modal-button" onClick={handleNewRentalModal}>Rent</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showReserveModal} onHide={setShowReserveModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Reserve Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedRoom && (
+                        <div key={selectedRoom.id}>
+                            <p>
+                                <strong>Hotel:</strong>{' '}
+                                {(hotelsSQL.find(hotel => hotel.id === selectedRoom.hotel_id)).name}
+                            </p>
+                            <p>
+                                <strong>Room ID:</strong>{' '}
+                                {selectedRoom.id}
+                            </p>
+                            <p>
+                                <strong>Price:</strong>{' '}
+                                {"$" + selectedRoom.price + "/Night"}
+                            </p>
+                            <p>
+                                <strong>Capacity:</strong>{' '}
+                                {selectedRoom.capacity + " Persons"}
+                            </p>
+                            <p>
+                                <strong>View:</strong>{' '}
+                                {selectedRoom.view}
+                            </p>
+                            <p>
+                                <strong>Extent:</strong>{' '}
+                                {selectedRoom.expanding ? 'Yes' : 'No'}
+                            </p>
+                            <p>
+                                <strong>Problems:</strong>{' '}
+                                {selectedRoom.problems}
+                            </p>
+                            <p>
+                                <strong>Client SIN:</strong>{' '}
+                                {selectedReservation.client_sin}
+                            </p>
+                            <p>
+                                <strong>Check in date:</strong>{' '}
+                                {selectedReservation.s_date.slice(0,10)}
+                            </p>
+                            <p>
+                                <strong>Check out date:</strong>{' '}
+                                {selectedReservation.e_date.slice(0,10)}
+                            </p>
+                        </div>
+                    )}
+                    {/*commoditiesSQL.map(commoditie => (
+                        <div key={commoditie.id_room}>
+                            <p>
+                                <strong>Commodities:</strong>{' '}
+                                {commoditie.id_room}
+                            </p>
+                        </div>
+                    ))*/}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseRoomModal}>Close</Button>
+                    <Button variant="primary" className="search-button" onClick={() => handleReserveToRental(selectedReservation.client_sin, selectedReservation.id_room)}>Turn into rental</Button>
                 </Modal.Footer>
             </Modal>
 
