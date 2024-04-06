@@ -423,8 +423,8 @@ app.put("/emails/:id", (req, res) => {
     });
   });
 
-app.get("/history/:currentdate", (req, res) => {
-    hotel_model.getHistory(req.params.currentdate)
+  app.get("/history", (req, res) => {
+    hotel_model.getHistory(new Date().toLocaleDateString('en-CA'))
       .then((response) => {
         res.status(200).send(response);
       })

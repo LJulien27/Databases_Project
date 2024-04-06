@@ -19,6 +19,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [showClientSettingsModal, setShowClientSettingsModal] = useState(false);
     const [showEmployeeSettingsModal, setShowEmployeeSettingsModal] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [showChainSettingsModal, setShowChainSettingsModal] = useState(false);
     const [showHotelSettingsModal, setShowHotelSettingsModal] = useState(false);
     const [showRoomSettingsModal, setShowRoomSettingsModal] = useState(false);
@@ -53,6 +54,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const [commoditiesSQL, setCommodities] = useState([]);
     const [reservationsSQL, setReservations] = useState([]);
     const [rentalsSQL, setRentals] = useState([]);
+    const [historySQL, setHistory] = useState([]);
     const [emailsSQL, setEmails] = useState([]);
     const [phonenumbersSQL, setPhonenumbers] = useState([]);
 
@@ -89,6 +91,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
         getRentals();
         getEmails();
         getPhonenumbers();
+        getHistory();
     }, []);
 
     // Functions to fetch data
@@ -447,9 +450,19 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 return response.text();
             })
             .then(data => {
-                //alert(data);
                 getRentals();
             });
+    }
+
+    function getHistory() {
+        fetch('http://localhost:3001/history')
+            .then(response => response.json())
+            .then(data => {
+                setHistory(data);
+            })
+            .catch(error => {
+                console.error('Error fetching history:', error);
+            });   
     }
 
     function getEmails() {
@@ -552,6 +565,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
     const handleShowEmployeeSettingsModal = () => setShowEmployeeSettingsModal(true);
     const handleCloseSettingsModal = () => setShowSettingsModal(false);
     const handleShowSettingsModal = () => setShowSettingsModal(true);
+    const handleCloseHistoryModal = () => setShowHistoryModal(false);
+    const handleShowHistoryModal = () => setShowHistoryModal(true);
     const handleCloseChainSettingsModal = () => setShowChainSettingsModal(false);
     const handleShowChainSettingsModal = () => setShowChainSettingsModal(true);
     const handleCloseHotelSettingsModal = () => setShowHotelSettingsModal(false);
@@ -825,6 +840,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
 
     const handleSettingsClick = () => {
         handleShowSettingsModal();
+    };
+
+    const handleHistoryClick = () => {
+        handleShowHistoryModal();
     };
 
     const handleChainSettingsClick = () => {
@@ -1556,6 +1575,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 <div className="my-account-button">
                     <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
                     <Button variant="secondary" className="search-button" onClick={handleSettingsClick}>Settings</Button>
+                    <Button variant="secondary" className="search-button" onClick={handleHistoryClick}>View History</Button>
                 </div>
                 <h1>Welcome Employee!</h1>
                 <InputGroup className="mb-3">
@@ -2130,6 +2150,36 @@ const Employee = ({loggedIn, signedInAcc}) => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" className="negative-modal-button" onClick={handleCloseSettingsModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showHistoryModal} onHide={handleCloseHistoryModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>History</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                <Card>
+                        <Card.Body>
+                            {historySQL.map(history => (
+                                <div key={history}>
+                                    <Card.Text>
+                                        <strong>Room ID:</strong> {history.id_room}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Client:</strong> {history.client_sin}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Check In Date:</strong> {history.s_date.slice(0,10)}
+                                    </Card.Text>
+                                    <Card.Text>
+                                        <strong>Check Out Date:</strong> {history.e_date.slice(0,10)}
+                                    </Card.Text>
+                                </div>
+                            ))}
+                        </Card.Body>
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className="negative-modal-button" onClick={handleCloseHistoryModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
             <Modal show={showChainSettingsModal} onHide={handleCloseChainSettingsModal}>
