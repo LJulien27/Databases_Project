@@ -252,15 +252,15 @@ VALUES
 
   ('Elizabeth', 'Warren', 598649527, 'warburger11@yahoo.com', 'manager', 12), 
 
-  ('Milicent', 'Johannesburg', 68597541, 'millievanillie@gmail.com', 'executive manager', 10), 
+  ('Milicent', 'Johannesburg', 68597541, 'millievanillie@gmail.com', 'Admin', 10), 
 
   ('Chris', 'Milton', 96852157, 'milkman101@gmail.com', 'concierge', 4), 
 
   ('Stacey', 'Kitchener', 987521855, 'swiftie4lyfe@hotmail.com', 'manager', 6), 
 
-  ('Alan', 'Bankman', 999999777, 'bankman03@rogers.ca', 'executive manager', 2), 
+  ('Alan', 'Bankman', 999999777, 'bankman03@rogers.ca', 'Admin', 2), 
 
-  ('Balduran', 'Gate', 300231442, 'gateb02@gmail.com', 'executive manager', 5), 
+  ('Balduran', 'Gate', 300231442, 'gateb02@gmail.com', 'Admin', 5), 
 
   ('Dominique', 'Lavallee', 191970121, 'dl77@bell.net', 'manager', 3), 
 
@@ -272,7 +272,7 @@ VALUES
 
   ('Lance', 'Nielson', 582582825, 'bikesrfun@gmail.com', 'manager', 13), 
 
-  ('Sandra', 'Nixon', 693639798, 'nixon.sandra@hotmail.com', 'executive manager', 14), 
+  ('Sandra', 'Nixon', 693639798, 'nixon.sandra@hotmail.com', 'Admin', 14), 
 
   ('Daniel', 'Samson', 145643258, 'sanieldamson@bell.net', 'concierge', 5); 
 
