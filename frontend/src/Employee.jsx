@@ -388,6 +388,18 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
 
+    function deleteCommodities(id_room) {
+        fetch(`http://localhost:3001/commodities/${id_room}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            getRooms();
+        });
+    }
+
     function getReservations() {
         fetch('http://localhost:3001/reservations')
             .then(response => response.json())
@@ -1465,7 +1477,10 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setDeleteRoomErrorMsg('You cannot remove a room that doesnt exist');
             return;
         }
-        deleteRoom(deleteRoomId);
+        deleteCommodities(deleteRoomId);
+        setTimeout(() => {
+            deleteRoom(deleteRoomId);
+        }, 500);
         handleResetFilter();
         setShowDeleteRoomModal(false);
         setDeleteRoomErrorMsg('');
@@ -1634,11 +1649,11 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary" className="dropdown-button">{selectedArea}</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <CustomDropdownItem onClick={() => handleAreaClick("Area: 200 Square Ft")} isChecked={false}>200 Square Ft</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleAreaClick("Area: 300 Square Ft")} isChecked={false}>300 Square Ft</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleAreaClick("Area: 400 Square Ft")} isChecked={false}>400 Square Ft</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleAreaClick("Area: 500 Square Ft")} isChecked={false}>500 Square Ft</CustomDropdownItem>
-                            <CustomDropdownItem onClick={() => handleAreaClick("Area: 1000 Square Ft")} isChecked={false}>1000 Square Ft</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleAreaClick("Ontario")} isChecked={false}>Ontario</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleAreaClick("Quebec")} isChecked={false}>Quebec</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleAreaClick("British Columbia")} isChecked={false}>British Columbia</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleAreaClick("Newfoundland")} isChecked={false}>Newfoundland</CustomDropdownItem>
+                            <CustomDropdownItem onClick={() => handleAreaClick("Alberta")} isChecked={false}>Alberta</CustomDropdownItem>
                             <CustomDropdownItem onClick={() => handleAreaClick("Area: Any")} isChecked={false}>Any</CustomDropdownItem>
                         </Dropdown.Menu>
                     </Dropdown>
