@@ -212,13 +212,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
             });
     }
     
-    function createChain(name, address, num_hotels) {
+    function createChain(name, address) {
         fetch('http://localhost:3001/chains', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({name, address, num_hotels}),
+            body: JSON.stringify({name, address}),
         })
             .then(response => {
                 return response.text();
@@ -240,13 +240,13 @@ const Employee = ({loggedIn, signedInAcc}) => {
         });
     }
 
-    function updateChain(oldName, name, address, num_hotels) {
+    function updateChain(oldName, name, address) {
         fetch(`http://localhost:3001/chains/${oldName}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({oldName, name, address, num_hotels}),
+        body: JSON.stringify({oldName, name, address}),
         })
         .then(response => {
             return response.text();
@@ -1063,7 +1063,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setCreateChainErrorMsg('This address already exists');
             return;
         }
-        createChain(chainName, chainAddress, 10);
+        createChain(chainName, chainAddress);
         handleResetFilter();
         setShowCreateChainModal(false);
         setChainName('');
@@ -1118,7 +1118,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
             setUpdateChainInfoErrorMsg('Must address to an address not in list of addresses');
             return;
         }
-        updateChain(currentChain.name, updateChainName2, updateChainAddress, 10);
+        updateChain(currentChain.name, updateChainName2, updateChainAddress);
         setUpdateChainAddress('');
         setUpdateChainName2('');
         handleResetFilter();

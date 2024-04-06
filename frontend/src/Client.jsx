@@ -198,7 +198,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                 setEmails(data);
             })
             .catch(error => {
-                console.error('Error fetching rentals:', error);
+                console.error('Error fetching emails:', error);
             });
     }
 
@@ -209,7 +209,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                 setPhonenumbers(data);
             })
             .catch(error => {
-                console.error('Error fetching rentals:', error);
+                console.error('Error fetching phonenumbers:', error);
             });
     }
 
@@ -471,6 +471,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                     </Button>*/}
                 </div>
                 <h1>Welcome client!</h1>
+                <Button onClick={getEmails}>get emails</Button>
                 {JSON.stringify(emailsSQL)}
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>

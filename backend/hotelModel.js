@@ -190,8 +190,8 @@ const getHotels = async () => {
     return new Promise(function (resolve, reject) {
       const { name, address, num_hotels } = body;
       pool.query(
-        "INSERT INTO chains (name, address, num_hotels) VALUES ($1, $2, $3) RETURNING *",
-        [name, address, num_hotels],
+        "INSERT INTO chains (name, address) VALUES ($1, $2) RETURNING *",
+        [name, address],
         (error, results) => {
           if (error) {
             reject(error);
@@ -229,8 +229,8 @@ const getHotels = async () => {
     return new Promise(function (resolve, reject) {
       const { oldName, name, address, num_hotels } = body;
       pool.query(
-        "UPDATE chains SET name = $2, address = $3, num_hotels = $4 WHERE name = $1 RETURNING *",
-        [oldName, name, address, num_hotels],
+        "UPDATE chains SET name = $2, address = $3 WHERE name = $1 RETURNING *",
+        [oldName, name, address],
         (error, results) => {
           if (error) {
             reject(error);
