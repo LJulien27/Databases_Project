@@ -48,6 +48,8 @@ const Client = ({loggedIn, signedInAcc}) => {
     const [commoditiesSQL, setCommodities] = useState([]);
     const [reservationsSQL, setReservations] = useState([]);
     const [rentalsSQL, setRentals] = useState([]);
+    const [emailsSQL, setEmails] = useState([]);
+    const [phonenumbersSQL, setPhonenumbers] = useState([]);
 
 
     const [capacitySize, setCapacitySize] = useState(0);
@@ -83,6 +85,8 @@ const Client = ({loggedIn, signedInAcc}) => {
         getCommodities();
         getReservations();
         getRentals();
+        getEmails();
+        getPhonenumbers();
     }, []);
 
     // Functions to fetch data
@@ -181,6 +185,28 @@ const Client = ({loggedIn, signedInAcc}) => {
             .then(response => response.json())
             .then(data => {
                 setRentals(data);
+            })
+            .catch(error => {
+                console.error('Error fetching rentals:', error);
+            });
+    }
+
+    function getEmails() {
+        fetch('http://localhost3001/emails')
+            .then(response => response.json())
+            .then(data => {
+                setEmails(data);
+            })
+            .catch(error => {
+                console.error('Error fetching rentals:', error);
+            });
+    }
+
+    function getPhonenumbers() {
+        fetch('http://localhost3001/phonenumbers')
+            .then(response => response.json())
+            .then(data => {
+                setPhonenumbers(data);
             })
             .catch(error => {
                 console.error('Error fetching rentals:', error);
@@ -423,26 +449,29 @@ const Client = ({loggedIn, signedInAcc}) => {
         }
     }
 
+    /*
     if (loggedIn !== 1){
         return (
             <div>
                 Return to login page you are not logged in as a client
             </div>
-            )
-        }
+            );
+    }
+        */
 
     return (
         <div>
-            <div className="my-account-button">
-            <Button variant="secondary" className="search-button" onClick={handleShowChainModal}>View Chains</Button>
-            <Button variant="secondary" className="positive-modal-button" onClick={handleShowHotelModal}>View Hotels</Button>
-                <Button variant="secondary" className="dropdown-button" onClick={handleMyAccountClick}>My Account</Button>
-                {/*  <Button variant="secondary" onClick={toggleDarkMode}>
-                    {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </Button>*/}
-            </div>
             <div className="search-bar">
+                <div className="my-account-button">
+                    <Button variant="secondary" className="search-button" onClick={handleShowChainModal}>View Chains</Button>
+                    <Button variant="secondary" className="positive-modal-button" onClick={handleShowHotelModal}>View Hotels</Button>
+                    <Button variant="secondary" className="dropdown-button" onClick={handleMyAccountClick}>My Account</Button>
+                    {/*  <Button variant="secondary" onClick={toggleDarkMode}>
+                        {darkMode ? 'Light Mode' : 'Dark Mode'}
+                    </Button>*/}
+                </div>
                 <h1>Welcome client!</h1>
+                {JSON.stringify(emailsSQL)}
                 <InputGroup className="mb-3">
                     <Dropdown as={InputGroup.Append}>
                         <Dropdown.Toggle variant="secondary" className="dropdown-button">Select chains</Dropdown.Toggle>
@@ -589,7 +618,7 @@ const Client = ({loggedIn, signedInAcc}) => {
                                         </h4>
                                     </Card.Text>
                                     <Card.Text>
-                                        <strong>Central Office Address:</strong> {chain.addres}
+                                        <strong>Central Office Address:</strong> {chain.address}
                                     </Card.Text>
                                     <Card.Text>
                                         <strong>Nomber of Hotels:</strong> {chain.num_hotels}    
@@ -616,36 +645,39 @@ const Client = ({loggedIn, signedInAcc}) => {
                 <Modal.Body>
                     <Card>
                         <Card.Body>
-                            {hotelsSQL.map(hotel => (
-                                <div key={hotel.id}>
-                                    <Card.Text>
-                                        <h4 style={{ display: 'flex', alignItems: 'center' }}>
-                                            <strong>{hotel.name}</strong>
-                                            <span style={{ marginLeft: 'auto', marginTop: '3px' }}>
-                                                <Rating name="read-only" value={hotel.ratings} readOnly />
-                                            </span>
-                                        </h4>
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Hotel ID:</strong> {hotel.id}
-                                    </Card.Text>
-                                    <Card.Text>
-                                    <strong>Associated Chain:</strong> {hotel.chain_name}
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Address:</strong> {hotel.address}
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Number of Rooms:</strong> 300
-                                    </Card.Text>
-                                    <Card.Text>
-                                        <strong>Contact E-mail:</strong> email@example.com
-                                    </Card.Text>
-                                    <Card.Text style={{ marginBottom: '30px' }}>
-                                        <strong>Phone Number:</strong> (613)-432-5436
-                                    </Card.Text>
-                                </div>
-                            ))}
+                            {hotelsSQL.map(hotel => {
+                                const matchingEmail = emailsSQL.find(email => email.hotel_id === hotel.id);
+                                return (
+                                    <div key={hotel.id}>
+                                        <Card.Text>
+                                            <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                                <strong>{hotel.name}</strong>
+                                                <span style={{ marginLeft: 'auto', marginTop: '3px' }}>
+                                                    <Rating name="read-only" value={hotel.ratings} readOnly />
+                                                </span>
+                                            </h4>
+                                        </Card.Text>
+                                        <Card.Text>
+                                            <strong>Hotel ID:</strong> {hotel.id}
+                                        </Card.Text>
+                                        <Card.Text>
+                                        <strong>Associated Chain:</strong> {hotel.chain_name}
+                                        </Card.Text>
+                                        <Card.Text>
+                                            <strong>Address:</strong> {hotel.address}
+                                        </Card.Text>
+                                        <Card.Text>
+                                            <strong>Number of Rooms:</strong> 300
+                                        </Card.Text>
+                                        <Card.Text>
+                                            <strong>Contact E-mail:</strong> {matchingEmail ? matchingEmail : null}
+                                        </Card.Text>
+                                        <Card.Text style={{ marginBottom: '30px' }}>
+                                            <strong>Phone Number:</strong> (613)-432-5436
+                                        </Card.Text>
+                                    </div>
+                                );
+                            })}
                         </Card.Body>
                     </Card>
                 </Modal.Body>
