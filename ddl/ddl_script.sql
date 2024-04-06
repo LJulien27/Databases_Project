@@ -292,7 +292,7 @@ CREATE TABLE commodities (
 
     laundry bool, 
 
-    FOREIGN KEY (id_room) REFERENCES rooms(id) 
+    FOREIGN KEY (id_room) REFERENCES rooms(id) ON DELETE CASCADE 
 
 ); 
 
@@ -386,9 +386,9 @@ CREATE TABLE reservations (
 
     PRIMARY KEY (client_sin, id_room), 
 
-    FOREIGN KEY (client_sin) REFERENCES clients(sin), 
+    FOREIGN KEY (client_sin) REFERENCES clients(sin) ON DELETE CASCADE, 
 
-    FOREIGN KEY (id_room) REFERENCES rooms(id) 
+    FOREIGN KEY (id_room) REFERENCES rooms(id) ON DELETE CASCADE 
 
 ); 
 
@@ -438,9 +438,9 @@ CREATE TABLE rentals (
 
     PRIMARY KEY (client_sin, id_room), 
 
-    FOREIGN KEY (client_sin) REFERENCES clients(sin), 
+    FOREIGN KEY (client_sin) REFERENCES clients(sin) ON DELETE SET NULL, 
 
-    FOREIGN KEY (id_room) REFERENCES rooms(id) 
+    FOREIGN KEY (id_room) REFERENCES rooms(id) ON DELETE SET NULL 
 
 ); 
 
@@ -508,9 +508,9 @@ CREATE TABLE mailbank (
 
     hotel_id INT, 
 
-    FOREIGN KEY (chain_name) REFERENCES chains(name), 
+    FOREIGN KEY (chain_name) REFERENCES chains(name) ON DELETE CASCADE, 
 
-    FOREIGN KEY (hotel_id) REFERENCES hotels(id) 
+    FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE 
 
 ); 
 
@@ -568,9 +568,9 @@ CREATE TABLE phonebank (
 
     hotel_id INT, 
 
-    FOREIGN KEY (chain_name) REFERENCES chains(name), 
+    FOREIGN KEY (chain_name) REFERENCES chains(name) ON DELETE CASCADE, 
 
-    FOREIGN KEY (hotel_id) REFERENCES hotels(id) 
+    FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE 
 
 ); 
 
@@ -617,7 +617,3 @@ VALUES
   ('808-404-5555', null, 13 ), 
 
   ('743-781-9081', null, 14 ); 
-
- 
-
- 
