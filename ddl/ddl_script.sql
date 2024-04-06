@@ -46,33 +46,33 @@ INSERT INTO hotels
 
 VALUES 
 
-  (1, 'Hilton Ottawa', '1210 Matheson Rd', 'Hilton', 5),  
+  ('Hilton Ottawa', '1210 Matheson Rd', 'Hilton', 5),  
 
-  (2, 'Hilton Kanata', '1102 Eaglewood Blvd', 'Hilton', 4), 
+  ('Hilton Kanata', '1102 Eaglewood Blvd', 'Hilton', 4), 
 
-  (3, 'Holiday Inn St-Laurent', '1245 St-Laurent Blvd', 'Holiday Inn', 3), 
+  ('Holiday Inn St-Laurent', '1245 St-Laurent Blvd', 'Holiday Inn', 3), 
 
-  (4, 'Mariott Rideau', '506 Rideau Rd', 'Mariott', 5), 
+  ('Mariott Rideau', '506 Rideau Rd', 'Mariott', 5), 
 
-  (5, 'Hilton Kingston', '140 Waverley St', 'Hilton', 4), 
+  ('Hilton Kingston', '140 Waverley St', 'Hilton', 4), 
 
-  (6, 'Hilton Montreal', '1200 St-Catherine St', 'Hilton', 5), 
+  ('Hilton Montreal', '1200 St-Catherine St', 'Hilton', 5), 
 
-  (7, 'Hilton Revelstoke', '405 Camozzi Rd', 'Hilton', 5), 
+  ('Hilton Revelstoke', '405 Camozzi Rd', 'Hilton', 5), 
 
-  (8, 'The Krusty Towers', '15 Fishhook Ln', 'Odyssey', 2), 
+  ('The Krusty Towers', '15 Fishhook Ln', 'Odyssey', 2), 
 
-  (9, 'Mariott Sunnyvale', '100 Oceanside Dr', 'Mariott', 5), 
+  ('Mariott Sunnyvale', '100 Oceanside Dr', 'Mariott', 5), 
 
-  (10, 'Mariott Sicily', '118 Roma St', 'Mariott', 3), 
+  ('Mariott Sicily', '118 Roma St', 'Mariott', 3), 
 
-  (11, 'Holiday Inn Peterborough', '120 Mark St', 'Holiday Inn', 1), 
+  ('Holiday Inn Peterborough', '120 Mark St', 'Holiday Inn', 1), 
 
-  (12, 'Holiday Inn Bells Corners', '14 Westcliff Rd', 'Holiday Inn', 4), 
+  ('Holiday Inn Bells Corners', '14 Westcliff Rd', 'Holiday Inn', 4), 
 
-  (13, 'Holiday Inn Rockland', 'St-Joseph St', 'Holiday Inn', 3), 
+  ('Holiday Inn Rockland', 'St-Joseph St', 'Holiday Inn', 3), 
 
-  (14, 'The Kingly Suites', '44 Riverside Dr', 'Odyssey', 5); 
+  ('The Kingly Suites', '44 Riverside Dr', 'Odyssey', 5); 
 
  
 

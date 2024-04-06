@@ -2157,8 +2157,8 @@ const Employee = ({loggedIn, signedInAcc}) => {
                     <Modal.Title>History</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                <Card>
-                        <Card.Body>
+                <Card className='mb-3'>
+                        <Card.Body className='mb-3'>
                             {historySQL.map(history => (
                                 <div key={history}>
                                     <Card.Text>
@@ -2170,7 +2170,7 @@ const Employee = ({loggedIn, signedInAcc}) => {
                                     <Card.Text>
                                         <strong>Check In Date:</strong> {history.s_date.slice(0,10)}
                                     </Card.Text>
-                                    <Card.Text>
+                                    <Card.Text className='mb-3'>
                                         <strong>Check Out Date:</strong> {history.e_date.slice(0,10)}
                                     </Card.Text>
                                 </div>

@@ -892,5 +892,6 @@ const getHotels = async () => {
     getEmails,
     createEmail,
     deleteEmail,
-    updateEmail
+    updateEmail,
+    getHistory
   };
