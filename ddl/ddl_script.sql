@@ -192,7 +192,9 @@ CREATE TABLE clients (
 
     address VARCHAR(255), 
 
-    r_date DATE 
+    r_date DATE,
+    
+    password VARCHAR(255)
 
 ); 
 
@@ -200,21 +202,21 @@ CREATE TABLE clients (
 
 INSERT INTO clients 
 
-  (f_name, l_name, sin, address, r_date) 
+  (f_name, l_name, sin, address, r_date, password) 
 
 VALUES  
 
-  ('John', 'Doe', 123456789, 'john.doe@gmail.com', '2003-04-01'), 
+  ('John', 'Doe', 123456789, 'john.doe@gmail.com', '2003-04-01', 'password'), 
 
-  ('Jane', 'Smith', 987654321, 'jane.smith@rogers.ca', '2005-06-15'), 
+  ('Jane', 'Smith', 987654321, 'jane.smith@rogers.ca', '2005-06-15', 'password'), 
 
-  ('Bob', 'Johnson', 456123789, 'mrjohnson48@hotmail.com', '2010-12-20'), 
+  ('Bob', 'Johnson', 456123789, 'mrjohnson48@hotmail.com', '2010-12-20', 'password'), 
 
-  ('Alice', 'Williams', 321789456, 'willsa22@gmail.com', '2015-07-30'), 
+  ('Alice', 'Williams', 321789456, 'willsa22@gmail.com', '2015-07-30', 'password'), 
 
-  ('Charlie', 'Brown', 654321987, 'browntown36@michael.net', '2020-09-10'), 
+  ('Charlie', 'Brown', 654321987, 'browntown36@michael.net', '2020-09-10', 'password'), 
 
-  ('Cindy', 'Lauper', 123789456, 'lauperc@gmail.com', '2020-10-10'); 
+  ('Cindy', 'Lauper', 123789456, 'lauperc@gmail.com', '2020-10-10', 'password'); 
 
  
 
@@ -234,6 +236,8 @@ CREATE TABLE employees (
 
     hotel_id int, 
 
+    password VARCHAR(255),
+
     FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE 
 
 ); 
@@ -242,39 +246,39 @@ CREATE TABLE employees (
 
 INSERT INTO employees 
 
-  (f_name, l_name, sin, address, role, hotel_id) 
+  (f_name, l_name, sin, address, role, hotel_id, password) 
 
 VALUES  
 
-  ('Jason', 'Alexander', 133446383, 'alexj@hotmail.com', 'concierge', 1), 
+  ('Jason', 'Alexander', 133446383, 'alexj@hotmail.com', 'concierge', 1, 'password'), 
 
-  ('Jon', 'Snow', 551161864, 'snowman43@gmail.com', 'room service', 11), 
+  ('Jon', 'Snow', 551161864, 'snowman43@gmail.com', 'room service', 11, 'password'), 
 
-  ('Elizabeth', 'Warren', 598649527, 'warburger11@yahoo.com', 'manager', 12), 
+  ('Elizabeth', 'Warren', 598649527, 'warburger11@yahoo.com', 'manager', 12, 'password'), 
 
-  ('Milicent', 'Johannesburg', 68597541, 'millievanillie@gmail.com', 'Admin', 10), 
+  ('Milicent', 'Johannesburg', 68597541, 'millievanillie@gmail.com', 'Admin', 10, 'password'), 
 
-  ('Chris', 'Milton', 96852157, 'milkman101@gmail.com', 'concierge', 4), 
+  ('Chris', 'Milton', 96852157, 'milkman101@gmail.com', 'concierge', 4, 'password'), 
 
-  ('Stacey', 'Kitchener', 987521855, 'swiftie4lyfe@hotmail.com', 'manager', 6), 
+  ('Stacey', 'Kitchener', 987521855, 'swiftie4lyfe@hotmail.com', 'manager', 6, 'password'), 
 
-  ('Alan', 'Bankman', 999999777, 'bankman03@rogers.ca', 'Admin', 2), 
+  ('Alan', 'Bankman', 999999777, 'bankman03@rogers.ca', 'Admin', 2, 'password'), 
 
-  ('Balduran', 'Gate', 300231442, 'gateb02@gmail.com', 'Admin', 5), 
+  ('Balduran', 'Gate', 300231442, 'gateb02@gmail.com', 'Admin', 5, 'password'), 
 
-  ('Dominique', 'Lavallee', 191970121, 'dl77@bell.net', 'manager', 3), 
+  ('Dominique', 'Lavallee', 191970121, 'dl77@bell.net', 'manager', 3, 'password'), 
 
-  ('Alex', 'Caruso', 916817363, 'carushow06@yahoo.com', 'concierge', 8), 
+  ('Alex', 'Caruso', 916817363, 'carushow06@yahoo.com', 'concierge', 8, 'password'), 
 
-  ('Chris', 'Stapleton', 111111111, 'staples.chris@real.tv', 'room service', 9), 
+  ('Chris', 'Stapleton', 111111111, 'staples.chris@real.tv', 'room service', 9, 'password'), 
 
-  ('Connie', 'Saperstein', 794566856, 'yes4connie@gmail.com', 'room service', 7), 
+  ('Connie', 'Saperstein', 794566856, 'yes4connie@gmail.com', 'room service', 7, 'password'), 
 
-  ('Lance', 'Nielson', 582582825, 'bikesrfun@gmail.com', 'manager', 13), 
+  ('Lance', 'Nielson', 582582825, 'bikesrfun@gmail.com', 'manager', 13, 'password'), 
 
-  ('Sandra', 'Nixon', 693639798, 'nixon.sandra@hotmail.com', 'Admin', 14), 
+  ('Sandra', 'Nixon', 693639798, 'nixon.sandra@hotmail.com', 'Admin', 14, 'password'), 
 
-  ('Daniel', 'Samson', 145643258, 'sanieldamson@bell.net', 'concierge', 5); 
+  ('Daniel', 'Samson', 145643258, 'sanieldamson@bell.net', 'concierge', 5, 'password'); 
 
  
 
