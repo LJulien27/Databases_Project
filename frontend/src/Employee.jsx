@@ -13,8 +13,8 @@ function CustomDropdownItem({ children, onClick, isSelected }) {
         </Dropdown.Item>
     );
 }
-
-const Employee = ({loggedIn, signedInAcc}) => {
+//const Employee = ({loggedIn, signedInAcc}) => {
+const Employee = ({signedInAcc}) => {
     const [showMyAccountModal, setShowMyAccountModal] = useState(false);
     const [showClientSettingsModal, setShowClientSettingsModal] = useState(false);
     const [showEmployeeSettingsModal, setShowEmployeeSettingsModal] = useState(false);
@@ -1569,14 +1569,20 @@ const Employee = ({loggedIn, signedInAcc}) => {
         setShowUpdateRoomInfoModal(false);
     }
 
-    
+    if (!signedInAcc || !signedInAcc.hasOwnProperty('role')) {
+        return <h1>You can't access this page without being signed in</h1>;
+    }
 
     return (
         <div>
             <div className="search-bar">
                 <div className="my-account-button">
                     <Button variant="secondary" className="search-button" onClick={handleMyAccountClick}>My Account</Button>
-                    <Button variant="secondary" className="search-button" onClick={handleSettingsClick}>Settings</Button>
+                    {signedInAcc.role === 'Admin' ? (
+                        <Button variant="secondary" className="search-button" onClick={handleSettingsClick}>
+                            Settings
+                        </Button>
+                    ): ''}
                     <Button variant="secondary" className="search-button" onClick={handleHistoryClick}>View History</Button>
                 </div>
                 <h1>Welcome Employee!</h1>
