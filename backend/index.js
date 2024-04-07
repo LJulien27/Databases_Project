@@ -424,7 +424,8 @@ app.put("/emails/:id", (req, res) => {
   });
 
   app.get("/history", (req, res) => {
-    hotel_model.getHistory('2024-04-06')
+    const date = new Date().toLocaleDateString('en-CA');
+    hotel_model.getHistory(date.toISOString().split('T')[0])
       .then((response) => {
         res.status(200).send(response);
       })
